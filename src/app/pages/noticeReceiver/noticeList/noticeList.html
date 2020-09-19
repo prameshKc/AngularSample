@@ -1,0 +1,161 @@
+﻿
+<div class="panel-body tabs">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#receiveList" data-toggle="tab" (click)="goToReceivedNotice()">Received Notice</a></li>
+        <li><a href="#receiveList" data-toggle="tab" (click)="goToSendNotice()">Sent Notice</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade in active" id="receiveList">
+            <div class="panel panel-default panel-table">
+                <div class="panel-body">
+                    <table class="table table-bordered table-hover table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Notice
+                                </th>
+                                <th>
+                                    Date
+                                </th>
+                                <th *ngIf="sent==true">Message Sent To:</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="showNotice.length>0">
+                            <tr class="changePointer" *ngFor="let item of showNotice">
+                                <td (click)="openNoticeModal(item.NoticeId)">
+                                    {{item.Subject}}
+                                </td>
+                                <td>
+                                    <date-view [inputDate]="item.PostedOn"></date-view>
+                                </td>
+                                <td *ngIf="sent==true">
+                                    <button type="button" class="btn btn-xs btn-info" (click)="getNotifiedStaff(item.NoticeId)"><i class="glyphicon glyphicon-info-sign"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="showNotice.length==0">
+                            <tr *ngIf="sent==false">
+                                <td class="text-warning" colspan="2">
+                                    No Items Available
+                                </td>
+                            </tr>
+                            <tr *ngIf="sent==true">
+                                <td class="text-warning" colspan="3">
+                                    No Items Available
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                    <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div bsModal #NoticeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="selectedModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Notice Related To: {{InputNotice.Subject}} </strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px; min-height: 40vh;">
+                <!--<div class="msg"></div>-->
+                <div [innerHTML]="InputNotice.Body"></div>
+                <!--<div id="flashContent">
+                    <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="550" height="400" id="Untitled-1" align="middle">
+                        <param name="movie" value="../../../assets/notice.swf" />
+                        <param name="quality" value="high" />
+                        <param name="bgcolor" value="#ffffff" />
+                        <param name="play" value="true" />
+                        <param name="loop" value="true" />
+                        <param name="wmode" value="window" />
+                        <param name="scale" value="showall" />
+                        <param name="menu" value="true" />
+                        <param name="devicefont" value="false" />
+                        <param name="salign" value="" />
+                        <param name="allowScriptAccess" value="sameDomain" />
+                        <object type="application/x-shockwave-flash" data="../../../assets/notice.swf" width="100%" height="100%">
+                            <param name="movie" value="../../../assets/notice.swf" />
+                            <param name="quality" value="high" />
+                            <param name="bgcolor" value="#ffffff" />
+                            <param name="play" value="true" />
+                            <param name="loop" value="true" />
+                            <param name="wmode" value="window" />
+                            <param name="scale" value="showall" />
+                            <param name="menu" value="true" />
+                            <param name="devicefont" value="false" />
+                            <param name="salign" value="" />
+                            <param name="allowScriptAccess" value="sameDomain" />
+                            <a href="http://www.adobe.com/go/getflash">
+                                <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+                            </a>
+                        </object>
+                    </object>
+                </div>-->
+            </div>
+        </div>
+    </div>
+</div>
+<div bsModal #NotifyToModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="selectedModalLoad">
+        <div class="modal-content" *ngIf="showAllEmployee==false">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideNotifyToModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Notified To</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <table class="table table-bordered table-hover table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Employee No</th>
+                            <th>Employee Name</th>
+                        </tr>
+                    </thead>
+                    <tbody *ngIf="notifyList.length>0">
+                        <tr *ngFor="let item of notifyList">
+                            <td>{{item.Employee.EmployeeNo}}</td>
+                            <td>{{item.Employee.FirstName}} {{item.Employee.MiddleName}} {{item.Employee.LastName}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <app-pagination [PaginationSetting]="paginationForNotifyTo" (setPagination)="onPageSelect2($event)" *ngIf="paginationForNotifyTo"></app-pagination>
+            </div>
+        </div>
+        <div class="modal-content" *ngIf="showAllEmployee==true">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideNotifyToModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Notified To All Staff</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <table class="table table-bordered table-hover table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Employee No</th>
+                            <th>Employee Name</th>
+                        </tr>
+                    </thead>
+                    <tbody *ngIf="employeeList.length>0">
+                        <tr *ngFor="let item of employeeList">
+                            <td>{{item.EmployeeNo}}</td>
+                            <td>{{item.EmployeeName}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <app-pagination [PaginationSetting]="paginationForEmpList" (setPagination)="onPageSelect3($event)" *ngIf="paginationForEmpList"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>

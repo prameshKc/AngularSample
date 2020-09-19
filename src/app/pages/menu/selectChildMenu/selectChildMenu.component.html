@@ -1,0 +1,12 @@
+﻿<ul style="list-style:none;white-space:nowrap; padding-left: 6px; border-left: 1px solid #333;">
+    <li *ngFor="let menuListItem of menuListObj">
+        <div *ngIf="menuListItem.IsGroup == true">
+            <!--<a (click)="menuListItem.isOpen = !menuListItem.isOpen" [ngClass]="{'glyphicon-plus': !menuListItem.isOpen, 'glyphicon-minus':menuListItem.isOpen}" class="glyphicon" style="color:#333; font-size: smaller;"></a>-->
+            <input id="{{menuListItem.MenuId}}" name="ParentId" type="radio" [checked]="menuListItem.isSelected" (click)="filterSelected(menuListItem)" />
+            <label for="{{menuListItem.MenuId}}">
+                {{menuListItem.MenuCaption}}
+            </label>
+            <selectChildMenu [menuListObj]='menuListItem.ChildMenu' (returnMenuList)="filterSelected($event);"></selectChildMenu>
+        </div>
+    </li>
+</ul>

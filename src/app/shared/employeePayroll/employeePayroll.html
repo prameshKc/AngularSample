@@ -1,0 +1,297 @@
+﻿<div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4>
+                        Employee {{ AM == 6 ? 'Incentives' : 'Expenses' }} <b *ngIf="hrmLedgerList.length > 0">[{{getHRMLedger(pagination.SortBy)}}]</b> :
+
+
+                        <button class="btn btn-success btn-sm" (click)="openModal()">
+                            Add New
+                        </button>
+
+                        <button class="btn btn-success btn-sm" (click)="openImportModal()">
+                            Import
+                        </button>
+                    </h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                    <label>
+                        Employee Name
+                    </label>
+                    <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                </div>
+                <div class="col-lg-6">
+                    <label>
+                        Transaction Period
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <div class="form-control">
+                            <date-view [inputDate]="filterFromDate" *ngIf="filterFromDate != null"></date-view>
+                            <strong *ngIf="filterFromDate && filterToDate"> &harr; </strong>
+                            <date-view [inputDate]="filterToDate" *ngIf="filterToDate != null"></date-view>
+                        </div>
+
+                        <span class="input-group-addon btn-default" (click)="openRangeCalendar = !openRangeCalendar">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
+                    <div [hidden]="!openRangeCalendar" class="dropdown">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label>
+                                    Transaction From
+                                </label>
+                                <chaNepaliDatePicker id="filterFromDate" [(inputDate)]="filterFromDate" [inputDatePickerOptions]="fromDateOptions" (selectedDate)='onFilterDateSelect($event, "F")' *ngIf="filterFromDate != null && defaultDateOptions"></chaNepaliDatePicker>
+                            </div>
+                            <div class="col-lg-6">
+                                <label>
+                                    Transaction Till
+                                </label>
+                                <chaNepaliDatePicker id="filterToDate" [(inputDate)]="filterToDate" [inputDatePickerOptions]="tillDateOptions" (selectedDate)='onFilterDateSelect($event, "T")' *ngIf="filterToDate != null && defaultDateOptions"></chaNepaliDatePicker>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-12 text-center">
+                                <button class="btn btn-sm btn-default" (click)="getAllSupervisorEmployees()">
+                                    Apply Filter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <label>
+                        Ledger Type
+                    </label>
+                    <select class="form-control input-sm" [(ngModel)]="pagination.SortBy" (ngModelChange)="toggleSortBy()">
+                        <option *ngFor="let item of hrmLedgerList" value="{{item.ALId}}">
+                            {{item.ALDesc}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <hr style="border:1px solid #5cb85c;" />
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-responsive table-bordered table-striped table-hover">
+                        <thead>
+                            <tr class="row">
+                                <th class="col-lg-1">Emp No.</th>
+                                <th class="col-lg-3">Name</th>
+                                <th class="col-lg-3">Transaction Date</th>
+                                <th class="col-lg-2">Amount</th>
+                                <th class="col-lg-3">Remarks</th>
+                                <th class="col-lg-1">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="row" *ngFor="let employee of employeeList">
+                                <td class="col-lg-1">{{employee.EmployeeNo}}</td>
+                                <td class="col-lg-3">{{employee.EmployeeName}}</td>
+                                <td class="col-lg-3">
+                                    <date-view [inputDate]="employee.TDate" *ngIf="employee.TDate != null"></date-view>
+                                    <span *ngIf="employee.TDate == null">-</span>
+                                </td>
+                                <td class="col-lg-2 text-right">
+                                    {{employee.Amount | NPRCurrency}}
+                                </td>
+                                <td class="col-lg-3">
+                                    {{employee.Rmrks}}
+                                </td>
+                                <td class="col-lg-1">
+                                    <button class="btn btn-xs btn-info" (click)="openEditModal(employee)" *ngIf="employee.TId1 == null">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-xs btn-info disabled" *ngIf="employee.TId1 != null">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+        </div>
+    </div>
+</div>
+
+
+<div bsModal #newIncentivesModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+                <h5>
+                    <strong>Add New Employee Incentive</strong>
+                </h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="EmployeeName">Employee Name:</label>
+                            <div class="col-sm-8">
+                                <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployeeForm($event)" *ngIf="InputHRIncentive.Id == null"></employee-search>
+                                <span class="form-control input-sm" *ngIf="InputHRIncentive.Id != null">
+                                    <employee-name [employeeId]="InputHRIncentive.StaffId"></employee-name>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="TDate">Transaction Date:</label>
+                            <div class="col-sm-8">
+                                <chaNepaliDatePicker id="TDate" [inputDate]="inputDate" [inputDatePickerOptions]="defaultDateOptions" (selectedDate)='onTDateSelect($event)' *ngIf="inputDate && defaultDateOptions"></chaNepaliDatePicker>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="AlId">Allowance Type:</label>
+                            <div class="col-sm-8">
+                                <select id="ALId" required class="form-control" [(ngModel)]="InputHRIncentive.ALId" name="ALId" #ALId="ngModel">
+                                    <option value="{{item.ALId}}" *ngFor="let item of hrmLedgerList">{{item.ALDesc}}</option>
+                                </select>
+                                <div *ngIf="ALId.errors && (ALId.dirty || ALId.touched)" class="alert alert-danger">
+                                    <div [hidden]="!ALId.errors.required">
+                                        Please Select Allowance Type !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="Amount">Amount:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="Amount" placeholder="Enter Amount" required [(ngModel)]="InputHRIncentive.Amount" (ngModelChange)="checkMoney(InputHRIncentive.Amount,1)" name="Amount" #Amount="ngModel" />
+                                <div *ngIf="Amount.errors && (Amount.dirty || Amount.touched)" class="alert alert-danger">
+                                    <div [hidden]="!Amount.errors.required">
+                                        Amount is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="validAmount" class="alert alert-danger">
+                                    Insert Money Value Eg:457.75!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="Amount">Remarks:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="Rmrks" placeholder="Enter Remarks" required [(ngModel)]="InputHRIncentive.Rmrks" name="Rmrks" #Rmrks="ngModel" />
+                                <div *ngIf="Rmrks.errors && (Rmrks.dirty || Rmrks.touched)" class="alert alert-danger">
+                                    <div [hidden]="!Rmrks.errors.required">
+                                        Remarks is required !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" (click)="saveIncentive()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Save</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div bsModal #newIncentivesImportModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideImportModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5>
+                    <strong>Add New Employee Incentive</strong>
+                    <button class="btn btn-success btn-sm" (click)="exportAsXLSX()">
+                        Download Format File
+                    </button>
+                </h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="TDate">Transaction Date:</label>
+                            <div class="col-sm-8">
+                                <chaNepaliDatePicker id="TDate" [inputDate]="inputDate" [inputDatePickerOptions]="defaultDateOptions" (selectedDate)='onTDateSelect($event)' *ngIf="inputDate && defaultDateOptions"></chaNepaliDatePicker>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="AlId">Allowance Type:</label>
+                            <div class="col-sm-8">
+                                <select id="ALId" required class="form-control" [(ngModel)]="InputHRIncentive.ALId" name="ALId" #ALId="ngModel" (change)="getData()">
+                                    <option value="{{item.ALId}}" *ngFor="let item of hrmLedgerList">{{item.ALDesc}}</option>
+                                </select>
+                                <div *ngIf="ALId.errors && (ALId.dirty || ALId.touched)" class="alert alert-danger">
+                                    <div [hidden]="!ALId.errors.required">
+                                        Please Select Allowance Type !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="excel">Excel File:</label>
+                            <div class="col-sm-8">
+                                <input type="file" id="excel" [(ngModel)]="excelFile" (change)="selectFile(excelFile, $event)" name="excelFile" class="form-control input-sm" />
+                                <div *ngIf="errorExcelData" class="alert alert-danger">
+                                    {{errorExcelData}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive" *ngIf="excelInsentives.length > 0">
+                            <table class="table table-bordered table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th>Employee No</th>
+                                        <th>Employee Name</th>
+                                        <th>Amount</th>
+                                        <th>Remarks</th>
+                                        <th>Valid</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let dataItem of excelInsentives" [ngStyle]="{'color':  dataItem.isExcelInvalid != null ? 'rgba(0,0,0,.87)' : 'black', 'background': dataItem.isExcelInvalid != null ? '#ccc':'none'}">
+                                        <td>{{dataItem.EmployeeNo}}</td>
+                                        <td>{{dataItem.EmployeeName}}</td>
+                                        <td>{{dataItem.Amount}}</td>
+                                        <td>{{dataItem.Rmrks}}</td>
+                                        <td class="text-center">
+                                            <span *ngIf="dataItem.isExcelInvalid == null" tooltip="Valid data" class="text-success"><i class="fa fa-check-circle"></i></span>
+                                            <span *ngIf="dataItem.isExcelInvalid != null" tooltip="Same data was found in the system so this row will not be stored." class="text-warning"><i class="fa fa-info-circle"></i></span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" disabled *ngIf="!(InputHRIncentive.ALId && InputHRIncentive.TDate && excelInsentives.length > 0)">Submit</button>
+                <button class="btn btn-success" (click)="saveExcel()" *ngIf="InputHRIncentive.ALId && InputHRIncentive.TDate && excelInsentives.length > 0">Submit</button>
+                <button class="btn btn-danger" (click)="hideImportModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div *ngIf="isLoading == true" class="text-center loading-modal modal">
+    <p class="text-center modal-dialog modal-sm">
+        <i class="fa fa-spinner fa-circle-o-notch fa-spin"></i>
+        Loading
+    </p>
+</div>

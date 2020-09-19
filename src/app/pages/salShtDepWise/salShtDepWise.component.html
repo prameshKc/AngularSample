@@ -1,0 +1,118 @@
+<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Salary Sheet</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h4>
+                            Employee Salary Sheet [Department]:
+
+                            <button class="btn btn-default btn-sm" (click)="exporToCSV()">
+                                Export
+                            </button>
+                        </h4>
+
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body" style="padding-bottom: 0;">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label for="Year">Department:</label>
+                                <select id="Year" class="form-control input-sm" [(ngModel)]="deptId" (ngModelChange)="getSalSht()">
+                                    <option value="-1">--Select--</option>
+                                    <option value="{{item.DepartmentId}}" *ngFor="let item of deptList">{{item.DepartmentName}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <picker-year-month [(filterByYear)]="filterByYear" [(filterByMonth)]="filterByMonth" (filterByYearChange)="getSalSht();" (filterByMonthChange)="getSalSht();"></picker-year-month>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label for="empName">Employee Name:</label>
+                                <input id="empName" type="text" class="form-control input-sm" [(ngModel)]="filterByName" (ngModelChange)="searchFilter()" placeholder="Enter Employee Name" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <button class="btn btn-sm btn-default" (click)="getSalSht()">
+                            View
+                        </button>
+                    </div>
+                </div>
+                <br />
+
+                <div class="alert alert-info" *ngIf="(filterByYear && filterByMonth) || filterByName">
+                    Salary Sheet is filtered by: <br />
+                    <span *ngIf="deptId">
+                        Department Name: <b>{{ filterByDeptName() }}</b>
+                    </span><br>
+                    <span *ngIf="filterByName">
+                        Employee Name: <b>{{ filterByName }}</b>
+                    </span>
+                </div>
+            </div>
+            <div class="panel-body" style="overflow: auto; padding-top: 0; padding-bottom: 0;">
+
+                <div>
+                    <div class="table-responsive" *ngIf="salShtth.length != 0">
+                      <table class="table table-bordered" style="white-space: nowrap; overflow: auto;">
+                        <thead class="text-center">
+                          <tr>
+                            <th *ngFor="let tableHeadItem of tableHead" [attr.colspan]="tableHeadItem.thColspan" class="text-center">
+                              {{tableHeadItem.th}}
+                            </th>
+
+                          </tr>
+                          <tr>
+                            <th *ngFor="let head of salShtth" class="text-center" (click)="sortSheet(head.svtitle)" style="white-space:nowrap;">
+                              {{head.title}}
+
+                              <i class="fa" [ngClass]="{'fa-sort-up': filterObj.Sort == 'true' && filterObj.SortingAttribute == head.svtitle, 'fa-sort-down': filterObj.Sort != 'true' && filterObj.SortingAttribute == head.svtitle, 'fa-sort': filterObj.SortingAttribute != head.svtitle }"></i>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let data of tempSSData; let i = index">
+                            <td *ngFor="let head of salShtth; let in = index">
+                              <div *ngIf="tempSSData.length != (i+1)" [ngClass]="{'text-right': in > 3}">
+                                <span *ngIf="head.AM > 0">
+                                  {{(data[head.svtitle] ? data[head.svtitle] : 0.00) | NPRCurrency}}
+                                </span>
+                                <span *ngIf="head.AM == 0">
+                                  {{data[head.svtitle]}}
+                                </span>
+                              </div>
+                              <div *ngIf="tempSSData.length == (i+1)" [ngClass]="{'text-right': in > 3}">
+                                <b>{{(data[head.svtitle] != '' && data[head.svtitle] != 'Total' ?  (data[head.svtitle]  | NPRCurrency) : '') }}</b>
+                                <b>{{data[head.svtitle] != '' && data[head.svtitle] == 'Total' ? data[head.svtitle] : null}}</b>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="col-sm-12" *ngIf="salShtth.length == 0">
+                        <div class="alert alert-warning">
+                            No Data Available
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

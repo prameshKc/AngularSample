@@ -1,0 +1,71 @@
+﻿<div class="panel panel-default" *ngIf="isAccess == true">
+    <div class="panel-heading" (click)="formToggleFunc()">
+        <strong>Employee Vacancy</strong>
+        <i class="fa pull-right" [ngClass]="{'fa-chevron-down': formToggle != true,'fa-chevron-up': formToggle == true}"></i>
+    </div>
+    <div class="panel-body" *ngIf="formToggle == true">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Vacancy No.</th>
+                        <th>Vacancy App No.</th>
+                        <th>Vacancy Date</th>
+                        <th>Selection Date</th>
+                        <th *ngIf="isEditAccess">Action</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="displayECList.length == 0">
+                    <!--Certificate List-->
+                    <tr>
+                        <td [colSpan]="isEditAccess ? 5 : 4" class="text-danger">
+                            No data available.
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEVac.VacancyNo" type="text" />
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEVac.VacancyAppNo" type="text" />
+                        </td>
+                        <td>
+                            <div class="input-group-sm">
+                                <chaNepaliDatePicker id="Date" [inputDate]="VacancyDateVM" [inputDatePickerOptions]="dateOptions" (selectedDate)='dateSelect($event,"VacancyDate")' *ngIf="VacancyDateVM && dateOptions"></chaNepaliDatePicker>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group-sm">
+                                <chaNepaliDatePicker id="Date" [inputDate]="SelectionDateVM" [inputDatePickerOptions]="dateOptions" (selectedDate)='dateSelect($event,"SelectionDate")' *ngIf="SelectionDateVM && dateOptions"></chaNepaliDatePicker>
+                            </div>
+                        </td>
+                        <td class="text-center" *ngIf="isEditAccess">
+                            <div *ngIf="isUploading">
+                                <button class="btn btn-default btn-sm">
+                                    <i class="fa fa-spin fa-spinner"></i> Loading
+                                </button>
+                            </div>
+                            <div *ngIf="isUploading == false">
+                                <div *ngIf="InputEVac.VacancyNo && InputEVac.VacancyAppNo && InputEVac.VacancyDate && InputEVac.SelectionDate">
+                                    <button class="btn btn-success btn-xs" (click)="addVacancy()" tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                                <div *ngIf="!(InputEVac.VacancyNo && InputEVac.VacancyAppNo && InputEVac.VacancyDate && InputEVac.SelectionDate)">
+                                    <button class="btn btn-success btn-xs" disabled tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel-footer" *ngIf="formToggle == true">
+        <button class="btn btn-danger btn-xs pull-right" (click)="initialize()">Reset</button>
+    </div>
+</div>

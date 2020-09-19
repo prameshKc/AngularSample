@@ -1,0 +1,163 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Level Setup</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" (click)="openModal()" tooltip="Add Level " placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Level </button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Level Description" [(ngModel)]="filterObj.Name" (ngModelChange)="filterLevelInfo()">
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterLevelInfo()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="levelInfoAndFilter()"><i class="fa fa-times"></i></button>
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                            <b>Sorted By:</b>
+                            {{filterObj.SortingAttribute == 'LvlDesc' ? 'Level Description' : ''}}
+                            {{filterObj.SortingAttribute == 'LvlAmt' ? 'Level Amount' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-bordered table-hover table-striped table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th><span (click)="sortBy('LvlDesc')">Level Description</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('LvlDesc')"></span></th>
+                                    <th><span (click)="sortBy('LvlAmt')">Level Amount</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('LvlAmt')"></span></th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of levelInfoList;let in=index">
+                                    <td>
+                                        {{in+1}}
+                                    </td>
+                                    <td>
+                                        {{item.LvlDesc}}
+                                    </td>
+                                    <td>
+                                        {{item.LvlAmt}}
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-xs btn-info" (click)="getLevelInfo(item.LvlId)" tooltip="Edit Level" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                        <button class="btn btn-xs btn-danger" (click)="openDeleteModal(item.LvlId)" tooltip="Delete Level" placement="top"><span class="glyphicon glyphicon-trash"></span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="levelInfoList.length == 0">
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #levelInfoModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddLevelInfo == true;"><strong>Add Level </strong></h5>
+                <h5 *ngIf="isEditLevelInfo == true;"><strong>Edit Level </strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="LvlDesc">Level Name:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="LvlDesc" placeholder="Enter Level Description" required [(ngModel)]="InputLevelInfo.LvlDesc" (ngModelChange)="checkDuplicate($event)" name="LvlDesc" #LvlDesc="ngModel" />
+                                <div *ngIf="LvlDesc.errors && (LvlDesc.dirty || LvlDesc.touched)" class="alert alert-danger">
+                                    <div [hidden]="!LvlDesc.errors.required">
+                                        Level Description is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="!duplicateName" class="alert alert-danger">
+                                    Level Description already exist!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="LvlAmt">Level Amount:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="LvlAmt" placeholder="Enter Level Amount" required [(ngModel)]="InputLevelInfo.LvlAmt" (ngModelChange)="checkMoney(InputLevelInfo.LvlAmt)" name="LvlAmt" #LvlAmt="ngModel" />
+                                <div *ngIf="LvlAmt.errors && (LvlAmt.dirty || LvlAmt.touched)" class="alert alert-danger">
+                                    <div [hidden]="!LvlAmt.errors.required">
+                                        Level Amount is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="validFormat" class="alert alert-danger">
+                                    Insert Money Value Eg:457.75!
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" (click)="saveLevelInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit" (click)="editLevelInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Level </strong></h5>
+                <h5 class="text-warning" *ngIf="disableDelete==true">Level is already in use, cannot be deleted!</h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Level ?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteLevelInfo()" [disabled]="disableDelete">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

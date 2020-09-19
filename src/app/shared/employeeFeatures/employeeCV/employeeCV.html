@@ -1,0 +1,54 @@
+﻿<div class="panel panel-default" *ngIf="isAccess == true">
+    <div class="panel-heading" (click)="formToggleFunc()">
+        <strong>Employee CV</strong>
+        <i class="fa pull-right" [ngClass]="{'fa-chevron-down': formToggle != true,'fa-chevron-up': formToggle == true}"></i>
+    </div>
+    <div class="panel-body text-center" *ngIf="formToggle == true">
+        <div class="row">
+            <div class="col-lg-4" *ngIf="displayECList.length > 0">
+                <a class="btn btn-sm btn-default btn-block" href="{{displayECList[0].CVDoc}}" target="_blank">Download</a>
+            </div>
+            <div class="col-lg-8" *ngIf="isEditAccess">
+                <div class="input-group input-group-sm">
+                    <input type="file" class="form-control" accept="pdf" [(ngModel)]="eduCert" (change)="onFileChange(eduCert, $event)" />
+                    <span class="input-group-addon btn btn-default" *ngIf="isUploading">
+                        <i class="fa fa-spin fa-spinner"></i> Loading
+                    </span>
+                    <span class="input-group-addon btn btn-default" (click)="addCV()" tooltip="Save" container="body"
+                        *ngIf="isValidFile == null && isUploading == false">
+                        <i class="fa fa-save"></i> Update
+                    </span>
+                    <span class="input-group-addon btn btn-default" disabled tooltip="Update Document" container="body"
+                        *ngIf="isValidFile != null && isUploading == false">
+                        <i class="fa fa-save"></i> Update
+                    </span>
+                </div>
+                <div class="text-danger">{{isValidFile}}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteChildModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete CV</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this CV?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-sm btn-success" (click)="delete()">Yes</button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="hideDeleteChildModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>

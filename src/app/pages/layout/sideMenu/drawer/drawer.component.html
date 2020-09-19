@@ -1,0 +1,21 @@
+﻿<app-draweritem *ngFor="let menuListItem of menuListObj">
+    <a (click)="menuListItem.isOpen = !menuListItem.isOpen" *ngIf="menuListItem.IsGroup == true; else isFile">
+        <fa name="folder" class="drawer_icon"></fa>
+        &nbsp;&nbsp;&nbsp;
+        {{menuListItem.MenuCaption}}
+        <fa name="chevron-down" class="drawer_icon_chev" dropdownIcon="true" *ngIf="menuListItem.isOpen;else dropDownNotActive"></fa>
+
+        <ng-template #dropDownNotActive>
+            <fa name="chevron-left" class="drawer_icon_chev" dropdownIcon="true"></fa>
+        </ng-template>
+    </a>
+    <ng-template #isFile>
+        <a [ngClass]="{'active': menuListItem.isSelected == true}" (click)='filterSelected(menuListItem);'>
+            <fa name="file" class="drawer_icon"></fa>
+            &nbsp;&nbsp;&nbsp;
+            {{menuListItem.MenuCaption}}
+        </a>
+    </ng-template>
+    <app-drawer class="child-menu" [menuListObj]='menuListItem.ChildMenu' *ngIf="menuListItem.isOpen == true  && menuListItem.IsContext != true"
+                (returnMenuList)="filterSelected($event);"></app-drawer>
+</app-draweritem>

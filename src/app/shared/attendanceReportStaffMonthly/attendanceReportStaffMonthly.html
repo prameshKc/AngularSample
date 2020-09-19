@@ -1,0 +1,32 @@
+﻿<div class="panel panel-default">
+    <div class="panel-body">
+        <picker-year-month [(filterByYear)]="filterByYear" [(filterByMonth)]="filterByMonth" (filterByYearChange)="getEmpMonthlyLogin();" (filterByMonthChange)="getEmpMonthlyLogin();"></picker-year-month>
+    </div>
+    <div class="panel-footer">
+        <button class="btn btn-primary btn-sm" (click)="downloadCSV()">Download CSV</button>
+    </div>
+    <div class="panel-body table-responsive">
+        <table class="table table-bordered table-condensed">
+            <thead class="text-center">
+                <tr>
+                    <th>Day</th>
+                    <th>Check-In Time</th>
+                    <th>Check-Out Time</th>
+                    <th>Login Status</th>
+                    <th>Staff Remarks</th>
+                    <th>Verification Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of hrMonthlyRepList.value; let i=index" [ngStyle]="{'background': item.ColorCode}">
+                    <td>{{i+1}}</td>
+                    <td>{{item.LoginTime ? item.LoginTime : '-'}}</td>
+                    <td>{{item.LogOutTime ? item.LogOutTime : '-'}}</td>
+                    <td>{{item.StatusName ? item.StatusName : '-'}}</td>
+                    <td>{{item.StaffRemarks ? item.StaffRemarks : '-'}}</td>
+                    <td>{{item.VerificationRemarks ? item.VerificationRemarks : '-'}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

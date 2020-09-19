@@ -1,0 +1,89 @@
+<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Salary Sheet</li>
+</ol>
+<div class="container-fluid">
+    <div class="panel panel-primary">
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-lg-7">
+              <h4>
+                Salary Sheet Statement: [ <b>Bank</b> ]
+                <button class="btn btn-sm btn-default" (click)="generateCSV()">Export</button>
+              </h4>
+            </div>
+            <div class="col-lg-5 text-right">
+              <div class="row">
+                <div class="col-lg-12">
+                  <label class="control-label">
+                    Search Employee Name:
+                  </label>
+                  <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-12">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <label class="control-label">
+                        Bank:
+                      </label>
+                      <select id="Bank" class="form-control input-sm" [(ngModel)]="filterByBankId" (ngModelChange)="getSalSht()">
+                        <option value="-1">--Select--</option>
+                        <option value="{{item.Bid}}" *ngFor="let item of bankList">{{item.BName}}</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <picker-year-month [(filterByYear)]="filterByYear" [(filterByMonth)]="filterByMonth" (filterByYearChange)="getSalSht();" (filterByMonthChange)="getSalSht();"></picker-year-month>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="control-label">
+                        Department:
+                      </label>
+                      <select id="Department" class="form-control input-sm" [(ngModel)]="filterByDeptId" (ngModelChange)="getSalSht()">
+                        <option value="-1">--Select--</option>
+                        <option value="{{item.DepartmentId}}" *ngFor="let item of deptList">{{item.DepartmentName}}</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <hr style="border:1px solid #5cb85c;" />
+        </div>
+        <div class="panel-body">
+            <div class="alert alert-info text-center" *ngIf="isLoading == true">
+                Loading...
+            </div>
+            <div class="alert alert-warning" *ngIf="BankStatementList.length == 0 && isLoading == false">
+                No data available.
+            </div>
+            <table class="table table-bordered" *ngIf="isLoading == false && BankStatementList.length > 0">
+                <thead>
+                    <tr>
+                        <th class="text-center" (click)="sortTable('EmployeeNo')">EmployeeNo</th>
+                        <th class="text-center" (click)="sortTable('Staff_Name')">Employee Name</th>
+                        <th class="text-center" (click)="sortTable('PanNo')">PAN No.</th>
+                        <th class="text-center" (click)="sortTable('Account_No')">Account No.</th>
+                        <th class="text-center" (click)="sortTable('Amount')">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of BankStatementList">
+                        <td class="text-center">{{item.EmployeeNo}}</td>
+                        <td>{{item.Staff_Name}}</td>
+                        <td>{{item.PanNo ? item.PanNo : '-'}}</td>
+                        <td>{{item.Account_No ? item.Account_No : '-'}}</td>
+                        <td class="text-right">{{item.Amount | NPRCurrency}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="panel-footer">
+            <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+        </div>
+    </div>
+</div>

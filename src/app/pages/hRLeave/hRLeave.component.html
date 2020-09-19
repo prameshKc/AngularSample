@@ -1,0 +1,106 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> HR Leave Record</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <picker-year-month [(filterByYear)]="filterByYear" [(filterByMonth)]="filterByMonth" (filterByYearChange)="changedYear($event);" (filterByMonthChange)="changedMonth($event);"></picker-year-month>
+                    </div>
+                    <!--<div class="col-sm-3">
+                        <label for="Year" class="text-left">Year:</label>
+                        <select name="Year" id="Year" class="form-control" [(ngModel)]="filterByYear" (ngModelChange)="changedYear($event)" *ngIf="yearList.length > 0">
+                            <option value="-1">--Select--</option>
+                            <option value="{{item.NYear}}" *ngFor="let item of yearList">{{item.NYear}}</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="Month" class="text-left">Month:</label>
+                        <select name="Month" id="Month" class="form-control" [(ngModel)]="filterByMonth" (ngModelChange)="changedMonth($event)" *ngIf="monthList.length > 0">
+                            <option value="-1">--Select--</option>
+                            <option value="{{item.Id}}" *ngFor="let item of monthList">{{item.NepMonthName}}</option>
+                        </select>
+                    </div>-->
+                    <div class="col-sm-3">
+                        <label for="user" class="control-label">Employee:</label>
+                        <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                    </div>
+                    <div class="col-sm-3">
+                        <button class="btn btn-xs btn-default" (click)="reset()">Reset</button>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                        <button class="close" (click)="staffInfoAndFilter()"><i class="fa fa-times"></i></button>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                            <b>Sorted By:</b>
+                            {{filterObj.SortingAttribute == 'EmployeeNo' ? 'Employee No' : ''}}
+                            {{filterObj.SortingAttribute == 'EmployeeName' ? 'Employee Name' : ''}}
+                            {{filterObj.SortingAttribute == 'DepartmentName' ? 'Department' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-hover table-striped table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2"><span (click)="sortBy('EmployeeNo')">Employee No</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('EmployeeNo')"></span></th>
+                                        <th rowspan="2"><span (click)="sortBy('EmployeeName')">Employee Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('EmployeeName')"></span></th>
+                                        <th rowspan="2"><span (click)="sortBy('DepartmentName')">Department</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('DepartmentName')"></span></th>
+                                        <th rowspan="2">No. of Days</th>
+                                        <th colspan="3">Leave Deduct Detail</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Unpaid Leave</th>
+                                        <th>Absent</th>
+                                        <th>LCI and ECO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of leaveList;let in=index">
+                                        <td>{{item.EmployeeNo}}</td>
+                                        <td>{{item.EmployeeName}}</td>
+                                        <td> {{item.DepartmentName ? item.DepartmentName : '-'}}</td>
+                                        <td>
+                                            <select name="NumOfDays" id="NumOfDays" class="form-control" [(ngModel)]="item.Day" *ngIf="dayList.length > 0">
+                                                <option value="-1">--Select--</option>
+                                                <option value="{{ditem.NumOfDays}}" *ngFor="let ditem of dayList">{{ditem.NumOfDays}}</option>
+                                            </select>
+                                        </td>
+                                        <td>{{item.UnpaidCount}}</td>
+                                        <td> {{item.AbsentCount}}</td>
+                                        <td>{{item.LateAndEarlyCount}}</td>
+                                </tbody>
+                                <tbody *ngIf="leaveList.length == 0">
+                                    <tr>
+                                        <td colspan="7">
+                                            <div class="text-warning">No items available</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pull-right">
+                            <button *ngIf="dataAlreadyExist==false" class="btn btn-sm btn-success" (click)="saveLeaveDeduct()">Save</button>
+                            <button *ngIf="dataAlreadyExist==true" class="btn btn-sm btn-success" (click)="editLeaveDeduct()">Edit</button>
+                            <button class="btn btn-sm btn-danger" (click)="cancelLeaveDeduct()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onEmpPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

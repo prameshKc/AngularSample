@@ -1,0 +1,84 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Salary Sheet</li>
+</ol>
+<div class="container-fluid">
+    <div class="panel panel-primary">
+        <div class="panel-body">
+            <h4>
+                Salary Sheet Statement: [ <b>Citizen Investment Trust (CIT)</b> ]
+                <button class="btn btn-sm btn-default" (click)="generateCSV()">Export</button>
+            </h4>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <picker-year-month [(filterByYear)]="filterByYear" [(filterByMonth)]="filterByMonth" (filterByYearChange)="getSalSht();" (filterByMonthChange)="getSalSht();"></picker-year-month>
+
+                    <!--<div class="row">
+                        <div class="col-md-6">
+                            <label class="control-label">
+                                Month:
+                            </label>
+                            <select id="Month" class="form-control input-sm" [(ngModel)]="filterByMonth" (ngModelChange)="getSalSht()">
+                                <option value="-1">--Select--</option>
+                                <option value="{{item.Id}}" *ngFor="let item of monthList">{{item.NepMonthName}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="control-label">
+                                Year:
+                            </label>
+                            <select id="Year" class="form-control input-sm" [(ngModel)]="filterByYear" *ngIf="yearList.length > 0" (ngModelChange)="getSalSht()">
+                                <option value="-1">--Select--</option>
+                                <option value="{{item.NYear}}" *ngFor="let item of yearList">{{item.NYear}}</option>
+                            </select>
+                        </div>
+                    </div>-->
+                </div>
+                <div class="col-md-4 col-md-offset-2">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label class="control-label">
+                                Search Employee Name:
+                            </label>
+                            <input type="text" class="form-control input-sm" [(ngModel)]="filterByName" (ngModelChange)="getSalSht()" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr style="border:1px solid #5cb85c;" />
+        </div>
+        <div class="panel-body">
+            <div class="alert alert-info text-center" *ngIf="isLoading == true">
+                Loading...
+            </div>
+            <div class="alert alert-warning" *ngIf="citStatementList.length == 0 && isLoading == false">
+                No data available.
+            </div>
+            <table class="table table-bordered" *ngIf="isLoading == false && citStatementList.length > 0">
+                <thead>
+                    <tr>
+                        <th class="text-center" (click)="sortTable('EmployeeNo')">EmployeeNo</th>
+                        <th class="text-center" (click)="sortTable('Staff_Name')">Employee Name</th>
+                        <th class="text-center" (click)="sortTable('PanNo')">PAN No.</th>
+                        <th class="text-center" (click)="sortTable('CITNo')">CIT No.</th>
+                        <th class="text-center" (click)="sortTable('Amount')">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of citStatementList">
+                        <td class="text-center">{{item.EmployeeNo}}</td>
+                        <td>{{item.Staff_Name}}</td>
+                        <td>{{item.PanNo ? item.PanNo : '-'}}</td>
+                        <td>{{item.PFNo ? item.CITNo : '-'}}</td>
+                        <td class="text-right">{{item.Amount | NPRCurrency}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="panel-footer">
+            <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+        </div>
+    </div>
+</div>

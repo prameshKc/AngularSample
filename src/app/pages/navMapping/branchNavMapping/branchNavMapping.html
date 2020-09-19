@@ -1,0 +1,39 @@
+<div class="panel-body" *ngIf="navOptions.length != 0">
+  <div class="table-responsive">
+    <table class="table table-bordered table-condensed">
+      <thead>
+        <tr>
+          <th>S.N.</th>
+          <th>Branch Name</th>
+          <th>Nav Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of branchList; let i = index;">
+          <td>{{i+1}}</td>
+          <td>{{item.CompanyName}}</td>
+          <td>
+            <select [(ngModel)]="item.Nav_code" (change)="updateCompanyNav(item.Nav_code, item)" class="form-control input-sm">
+              <option value="-1">None</option>
+              <option *ngFor="let item of navOptions" [value]="item.Value">{{item.Value}} [ {{item.Text}} ]</option>
+            </select>
+            <!--<branchNMSelect [navOptions]="navOptions" [selectedNavOption]="item.Nav_Code" (returnselectedNavOption)="updateCompanyNav($event,item)" *ngIf="navOptions.length > 0"></branchNMSelect>-->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="panel-footer text-right">
+    <button class="btn btn-sm btn-success" (click)="submitChanges()">Save Changes</button>
+    <button class="btn btn-sm btn-warning" (click)="resetChanges()">Reset Changes</button>
+  </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>
+
+<div *ngIf="isLoading == true" [config]="{ show: true, backdrop: true, ignoreBackdropClick: true, keyboard: false }" bsModal #loadingModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <h5><i class="fa fa-spinner fa-pulse fa-spin fa-2x"></i></h5>
+  <div class="modal-dialog modal-lg text-center">
+    <h5 style="color: white;"><i class="fa fa-spinner fa-pulse fa-spin fa-3x"></i></h5>
+  </div>
+</div>
+

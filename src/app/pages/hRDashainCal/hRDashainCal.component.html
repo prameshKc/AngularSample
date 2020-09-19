@@ -1,0 +1,134 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Dashain Information</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" (click)="openModal()" tooltip="Add Dashain Information" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Dashain Information</button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Fiscal Year" [(ngModel)]="filterObj.Name" (ngModelChange)="filterDashainInfo()">
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterDashainInfo()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="dashainInfoAndFilter()"><i class="fa fa-times"></i></button>
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                            <b>Sorted By:</b>
+                            {{filterObj.SortingAttribute == 'FYId' ? 'Fiscal Year' : ''}}
+                            {{filterObj.SortingAttribute == 'DAOnBS' ? 'Month in BS' : ''}}
+                            {{filterObj.SortingAttribute == 'DAOnAD' ? 'Month in AD' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-bordered table-hover table-striped table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th><span (click)="sortBy('FYId')">Fiscal Year</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('FYId')"></span></th>
+                                    <th><span (click)="sortBy('DAOnBS')">Month in BS</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('DAOnBS')"></span></th>
+                                    <th><span (click)="sortBy('DAOnAD')">Month in AD</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('DAOnAD')"></span></th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of dispalyDashainInfoList;let in=index">
+                                    <td>
+                                        {{in+1}}
+                                    </td>
+                                    <td>
+                                        {{item.FiscalYear.FyName}}
+                                    </td>
+                                    <td>
+                                        {{item.NepaliMonthList.NepMonthName}}
+                                    </td>
+                                    <td>
+                                        {{item.EnglishMonthList.EngMonthName}}
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-xs btn-info" (click)="getDashainInfo(item.FYId)" tooltip="Edit Dashain Info" placement="top" [disabled]="disableEdit(item.FYId)"><span class="glyphicon glyphicon-edit"></span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="dispalyDashainInfoList.length == 0">
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #dashainInfoModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddDashainInfo == true;"><strong>Add Dashain Information</strong></h5>
+                <h5 *ngIf="isEditDashainInfo == true;"><strong>Edit Dashain Information</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group col-md-12">
+                            <div class="col-md-4">
+                                <label class="control-label" for="FYID">Fiscal Year:</label>
+                                <select id="FYID" required class="form-control" [(ngModel)]="InputDashainInfo.FYId" (ngModelChange)="checkFiscalYearDuplicate($event)" name="FYID" #FYID="ngModel">
+                                    <option value="{{item.FYID}}" *ngFor="let item of displayFiscalYearList">{{item.FyName}}</option>
+                                </select>
+                                <div [hidden]="!duplicateFY" class="alert alert-danger">
+                                    Fiscal Year already exist!
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label" for="MIBS">Month in BS:</label>
+                                <select id="MIBS" required class="form-control" [(ngModel)]="InputDashainInfo.DAOnBS" name="MIBS" #MIBS="ngModel">
+                                    <option value="{{item.Id}}" *ngFor="let item of NepaliMonthList">{{item.NepMonthName}}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label" for="MIAD">Month in AD:</label>
+                                <select id="MIAD" required class="form-control" [(ngModel)]="InputDashainInfo.DAOnAD" name="MIAD" #MIAD="ngModel">
+                                    <option value="{{item.Id}}" *ngFor="let item of EnglishMonthList">{{item.EngMonthName}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" (click)="saveDashainInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit" (click)="editDashainInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

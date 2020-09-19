@@ -1,0 +1,235 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Employee Work Area</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!--<button class="btn btn-sm btn-default" (click)="openEmployeeWorkAreaModal()" tooltip="Assign Work Area" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Assign Work Area</button>-->
+                    </div>
+                    <!--<div class="col-sm-3 text-right">
+                        <form class="form-inline pull">
+                            <label for="sort" class="text-left">Sort </label>
+                            <select name="sort" id="sort" class="form-control input-sm btn-default" [(ngModel)]="filterObj.Sort" (ngModelChange)="filterEmployeeWorkArea()">
+                                <option value="">Select...</option>
+                                <option value="true">Ascending</option>
+                                <option value="false">Decending</option>
+                            </select>
+                        </form>
+                    </div>-->
+                    <div class="col-sm-3 text-right">
+                        <form class="form-inline pull">
+                            <label for="search" class="text-left">Search By:</label>
+                            <select name="search" id="search" class="form-control input-sm btn-default" [(ngModel)]="filterObj.SearchBy ">
+                                <option value="">Select...</option>
+                                <option value="EmployeeName">Employee Name</option>
+                                <option value="WorkAreaName">Work Area Name</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Search Parameter" [(ngModel)]="filterObj.Name" (ngModelChange)="filterEmployeeWorkArea()">
+                            <input class="input-sm" type="submit" (click)="filterEmployeeWorkArea()" hidden />
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterEmployeeWorkArea()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.SortingAttribute != 'PostedOn' && filterObj.SortingAttribute != 'ModifiedOn')">
+                        <button class="close" (click)="employeeWorkAreaAndFilter()"><i class="fa fa-times"></i></button>
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.SortingAttribute != 'PostedOn' && filterObj.SortingAttribute != 'ModifiedOn')">
+                            <b>Sorted By:</b>
+                            {{filterObj.SortingAttribute == 'Employee/EmployeeNo' ? 'Employee No' : ''}}
+                            {{filterObj.SortingAttribute == 'Employee/FirstName' ? 'Employee Name' : ''}}
+                            {{filterObj.SortingAttribute == 'WorkArea/WorkAreaName' ? 'Work Area Name' : ''}}
+                            {{filterObj.SortingAttribute == 'FromDate' ? 'Effective From' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            <label for="employee" class="control-label col-sm-4">Select Employee:</label>
+                            <div class="col-sm-8">
+                                <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                        </div>
+                    </div>
+                    <div class="panel-body" *ngIf="selectedModalLoaded">
+                        <hr style="border:1px solid white;" />
+                        <form #bookForm="ngForm" class="form-horizontal">
+                            <div class="col-md-12">
+                                <h5><strong>Assign Employee Work Area</strong></h5>
+                                <div [hidden]="!isEditable" class="alert alert-danger">
+                                    This record cannot be Edited! The Start Date has already been Expired!
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="col-md-6 form-group">
+                                        <label class="control-label col-sm-4" for="EmployeeId">Employee Name:</label>
+                                        <div class="col-sm-8">
+                                            <span class="form-control">{{employeeName}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label class="control-label col-sm-4" for="WorkAreaId">Work Area:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="WorkAreaId" required [(ngModel)]="InputEmployeeWorkArea.WorkAreaId" (ngModelChange)="workAreaChange($event)" name="WorkAreaId" #WorkAreaId="ngModel">
+                                                <option *ngFor="let item of workAreaList" value="{{item.WorkAreaId}}">
+                                                    {{item.WorkAreaName}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="WorkAreaId.errors && (WorkAreaId.dirty || WorkAreaId.touched)" class="alert alert-danger">
+                                                <div [hidden]="!WorkAreaId.errors.required">
+                                                    Select Work Area Name!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="col-md-6 form-group">
+                                        <label class="control-label col-sm-4" for="FromDate">From Date:</label>
+                                        <div class="col-sm-8">
+                                            <chaNepaliDatePicker id="FromDate" [inputDate]="inputFromDate" [inputDatePickerOptions]="inputFromDateOptions" (selectedDate)='onFromDateSelect($event)' *ngIf="inputFromDate && inputFromDateOptions"></chaNepaliDatePicker>
+                                            <div [hidden]="invalidFromDate==false" class="alert alert-danger">
+                                                Work Area of this time period already exist! Please change date.
+                                            </div>
+                                            <div [hidden]="isFromDateLessThanCurrentDate==false" class="alert alert-danger">
+                                                Date is less than Current Date.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label class="control-label col-sm-4" for="ToDate">To Date:</label>
+                                        <div class="col-sm-8">
+                                            <chaNepaliDatePicker id="ToDate" [inputDate]="inputToDate" [inputDatePickerOptions]="inputToDateOptions" (selectedDate)='onToDateSelect($event)' *ngIf="inputToDate && inputToDateOptions"></chaNepaliDatePicker>
+                                            <div [hidden]="invalidToDate==false" class="alert alert-danger">
+                                                Work Area of this time period already exist! Please change date.
+                                            </div>
+                                            <div [hidden]="lessThanFromDate==false" class="alert alert-danger">
+                                                Date is less than From Date.
+                                            </div>
+                                            <div [hidden]="isToDateLessThanCurrentDate==false" class="alert alert-danger">
+                                                Date is less than Current Date.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="col-md-6 form-group">
+                                        <label class="control-label col-sm-4" for="Remarks">Remarks:</label>
+                                        <div class="col-sm-8">
+                                            <input class="form-control" type="text" [(ngModel)]="InputEmployeeWorkArea.Remarks" name="Remarks" #Remarks="ngModel" />
+                                            <div *ngIf="Remarks.errors && (Remarks.dirty || Remarks.touched)" class="alert alert-danger">
+                                                <div [hidden]="!Remarks.errors.required">
+                                                    Enter Remarks!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6"></div>
+                                <div class="col-md-5">
+                                    <button type="button" class="btn btn-xs btn-danger pull-right" (click)="hideEmployeeWorkAreaModal()">Cancel</button>
+                                    <button *ngIf="isAddEditToggle==false" type="submit" (click)="saveEmployeeWorkArea()" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success pull-right">Save</button>
+                                    <button *ngIf="isAddEditToggle==true" type="submit" (click)="editEmployeeWorkArea()" [disabled]="!bookForm.form.valid || isEditable" class="btn btn-xs btn-success pull-right">Edit</button>
+                                </div>
+                                <div class="col-md-1"></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-lg-12">
+                        <hr style="border:1px solid white;" />
+                        <hr style="border:1px solid white;" />
+                        <table class="table table-bordered table-hover table-striped table-condensed" *ngIf="employeeWorkAreaList.length != 0">
+                            <thead>
+                                <tr>
+                                    <th><span (click)="sortBy('Employee/EmployeeNo')">Employee No</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/EmployeeNo')"></span></th>
+                                    <th><span (click)="sortBy('Employee/FirstName')">Employee Name</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/FirstName')"></span></th>
+                                    <th><span (click)="sortBy('WorkArea/WorkAreaName')">Work Area Name</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('WorkArea/WorkAreaName')"></span></th>
+                                    <th><span (click)="sortBy('FromDate')">Effective Period</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('FromDate')"></span></th>
+                                    <th>Remarks</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of employeeWorkAreaList">
+                                    <td>{{item.Employee.EmployeeNo}}</td>
+                                    <td>{{item.Employee.FirstName}} {{item.Employee.MiddleName}} {{item.Employee.LastName}}</td>
+                                    <td>{{item.WorkArea.WorkAreaName}}</td>
+                                    <td>
+                                        <span *ngIf="item.FromDate">
+                                            <date-view [inputDate]="item.FromDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!item.FromDate">
+                                            -
+                                        </span>
+                                        To
+                                        <span *ngIf="item.ToDate">
+                                            <date-view [inputDate]="item.ToDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!item.ToDate">
+                                            -
+                                        </span>
+                                    </td>
+                                    <td>{{item.Remarks ? item.Remarks : '-'}}</td>
+
+                                    <td class="text-center">
+                                        <button class="btn btn-xs btn-info" (click)="getEmployeeWorkArea(item.Id)" tooltip="Edit Employee Work Area" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                        <button class="btn btn-xs btn-danger" (click)="openDeleteModal(item.Id)" tooltip="Delete Employee Work Area" placement="top"><span class="glyphicon glyphicon-trash"></span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div *ngIf="employeeWorkAreaList.length == 0" class="text-warning">No items available</div>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>           
+        </div>
+    </div>
+</div>
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Employee Work Area</strong></h5>
+            </div>
+            <div [hidden]="!isDeletable" class="alert alert-danger">
+                This record cannot be Deleted! The Start Date has already been Expired!
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Employee Work Area?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteEmployeeWorkArea()" [disabled]="isDeletable">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

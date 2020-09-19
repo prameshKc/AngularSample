@@ -1,0 +1,178 @@
+<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Data Type</li>
+</ol>
+<div class="row">
+    <div class="col-xs-12">
+
+        <div class="panel panel-default ">
+            <div class="panel-body">
+                <div class="row">
+                    <button class="btn btn-sm btn-default" (click)="toggleListVsIcon = !toggleListVsIcon"><span class="glyphicon" [ngClass]="{'glyphicon-th':!toggleListVsIcon, 'glyphicon-th-list':toggleListVsIcon}"></span></button>
+                    <div class="col-sm-5">
+                        <button class="btn btn-sm btn-default" (click)="openAddModal()" tooltip="Add Data Type" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Data Type</button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <form class="form-inline pull">
+                            <label for="sort" class="text-left">Sort </label>
+                            <select name="sort" id="sort" class="form-control input-sm btn-default" [(ngModel)]="filterObj.Sort" (ngModelChange)="filterHome()">
+                                <option value="">Select...</option>
+                                <option value="true">Ascending</option>
+                                <option value="false">Decending</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <input type="text" class="form-control input-sm" placeholder="Enter Search Parameter" [(ngModel)]="filterObj.SearchBy">
+                        <!--<div class="input-group input-group-sm pull-right">
+                            <input class="input-sm" type="submit" (click)="filter()" hidden />
+                            <span class="input-group-addon" tooltip="Search" placement="top" (click)="filter()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>-->
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="alert alert-info" *ngIf="(filterObj.SearchBy != null && filterObj.SearchBy != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <p *ngIf="(filterObj.SearchBy != null && filterObj.SearchBy != '')"><b>Filtered By:</b> {{filterObj.SearchBy}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')"><b>Sorted By:</b> {{filterObj.Sort == 'true' ? 'Data Type Name ascending' : 'Data Type Name descending'}}</p>
+
+                        <button class="close" (click)="filterObj = {}"><i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+                <div *ngIf="toggleListVsIcon == false">
+                    <div *ngFor="let treeDiv of dataTypeList | searchfilter: 'DType' : filterObj.SearchBy" class="col-xs-2 text-center">
+                        <div class="row text-center">
+                            <div class="col-lg-12">
+                                <img src="/Images/folder.png" class="img-responsive" style="height:70px;width:auto; margin: auto !important;" />
+                                <a (click)="getDataType(treeDiv.DTId)" style="color:black;cursor:pointer;font-size:11px; text-overflow: ellipsis; max-width: 54rem;">{{treeDiv.DType}}</a>
+                            </div>
+                            <div class="col-lg-12">
+                                <button class="btn btn-xs btn-info" (click)="getDataType(treeDiv.DTId)" tooltip="Edit Parameter" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                <button class="btn btn-xs btn-danger" (click)="openDeleteModal(treeDiv.DTId)" tooltip="Delete Parameter" placement="top"><span class="glyphicon glyphicon-trash"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" *ngIf="toggleListVsIcon == true">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data Type Id</th>
+                                <th>Data Type Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let treeDiv of dataTypeList | searchfilter: 'DType' : filterObj.SearchBy">
+                                <td>{{treeDiv.DTId}}</td>
+                                <td>{{treeDiv.DType}}</td>
+                                <td>
+                                    <button class="btn btn-xs btn-info" (click)="getDataType(treeDiv.DTId)" tooltip="Edit Parameter" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                    <button class="btn btn-xs btn-danger" (click)="openDeleteModal(treeDiv.DTId)" tooltip="Delete Parameter" placement="top"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div *ngIf="dataTypeList.length == 0">
+                    <div class="text-warning">No items available</div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <nav aria-label="Page navigation">
+
+                    <ul class="pagination" style="padding:0px; margin: 0px;">
+                        <li class="pull-left col-md-1" style="padding-right:0px;">
+                            <button class="btn" aria-label="Previous" (click)="filterHome(pagination.CurrentPage-1)">
+                                <span aria-hidden="true">&laquo;</span>
+                            </button>
+                        </li>
+                        <li class="pull-left col-md-2" style="padding-left:0px;padding-right:0px;">
+                            <div class="input-group">
+                                <input type="number" *ngIf="pagination.TotalPage == 0" max="{{pagination.TotalPage}}" min="1" value="0" (ngModelChange)="filterHome(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                                <input type="number" *ngIf="pagination.TotalPage>0" max="{{pagination.TotalPage}}" min="1" [(ngModel)]="pagination.CurrentPage" (ngModelChange)="filterHome(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                                <span class="input-group-addon" id="basic-addon2">/{{pagination.TotalPage}}</span>
+                            </div>
+                        </li>
+                        <li class="pull-left col-md-1">
+                            <button class="btn" aria-label="Next" (click)="filterHome(pagination.CurrentPage+1)">
+                                <span aria-hidden="true">&raquo;</span>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <!--pagination-->
+    </div>
+</div>
+
+<div bsModal #childModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <form #bookForm="ngForm" class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" aria-label="Close" (click)="hideChildModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h5 *ngIf="isAddDataType == true;"><strong>Add DataType</strong></h5>
+                    <h5 *ngIf="isEditDataType == true;"><strong>Edit DataType</strong></h5>
+                </div>
+                <div class="modal-body" style="font-size:12px;">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="DType">DataType Name:</label>
+                            <div class="col-sm-9">
+                                <input autofocus type="text" class="form-control" id="DType" placeholder="Enter DataType name" required minlength="3" maxlength="30" [(ngModel)]="InputDataType.DType" name="DType" #DType="ngModel" />
+                                <div *ngIf="DType.errors && (DType.dirty || DType.touched)" class="alert alert-danger">
+                                    <div [hidden]="!DType.errors.required">
+                                        DataType name is required !
+                                    </div>
+                                    <div [hidden]="!DType.errors.minlength">
+                                        DataType name must be at least 3 characters long. !
+                                    </div>
+                                    <div [hidden]="!DType.errors.maxlength">
+                                        DataType name cannot be more than 30 characters long. !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button *ngIf="isAddDataType==true" type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="saveDataType()">Save</button>
+                    <button *ngIf="isEditDataType==true" type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-warning" (click)="editDataType(InputDataType)">Edit</button>
+                    <button type="button" class="btn btn-xs btn-danger" (click)="hideChildModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteChildModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete DataType</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this DataType?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteDataType()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteChildModal()">No</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

@@ -1,0 +1,229 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Job Code</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="col-md-6 table-container">
+                    <GtnDepartment [showDeptDetail]="true" [userId]="userId"></GtnDepartment>
+                    <button class="btn btn-xs btn-warning pull-right" (click)="refreshList(1)"><i class="glyphicon glyphicon-refresh"></i></button>
+                    <table class="table table-bordered table-hover table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th><span (click)="sortBy('DepartmentName',1)">Department Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('DepartmentName',1)"></span></th>
+                                <th><span (click)="sortBy('DepartmentCode',1)">Department Code</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('DepartmentCode',1)"></span></th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of departmentList;let in = index">
+                                <td>{{in+1}}</td>
+                                <td (click)="goToUnit(item.DepartmentID,item.DepartmentCode)">
+                                    {{item.DepartmentName}}
+                                </td>
+                                <td>
+                                    {{item.DepartmentCode}}
+                                </td>
+                                <td class="text-center">
+                                    <GtnDepartment [showDeptDetail]="false" [deptId]="item.DepartmentID" [userId]="userId" (showDeptList)="refreshDeptList($event)"></GtnDepartment>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="departmentList.length == 0">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="text-warning">No items available</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="col-md-12">
+                        <app-pagination [PaginationSetting]="deptPagination" (setPagination)="onDeptPageSelect($event)" *ngIf="deptPagination"></app-pagination>
+                    </div>
+                </div>
+                <div class="col-md-6 table-container" *ngIf="showUnit">
+                    <GtnUnit [showUnitDetail]="true" [deptId]="DeptId" [deptCode]="DeptCode" [userId]="userId"></GtnUnit>
+                    <button class="btn btn-xs btn-warning pull-right" (click)="refreshList(2)"><i class="glyphicon glyphicon-refresh"></i></button>
+                    <table class="table table-bordered table-hover table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th><span (click)="sortBy('UnitName',2)">Unit Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('UnitName',2)"></span></th>
+                                <th><span (click)="sortBy('UnitCode',2)">Unit Code</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('UnitCode',2)"></span></th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of unitList;let in = index">
+                                <td>{{in+1}}</td>
+                                <td (click)="goToSubUnit(item.UnitID,item.UnitCode)">
+                                    {{item.UnitName}}
+                                </td>
+                                <td>
+                                    {{item.UnitCode}}
+                                </td>
+                                <td class="text-center">
+                                    <GtnUnit [showUnitDetail]="false" [unitId]="item.UnitID" [userId]="userId"></GtnUnit>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="unitList.length == 0">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="text-warning">No items available</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="col-md-12">
+                        <app-pagination [PaginationSetting]="unitPagination" (setPagination)="onUnitPageSelect($event)" *ngIf="unitPagination"></app-pagination>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-6 table-container" *ngIf="showSubUnit">
+                    <GtnSubUnit [showSubUnitDetail]="true" [deptId]="DeptId" [deptCode]="DeptCode" [unitId]="UnitId" [unitCode]="UnitCode" [userId]="userId"></GtnSubUnit>
+                    <button class="btn btn-xs btn-warning pull-right" (click)="refreshList(3)"><i class="glyphicon glyphicon-refresh"></i></button>
+                    <table class="table table-bordered table-hover table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th><span (click)="sortBy('SubUnitName',3)">Sub Unit Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('SubUnitName',3)"></span></th>
+                                <th><span (click)="sortBy('SubUnitCode',3)">Sub Unit Code</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('SubUnitCode',3)"></span></th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of subUnitList;let in = index">
+                                <td>{{in+1}}</td>
+                                <td (click)="goToClient(item.SubUnitID,item.SubUnitCode)">
+                                    {{item.SubUnitName}}
+                                </td>
+                                <td>
+                                    {{item.SubUnitCode}}
+                                </td>
+                                <td class="text-center">
+                                    <GtnSubUnit [showSubUnitDetail]="false" [subUnitId]="item.SubUnitID" [userId]="userId"></GtnSubUnit>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="subUnitList.length == 0">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="text-warning">No items available</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="col-md-12">
+                        <app-pagination [PaginationSetting]="subUnitPagination" (setPagination)="onSubUnitPageSelect($event)" *ngIf="subUnitPagination"></app-pagination>
+                    </div>
+                </div>
+                <div class="col-md-6 table-container" *ngIf="showClient">
+                    <button class="btn btn-sm btn-default" (click)="openClientModal()" tooltip="Add Client" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Client</button>
+                    <table class="table table-bordered table-hover table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th><span (click)="sortBy('CompanyName',4)">Client Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('CompanyName',4)"></span></th>
+                                <th><span (click)="sortBy('JobCode1',4)">Job Code</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('JobCode1',4)"></span></th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of jobCodeList;let in = index">
+                                <td>{{in+1}}</td>
+                                <td>
+                                    {{item.CompanyName}}
+                                </td>
+                                <td>
+                                    {{item.GeneratedJobCode}}
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-xs btn-danger" (click)="openDeleteModal(item.ID)" tooltip="Delete JobCode" placement="top"><i class="glyphicon glyphicon-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="jobCodeList.length == 0">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="text-warning">No items available</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="col-md-12">
+                        <app-pagination [PaginationSetting]="jobCodePagination" (setPagination)="onJobCodePageSelect($event)" *ngIf="jobCodePagination"></app-pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div bsModal #clientModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideClientModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Select Client</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="ClientCode">Client:</label>
+                            <div class="col-sm-9">
+                                <select class="form-control" required [(ngModel)]="ClientCodeItem" (ngModelChange)="onClientChange($event)" name="clientCode" #clientCode="ngModel">
+                                    <option *ngFor="let item of clientList" [ngValue]=item>
+                                        {{item.CompanyName}}({{item.ClientCode}})
+                                    </option>
+                                </select>
+                                <div [hidden]="!duplicateJobCode" class="alert alert-danger duplicate">
+                                    Job Code already exist!
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" (click)="saveJobCode()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Save</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideClientModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Job Code</strong></h5>
+                <h5 class="text-warning" *ngIf="disableDelete==true">Job Code is already in use, cannot be deleted!</h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Job Code?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteJobCode()" [disabled]="disableDelete">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>
+
+

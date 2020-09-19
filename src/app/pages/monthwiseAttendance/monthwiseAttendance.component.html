@@ -1,0 +1,86 @@
+<ol class="breadcrumb" *ngIf="showAttendance==false">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Monthly Attendance Detail</li>
+</ol>
+<div class="row" *ngIf="showAttendance==false">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div>
+                    <h5><strong>Montlhy Attendance Detail</strong></h5>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <h5><strong>Filter By:</strong></h5>
+                    </div>
+                    <div class="col-md-6">
+                        <picker-year-month [filterByYear]="filterByYear" [filterByMonth]="filterByMonth" (filterByYearChange)="onPickerEvent($event, true);" (filterByMonthChange)="onPickerEvent($event, false);"></picker-year-month>
+                    </div>
+                    <div class="col-md-1">
+                        <button class="btn btn-xs btn-default" (click)="reset()">Reset</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-hover table-striped table-condensed">
+                                <thead *ngIf="headingArray.length>0">
+                                    <tr>
+                                        <th><span (click)="sortBy('EmployeeNo')">Employee No</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('EmployeeNo')"></span></th>
+                                        <th><span (click)="sortBy('EmployeeName')">Employee Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('EmployeeName')"></span></th>
+                                        <th>Department</th>
+                                        <th>Designation</th>
+                                        <th *ngFor="let heading of headingArray">
+                                            <date-view [inputDate]="heading.id"></date-view>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of displaymonthlyAttendanceDetail" (click)="showEmployeeLoginAtt(item.EmployeeId)">
+                                        <td>
+                                            {{item.EmployeeNo}}
+                                        </td>
+                                        <td>
+                                            {{item.EmployeeName}}
+                                        </td>
+                                        <td>
+                                            {{item.Department}}
+                                        </td>
+                                        <td>
+                                            {{item.Designation}}
+                                        </td>
+                                        <td *ngFor="let heading of headingArray">
+                                            {{getLoginStatus(item.EmployeeId,heading.id)}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody *ngIf="monthlyAttendanceDetail.length == 0">
+                                    <tr>
+                                        <td colspan="3">
+                                            <div class="text-warning">No items available</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <button *ngIf="monthlyAttendanceDetail.length>0" type="button" class="btn btn-xs btn-primary pull-right" tooltip="Export To CSV" (click)="exportToCSV(displaymonthlyAttendanceDetail)"><i class="glyphicon glyphicon-export"></i>Export to CSV</button>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <!--<app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>-->
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="showAttendance==true">
+    <adminLoginReport [isFromAttendance]="isFromAttendance" [requiredEmployeeId]="requiredEmployeeId"></adminLoginReport>
+</div>

@@ -1,0 +1,143 @@
+<div class="panel panel-default" *ngIf="isAccess == true">
+    <div class="panel-heading" (click)="formToggleFunc()">
+        <strong>Employee Qualification</strong>
+        <i class="fa pull-right" [ngClass]="{'fa-chevron-down': formToggle != true,'fa-chevron-up': formToggle == true}"></i>
+    </div>
+    <div class="panel-body" *ngIf="formToggle == true">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Level</th>
+                        <th>Division</th>
+                        <th>Board</th>
+                        <th>Passed Year</th>
+                        <th>PDF Document</th>
+                        <th *ngIf="isEditAccess">Action</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="displayECList.length == 0">
+                    <!--Certificate List-->
+                    <tr>
+                        <td [colSpan]="isEditAccess ? 6 : 5" class="text-danger">
+                            No data available.
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="displayECList.length > 0">
+                    <!--Certificate List-->
+                    <tr *ngFor="let item of displayECList; let i = index">
+                        <td>
+                            <div class="form-control input-sm">
+                                {{getEducationLevel(item.LevelId)}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{getEducationDivision(item.DivisionId)}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.Board}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.PassedYr}}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <a class="btn btn-sm btn-link" href="{{item.Certificate}}" target="_blank" *ngIf="item.Certificate != null">Download</a>
+                            <i *ngIf="item.Certificate == null"> - </i>
+                        </td>
+                        <td class="text-center" *ngIf="isEditAccess">
+                            <button class="btn btn-primary btn-xs" (click)="editEducation(item)" tooltip="Edit" container="body">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-xs" (click)="openDeleteModal(item.Id)" tooltip="Delete" container="body">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="isEditAccess">
+                    <tr>
+                        <td>
+                            <select required class="form-control input-sm" [(ngModel)]="InputEEdu.LevelId" *ngIf="infoEduLvlList.length > 0">
+                                <option value="-1">---Select One---</option>
+                                <option *ngFor="let levelItem of infoEduLvlList" value="{{levelItem.Id}}">{{levelItem.EducationLevelName}}</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select required class="form-control input-sm" [(ngModel)]="InputEEdu.DivisionId" *ngIf="infoEduDivList.length > 0">
+                                <option value="-1">---Select One---</option>
+                                <option *ngFor="let divItem of infoEduDivList" value="{{divItem.Id}}">{{divItem.EducationDivisionName}}</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEEdu.Board" type="text" />
+                        </td>
+                        <td>
+                            <select required class="form-control input-sm" [(ngModel)]="InputEEdu.PassedYr" *ngIf="yearList.length > 0">
+                                <option value="-1">---Select One---</option>
+                                <option *ngFor="let year of yearList" value="{{year}}">{{year}}</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="file" class="form-control input-sm" accept="pdf" [(ngModel)]="eduCert" (change)="onFileChange(eduCert)" />
+                            <div class="text-danger">{{isValidFile}}</div>
+                        </td>
+                        <td class="text-center">
+                            <div *ngIf="isUploading">
+                                <button class="btn btn-default btn-sm">
+                                    <i class="fa fa-spin fa-spinner"></i> Loading
+                                </button>
+                            </div>
+                            <div *ngIf="isUploading == false">
+                                <div *ngIf="InputEEdu.PassedYr != -1 && InputEEdu.DivisionId != -1 && InputEEdu.LevelId != -1 && InputEEdu.Board != null && isValidFile == null">
+                                    <button class="btn btn-success btn-xs" (click)="addEducation()" tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                                <div *ngIf="!(InputEEdu.PassedYr != -1 && InputEEdu.DivisionId != -1 && InputEEdu.LevelId != -1 && InputEEdu.Board != null && isValidFile == null)">
+                                    <button class="btn btn-success btn-xs" disabled tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel-footer" *ngIf="formToggle == true">
+        <button class="btn btn-danger btn-xs pull-right" (click)="initialize()">Reset</button>
+    </div>
+</div>
+
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteChildModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Qualification</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Qualification?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-sm btn-success" (click)="delete()">Yes</button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="hideDeleteChildModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>

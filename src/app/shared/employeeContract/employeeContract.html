@@ -1,0 +1,140 @@
+<hr style="border:1px solid #5cb85c;" />
+<div>
+    <h5><strong>Employee Contract</strong></h5>
+
+    <!--Contract form-->
+    <form class="form-horizontal">
+        <div class="form-group form-group-sm">
+            <label class="control-label col-lg-2" for="ContractNo">Contract Number</label>
+            <div class="col-lg-6">
+                <input type="text" class="form-control input-sm" *ngIf="svData == null" id="ContractNo" placeholder="Enter Contract Number" [(ngModel)]="InputEC.ContractNo" name="ContractNo" (ngModelChange)="emitContract()" />
+                <div class="form-control input-sm" *ngIf="svData != null">
+                    {{InputEC.ContractNo}}
+                </div>
+            </div>
+        </div>
+        <div class="form-group form-group-sm">
+            <label class="control-label col-lg-2" for="ContractDate">Contract Date</label>
+            <div class="col-lg-6">
+                <chaNepaliDatePicker id="ContractDate" [inputDate]="InputECCD" [inputDatePickerOptions]="defaultDateOpts" (selectedDate)='dateSelect($event, "ContractDate")' *ngIf="InputECCD && defaultDateOpts && svData == null"></chaNepaliDatePicker>
+                <div class="form-control input-sm" *ngIf="svData != null">
+                    <span *ngIf="InputEC.ContractDate">
+                        <date-view [inputDate]="InputEC.ContractDate"></date-view>
+                    </span>
+                    <span *ngIf="!InputEC.ContractDate">
+                        -
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group form-group-sm">
+            <label class="control-label col-lg-2" for="ExpiryDate">Expiry Date</label>
+            <div class="col-lg-6">
+                <chaNepaliDatePicker id="ExpiryDate" [inputDate]="InputECED" [inputDatePickerOptions]="defaultDateOpts" (selectedDate)='dateSelect($event, "ExpiryDate")' *ngIf="InputECED && defaultDateOpts && svData == null"></chaNepaliDatePicker>
+                <div class="form-control input-sm" *ngIf="svData != null">
+                    <span *ngIf="InputEC.ExpiryDate">
+                        <date-view [inputDate]="InputEC.ExpiryDate"></date-view>
+                    </span>
+                    <span *ngIf="!InputEC.ExpiryDate">
+                        -
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group form-group-sm">
+            <label class="control-label col-lg-2" for="JobDescription">Job Description</label>
+            <div class="col-lg-6">
+                <textarea class="form-control input-sm" *ngIf="svData == null" id="JobDescription" placeholder="Enter Job Description" [(ngModel)]="InputEC.JobDescription" name="JobDescription" rows="5" style="resize: none;" (ngModelChange)="emitContract()"></textarea>
+                <div class="well well-sm bg-white" *ngIf="svData != null" style="margin:0;">
+                    {{InputEC.JobDescription}}
+                </div>
+            </div>
+        </div>
+        <div class="form-group form-group-sm">
+            <label class="control-label col-lg-2" for="JobDescription">Contract Document</label>
+            <div class="col-lg-6">
+                <div *ngIf="svData == null">
+                    <input type="file" class="form-control input-sm" accept="pdf" [(ngModel)]="eduCert" (change)="onFileChange(eduCert)"  name="eduCert"  id="eduCert"/>
+                    <div class="text-danger">{{isValidFile}}</div>
+                </div>
+                <div *ngIf="svData != null">
+                    <a class="btn btn-sm btn-link" href="{{InputEC.ContractImage}}" target="_blank" *ngIf="InputEC.ContractImage != null">Download</a>
+                    <i *ngIf="InputEC.ContractImage == null"> - </i>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="svData == null && empId != null && isPosted != true">
+            <button class="btn btn-success btn-xs input-sm" (click)="submitToDatabase()">Submit</button>
+        </div>
+    </form>
+    <br />
+    <!--Contract List-->
+    <div class="col-lg-12" *ngIf="svData != null">
+        <h6><b>Renew Employee Contract</b></h6>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <td class="title"><b>S.N.</b></td>
+                    <td class="title"><b>Amend On</b></td>
+                    <td class="title"><b>Remarks</b></td>
+                    <td class="title"><b>Expiry Date</b></td>
+                    <td class="title"><b>PDF Document</b></td>
+                    <td class="title"><b>Action</b></td>
+                </tr>
+            </thead>
+            <tbody *ngIf="displayECList.length > 0">
+                <tr *ngFor="let item of displayECList; let i = index">
+                    <td>{{i+1}}</td>
+                    <td>
+                        <span *ngIf="item.AmendOn">
+                            <date-view [inputDate]="item.AmendOn"></date-view>
+                        </span>
+                        <span *ngIf="!item.AmendOn">
+                            -
+                        </span>
+                    </td>
+                    <td>{{item.Remarks ? item.Remarks : '-'}}</td>
+                    <td>
+                        <span *ngIf="item.ExpiryDate">
+                            <date-view [inputDate]="item.ExpiryDate"></date-view>
+                        </span>
+                        <span *ngIf="!item.ExpiryDate">
+                            -
+                        </span>
+                    </td>
+                    <td>
+                        <a class="btn btn-sm btn-link" href="{{item.Image}}" target="_blank" *ngIf="item.Image != null">Download</a>
+                        <i *ngIf="item.Image == null"> - </i>
+                    </td>
+                    <td class="text-center">-</td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <td>
+                        {{displayECList.length + 1}}
+                    </td>
+                    <td>
+                        <chaNepaliDatePicker id="ExpiryDate" [inputDate]="InputECRenewCD" [inputDatePickerOptions]="defaultDateOpts" (selectedDate)='dateSelectRenew($event, "AmendOn")' *ngIf="InputECRenewCD"></chaNepaliDatePicker>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control input-sm" id="ContractNo" placeholder="Enter Contract Number" [(ngModel)]="InputECRenew.Remarks" name="ContractNo" />
+                    </td>
+                    <td>
+                        <chaNepaliDatePicker id="ExpiryDate" [inputDate]="InputECRenewED" [inputDatePickerOptions]="defaultDateOpts" (selectedDate)='dateSelectRenew($event, "ExpiryDate")' *ngIf="InputECRenewED"></chaNepaliDatePicker>
+                    </td>
+                    <td>
+                        <input type="file" class="form-control input-sm" accept="pdf" [(ngModel)]="eduCert" (change)="onFileChangeRenew(eduCert)" />
+                        <div class="text-danger">{{isValidFile}}</div>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-primary btn-xs" (click)="renewContract()">
+                            <i class="fa fa-save"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

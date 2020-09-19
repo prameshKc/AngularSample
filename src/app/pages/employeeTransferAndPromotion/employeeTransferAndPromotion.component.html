@@ -1,0 +1,172 @@
+<ol class="breadcrumb" *ngIf="isBreadCrumb==true">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Employee Transfer And Promotion</li>
+</ol>
+
+<div class="container-fluid row" *ngIf="isEmpTransferSelected==true" style="min-height: 80vh">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h5><strong>Employee Transfer And Promotion</strong></h5>
+                <hr style="border:1px solid #5cb85c;" />
+
+                <div class="col-md-12" *ngIf="selectedId==null">
+                    <div class="col-md-6">
+                        <label for="employee" class="control-label col-sm-4">Select Employee:</label>
+                        <div class="col-sm-8">
+                            <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+
+                    </div>
+                </div>
+                <div *ngIf="selectedModalLoaded || selectedId!=null">
+                    <hr *ngIf="selectedId==null" style="border:1px solid white;" />
+                    <div class="col-md-12 panel-body">
+                        <form #bookForm="ngForm" class="form-horizontal">
+                            <div class="col-md-12">
+                                <h5><strong>Current Employee Position Information</strong></h5>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="EmployeeId">Employee:</label>
+                                        <div class="col-sm-8">
+                                            <span class="form-control" id="EmployeeName">{{employeeName}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="Date">Decision Date:</label>
+                                        <div class="col-sm-8">
+                                            <chaNepaliDatePicker id="Date" [inputDate]="inputDate" [inputDatePickerOptions]="inputDateOptions" (selectedDate)='onDateSelect($event)' *ngIf="inputDate && inputDateOptions"></chaNepaliDatePicker>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-12">
+                                        <label class="control-label col-sm-2" for="CompanyId">Company:</label>
+                                        <div class="col-sm-10">
+
+                                          <div [ngClass]="{'open':CBSelectIsExpand == true }">
+                                            <input required type="button" (click)="CBSelectIsExpand = !CBSelectIsExpand" class="form-control btn-block dropdown-toggle" name="CompanyId" placeholder="Select Company" [(ngModel)]="CompanyName">
+                                            <div class="dropdown-menu" role="menu" *ngIf="CBSelectIsExpand">
+                                              <companySelect [CompanyListObj]="CBList" (returnCompanyList)="selectBranch($event); CBSelectIsExpand = false;"></companySelect>
+                                            </div>
+                                          </div>
+                                            <!--<div dropdown #dropdown="bs-dropdown" [autoClose]="false">
+                                                <input required dropdownToggle type="button" id="CompanyId" class="form-control btn-block dropdown-toggle" name="CompanyId" placeholder="Select Company" [(ngModel)]="CompanyName">
+                                                <div *dropdownMenu class="dropdown-menu" role="menu">
+                                                    <companySelect [CompanyListObj]="CBList" (returnCompanyList)="selectBranch($event);"></companySelect>
+                                                </div>
+                                            </div>-->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="DepartmentId">Department:</label>
+                                        <div class="col-sm-8">
+                                            <input required type="button" class="form-control btn-block dropdown-toggle" name="DepartmentId" placeholder="Select Department" [(ngModel)]="DepartmentName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                                                <childDepartment [departmentListObj]="departmentList" (returnDepartmentList)="selectedDept($event);"></childDepartment>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="DesignationId">Designation:</label>
+                                        <div class="col-sm-8">
+                                            <input required type="button" class="form-control btn-block dropdown-toggle" name="DesignationId" placeholder="Select Designation" [(ngModel)]="DesignationName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                                                <childDesignation [designationListObj]="designationList" (returnDesignationList)="selectedDesg($event);"></childDesignation>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="CategoryId">Category:</label>
+                                        <div class="col-sm-8">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" name="CategoryId" placeholder="Select Category" [(ngModel)]="CategoryName">
+                                                <div class="input-group-btn">
+                                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                                                    <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                                                        <childCategory [categoryListObj]="categoryList" (returnCategoryList)="selectedCat($event);"></childCategory>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6" *ngIf="divisionRequired==true">
+                                        <label class="control-label col-sm-4" for="DivisionId">Division:</label>
+                                        <div class="col-sm-8">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" name="DivisionId" placeholder="Select Division" [(ngModel)]="DivisionName">
+                                                <div class="input-group-btn">
+                                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                                                    <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                                                        <childDivision [divisionListObj]="divisionList" (returnDivisionList)="selectedDiv($event);"></childDivision>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6" *ngIf="costCenterRequired==true">
+                                        <label class="control-label col-sm-4" for="CostCenterId">Cost Center:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="CostCenterId" [(ngModel)]="InputEmployeePosition.CostCenterId" name="CostCenterId" #CostCenterId="ngModel">
+                                                <option *ngFor="let item of costCenterList" value="{{item.CostCenterId}}">
+                                                    {{item.CostCenterName}}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6" *ngIf="workAreaRequired==true">
+                                        <label class="control-label col-sm-4" for="WorkAreaId">Work Area:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="WorkAreaId" [(ngModel)]="InputEmployeePosition.WorkAreaId" name="WorkAreaId" #WorkAreaId="ngModel">
+                                                <option *ngFor="let item of workAreaList" value="{{item.WorkAreaId}}">
+                                                    {{item.WorkAreaName}}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="EffectiveFrom">Effective From:</label>
+                                        <div class="col-sm-8">
+                                            <chaNepaliDatePicker id="EffectiveFrom" [inputDate]="inputEffectiveFromDate" [inputDatePickerOptions]="inputEffectiveFromDateOptions" (selectedDate)='onEffectiveFromDateSelect($event)' *ngIf="inputEffectiveFromDate && inputEffectiveFromDateOptions"></chaNepaliDatePicker>
+                                            <div [hidden]="DecisionDateLTEffectiveFrom==false" class="alert alert-danger">
+                                                Effective From should be greater than Decision Date.
+                                            </div>
+                                            <!--<div [hidden]="EffectiveDateLTCurrentDate==false" class="alert alert-danger">
+                    Effective From Date is less than Current Date.
+                </div>-->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6"></div>
+                                <div class="col-md-5">
+                                    <button *ngIf="selectedId!=null" type="button" class="btn btn-xs btn-danger pull-right" (click)="goToEmployee()">Cancel</button>
+                                    <button *ngIf="selectedId==null" type="button" class="btn btn-xs btn-danger pull-right" (click)="hideEmployeePositionModal()">Cancel</button>
+                                    <button type="submit" (click)="saveEmployeePosition()" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success pull-right">Save</button>
+                                </div>
+                                <div class="col-md-1"></div>
+                            </div>
+                        </form>
+                    </div>
+                    <!--<div class="panel-footer">
+                        <button type="button" class="btn btn-xs btn-danger pull-right" (click)="hideEmployeePositionModal()">Cancel</button>
+                        <button type="submit" (click)="saveEmployeePosition()" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success pull-right">Save</button>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>
+<!--<employee *ngIf="backToEmployee" [showEmployee]="true"></employee>-->

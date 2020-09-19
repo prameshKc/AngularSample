@@ -1,0 +1,179 @@
+<ol class="breadcrumb">
+  <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+  <li class="active"><i class="fa fa-list-ul"></i> Nav Ledger [ Basic Salary ]</li>
+</ol>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="panel panel-default ">
+      <div class="panel-heading">
+        Nav Ledger Multiple Mapping
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="form-group">
+              <label class="control-label">Select Company</label>
+              <select class="form-control" [(ngModel)]="selectedCompanyId" (change)="getNavMappingItems()">
+                <option *ngFor="let item of companies" value="{{item.CompanyId}}">{{item.CompanyName}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="form-group">
+              <label class="control-label">Select Ledger</label>
+              <select class="form-control" [(ngModel)]="selectedLedgerId" (change)="getNavMappingItems()">
+                <option *ngFor="let item of ledgers" value="{{item.ALId}}">{{item.ALDesc}}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="selectedCompanyId && selectedLedgerId">
+          <div class="row">
+            <div class="col-sm-6">
+              <button class="btn btn-sm btn-default" (click)="openAddModal()" tooltip="Add Nav Ledger" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Nav Ledger</button>
+            </div>
+            <div class="col-sm-3">
+              <form class="form-inline">
+                <label for="sort">Sort: </label>
+                <select name="sort" id="sort" class="form-control input-sm btn-default" [(ngModel)]="filterObj.Sort" (ngModelChange)="filterHome()">
+                  <option value="">Select...</option>
+                  <option value="true">Ascending</option>
+                  <option value="false">Decending</option>
+                </select>
+              </form>
+            </div>
+            <div class="col-sm-3">
+              <input type="text" class="form-control input-sm" placeholder="Enter Search Ledger" [(ngModel)]="filterObj.SearchBy">
+            </div>
+          </div>
+          <hr style="border:1px solid #5cb85c;" />
+          <div class="col-lg-12">
+            <div class="alert alert-info" *ngIf="(filterObj.SearchBy != null && filterObj.SearchBy != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+              <p *ngIf="(filterObj.SearchBy != null && filterObj.SearchBy != '')"><b>Filtered By:</b> {{filterObj.SearchBy}}</p>
+              <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')"><b>Sorted By:</b> {{filterObj.Sort == 'true' ? 'Nav Ledger [ Basic Salary ] Name ascending' : 'Nav Ledger [ Basic Salary ] Name descending'}}</p>
+
+              <button class="close" (click)="filterObj = {}"><i class="fa fa-times"></i></button>
+            </div>
+          </div>
+          <div class="col-lg-12">
+
+            <div class="table-responsive" *ngIf="navLedgerList.length != 0">
+              <table class="table table-condensed table-bordered">
+                <thead>
+                  <tr>
+                    <th>S.N.</th>
+                    <th>Ledger Name</th>
+                    <th>Nav Code </th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of navLedgerList; let i = index">
+                    <td>{{i + 1}}</td>
+                    <td>{{item.LedgerName}}</td>
+                    <td>{{item.NavCode}}</td>
+                    <td>
+                      <button class="btn btn-xs btn-info" (click)="getNavLedger(item.Id)" tooltip="Edit Parameter" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div *ngIf="navLedgerList.length == 0">
+            <div class="text-warning">No items available</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-footer" *ngIf="selectedCompanyId && selectedLedgerId">
+        <nav aria-label="Page navigation">
+
+          <ul class="pagination" style="padding:0px; margin: 0px;">
+            <li class="pull-left col-md-1" style="padding-right:0px;">
+              <button class="btn" aria-label="Previous" (click)="filterHome(pagination.CurrentPage-1)">
+                <span aria-hidden="true">&laquo;</span>
+              </button>
+            </li>
+            <li class="pull-left col-md-2" style="padding-left:0px;padding-right:0px;">
+              <div class="input-group">
+                <input type="number" *ngIf="pagination.TotalPage == 0" max="{{pagination.TotalPage}}" min="1" value="0" (ngModelChange)="filterHome(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                <input type="number" *ngIf="pagination.TotalPage>0" max="{{pagination.TotalPage}}" min="1" [(ngModel)]="pagination.CurrentPage" (ngModelChange)="filterHome(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                <span class="input-group-addon" id="basic-addon2">/{{pagination.TotalPage}}</span>
+              </div>
+            </li>
+            <li class="pull-left col-md-1">
+              <button class="btn" aria-label="Next" (click)="filterHome(pagination.CurrentPage+1)">
+                <span aria-hidden="true">&raquo;</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <!--pagination-->
+  </div>
+</div>
+
+<div bsModal #childModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+    <div class="modal-content">
+      <form #bookForm="ngForm" class="form-horizontal">
+        <div class="modal-header">
+          <button type="button" class="close" aria-label="Close" (click)="hideChildModal()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h5 *ngIf="isAddNavLedger == true;"><strong>Add Nav Ledger</strong></h5>
+          <h5 *ngIf="isEditNavLedger == true;"><strong>Edit Nav Ledger</strong></h5>
+        </div>
+        <div class="modal-body" style="font-size:12px;">
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="control-label col-sm-3" for="DType">Nav Ledger Name:</label>
+              <div class="col-sm-9">
+                <input autofocus type="text" class="form-control" id="LedgerName" placeholder="Enter Ledger name" required minlength="3" maxlength="30" [(ngModel)]="InputNavLedger.LedgerName" name="LedgerName" #LedgerName="ngModel" />
+                <div *ngIf="LedgerName.errors && (LedgerName.dirty || LedgerName.touched)" class="alert alert-danger">
+                  <div [hidden]="!LedgerName.errors.required">
+                    Ledger name is required !
+                  </div>
+                  <div [hidden]="!LedgerName.errors.minlength">
+                    Ledger name must be at least 3 characters long. !
+                  </div>
+                  <div [hidden]="!LedgerName.errors.maxlength">
+                    Ledger name cannot be more than 30 characters long. !
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="control-label col-sm-3" for="NavCode">Ledger:</label>
+              <div class="col-sm-9">
+                <select [(ngModel)]="InputNavLedger.ALId" class="form-control input-sm" required name="ALId" #ALId="ngModel">
+                  <option value="-1">None</option>
+                  <option *ngFor="let item of ledgers" [value]="item.ALId">{{item.ALDesc}}</option>
+                </select>
+                <!--<hRMLNMSelect [navOptions]="navOptions" [selectedNavOption]="InputNavLedger.NavCode" (returnselectedNavOption)="updateHRMLedgerNav($event,InputNavLedger)" *ngIf="navOptions.length > 0"></hRMLNMSelect>-->
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-3" for="NavCode">Nav Code:</label>
+              <div class="col-sm-9">
+                <select [(ngModel)]="InputNavLedger.NavCode" class="form-control input-sm" required name="NavCode" #NavCode="ngModel">
+                  <option value="-1">None</option>
+                  <option *ngFor="let item of navOptions" [value]="item.Value">{{item.Value}} [ {{item.Text}} ]</option>
+                </select>
+                <!--<hRMLNMSelect [navOptions]="navOptions" [selectedNavOption]="InputNavLedger.NavCode" (returnselectedNavOption)="updateHRMLedgerNav($event,InputNavLedger)" *ngIf="navOptions.length > 0"></hRMLNMSelect>-->
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button *ngIf="isAddNavLedger==true" type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="saveNavLedger()">Save</button>
+          <button *ngIf="isEditNavLedger==true" type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-warning" (click)="editNavLedger(InputNavLedger)">Edit</button>
+          <button type="button" class="btn btn-xs btn-danger" (click)="hideChildModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

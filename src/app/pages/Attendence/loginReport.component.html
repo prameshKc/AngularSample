@@ -1,0 +1,139 @@
+<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-calendar"></i> Daily Attendance Calendar</li>
+</ol>
+<div class="panel panel-default">
+    <div class="panel-body">
+
+        <div class="row" *ngIf="requiredEmployeeId && employeeDetails">
+            <div class="col-sm-10">
+                <blockquote class="text-capitalize user-info">
+                    <p>
+                        <strong>Login Report: </strong>
+                        {{employeeDetails.FirstName}} {{employeeDetails.MiddleName}} {{employeeDetails.LastName}}
+                    </p>
+                    <p><strong> Employee Number: </strong> {{employeeDetails.EmployeeNo}}</p>
+                </blockquote>
+            </div>
+            <div class="col-sm-2" style="line-height: 65px; vertical-align: middle;">
+                <button class="btn btn-default btn-lg" (click)="getMonthlyRep()">CICO</button>
+            </div>
+        </div>
+        <div class="row" *ngIf="cicoToggle == false">
+
+            <div class="col-md-8">
+                <chaCalendar id="dailyCalendar" *ngIf="requiredEmployeeId" [requiredEmployeeId]="requiredEmployeeId" [refresh]="isRefreshCalendar" (selectedDate)='getLoginDetails($event)'></chaCalendar>
+            </div>
+            <div class="col-md-4">
+                <webLogin id="webLogin" *ngIf="loginDeviceId == 2 || loginDeviceId == 4 || loginDeviceId == 6"></webLogin>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">Monthly Login Report</div>
+                    <div class="panel-body" *ngIf="!loginDetailsVm">
+                        <div class="alert alert-info">
+                            Please select a highlighted day from the calendar.
+                        </div>
+                    </div>
+                    <div class="panel-body" *ngIf="loginDetailsVm">
+                        <div class="well well-sm">
+                            <div class="col-sm-5"><strong>Date</strong></div>
+                            <div class="col-sm-7">
+                                <span *ngIf="loginDetailsVm.TDate">
+                                    <date-view [inputDate]="loginDetailsVm.TDate"></date-view>
+                                </span>
+                                <span *ngIf="!loginDetailsVm.TDate">
+                                    -
+                                </span>
+                            </div>
+                        </div>
+                        <div class="well well-sm" *ngIf="loginDetailsVm.LoginGroup">
+                            <div>
+                                <div class="col-sm-5">
+                                    <strong>Shift Name</strong>
+                                </div>
+                                <div class="col-sm-7">
+                                    <strong>Shift Time</strong>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="col-sm-5">{{loginDetailsVm.LoginGroup.GroupName == null? '':loginDetailsVm.LoginGroup.GroupName}}</div>
+                                <div class="col-sm-7">
+                                    <time-view [inputTime]="loginDetailsVm.LoginGroup.DefaultOfficeHourFrom"></time-view>
+                                    -
+                                    <time-view [inputTime]="loginDetailsVm.LoginGroup.DefaultOfficeHourTill"></time-view>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="well well-sm">
+                            <div>
+                                <div class="col-sm-6">
+                                    <strong>Login Time</strong>
+                                </div>
+                                <div class="col-sm-6">
+                                    <strong>Logout Time</strong>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="col-sm-6">
+                                    <time-view [inputTime]="loginDetailsVm.CheckInTime" *ngIf="loginDetailsVm.CheckInTime"></time-view>
+                                    <span *ngIf="!loginDetailsVm.CheckInTime">-</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <time-view [inputTime]="loginDetailsVm.CheckOutTime" *ngIf="loginDetailsVm.CheckOutTime"></time-view>
+                                    <span *ngIf="!loginDetailsVm.CheckOutTime">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="well well-sm">
+                            <div class="col-sm-6">
+                                <strong>Login Status</strong>
+                            </div>
+                            <!--<td><label class="label label-info">{{loginDetailsVm.LoginStatus.StatusName}}</label></td>-->
+                            <div class="col-sm-6">
+                                <label class="label" [ngStyle]="{background: loginDetailsVm.LoginStatus.ColorCode}">{{loginDetailsVm.LoginStatus.StatusName}}</label>
+                            </div>
+                        </div>
+                        <div class="well well-sm" *ngIf="loginDetailsVm.StaffRemarks">
+                            <div class="col-sm-4">
+                                <strong>Staff Remarks</strong>
+                            </div>
+                            <div class="col-sm-8">{{loginDetailsVm.StaffRemarks}}</div>
+                        </div>
+                        <div class="well well-sm" *ngIf="loginDetailsVm.LoginValidate.length > 0">
+                            <div class="col-sm-4"><strong>Verification Remarks</strong></div>
+                            <div class="col-sm-8">{{loginDetailsVm.LoginValidate[0].VerificationRemarks}}</div>
+                        </div>
+
+                        <div class="well well-sm" *ngIf="loginDetailsVm.LoginValidate.length > 0">
+                            <div class="col-sm-4"><strong>Verified By</strong></div>
+                            <div class="col-sm-8">{{loginDetailsVm.LoginValidate[0].User.UserName}}</div>
+                        </div>
+                        <div class="well well-sm" *ngIf="loginDetailsVm.EmployeeId == userDetails.EmployeeId">
+                            <div class="panel-heading">
+                                <strong>
+                                    Staff Remarks:
+                                </strong>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <textarea class="form-control" id="VerificationRemarks" name="VerificationRemarks" rows="4" [(ngModel)]="loginDetailsVm.Remarks" placeholder="Enter remarks..." style="resize: none;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer" *ngIf="loginDetailsVm">
+                        <button class="btn btn-success btn-xs" (click)="updateRemarks(loginDetailsVm)">Save</button>
+                    </div>
+                </div>
+                <!--<button class="btn btn-xs btn-default" (click)="getLoginDetails()">Get Details</button>-->
+            </div>
+        </div>
+        <div *ngIf="cicoToggle != false">
+            <hrMonthlyRep [EmpId]="employeeDetails.EmployeeId" *ngIf="EmpId != null"></hrMonthlyRep>
+        </div>
+    </div>
+</div>
+

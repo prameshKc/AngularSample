@@ -1,0 +1,123 @@
+﻿<div class="panel panel-default" *ngIf="isAccess == true">
+    <div class="panel-heading" (click)="formToggleFunc()">
+        <strong>Employee Other Activity</strong>
+        <i class="fa pull-right" [ngClass]="{'fa-chevron-down': formToggle != true,'fa-chevron-up': formToggle == true}"></i>
+    </div>
+    <div class="panel-body" *ngIf="formToggle == true">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Special Ability</th>
+                        <th>Interest</th>
+                        <th>Remarks</th>
+                        <th>Reference</th>
+                        <th *ngIf="isEditAccess">Action</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="displayECList.length == 0">
+                    <!--Certificate List-->
+                    <tr>
+                        <td [colSpan]="isEditAccess ? 5 : 4" class="text-danger">
+                            No data available.
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="displayECList.length > 0">
+                    <!--Certificate List-->
+                    <tr *ngFor="let item of displayECList; let i = index">
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.SpecialAbility}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.Interest}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.Remarks}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.Reference}}
+                            </div>
+                        </td>
+                        <td class="text-center" *ngIf="isEditAccess">
+                            <button class="btn btn-primary btn-xs" (click)="editOtherActivity(item)" tooltip="Edit" container="body">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-xs" (click)="openDeleteModal(item.RowId)" tooltip="Delete" container="body">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="isEditAccess">
+                    <tr>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEOA.SpecialAbility" type="text" />
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEOA.Interest" type="text" />
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEOA.Remarks" type="text" />
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEOA.Reference" type="text" />
+                        </td>
+                        <td class="text-center">
+                            <div *ngIf="isUploading">
+                                <button class="btn btn-default btn-xs">
+                                    <i class="fa fa-spin fa-spinner"></i>
+                                </button>
+                            </div>
+                            <div *ngIf="isUploading == false">
+                                <div *ngIf="InputEOA.SpecialAbility && InputEOA.Interest && InputEOA.Remarks && InputEOA.Reference">
+                                    <button class="btn btn-success btn-xs" (click)="addOtherActivity()" tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                                <div *ngIf="!(InputEOA.SpecialAbility && InputEOA.Interest && InputEOA.Remarks && InputEOA.Reference)">
+                                    <button class="btn btn-success btn-xs" disabled tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel-footer" *ngIf="formToggle == true">
+        <button class="btn btn-danger btn-xs pull-right" (click)="initialize()">Reset</button>
+    </div>
+</div>
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteChildModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Activity</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Activity?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-sm btn-success" (click)="delete()">Yes</button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="hideDeleteChildModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>

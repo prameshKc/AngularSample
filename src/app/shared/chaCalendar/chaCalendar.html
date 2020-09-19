@@ -1,0 +1,118 @@
+<div class="panel panel-default">
+  <div class="cha-datepicker theme-dark-blue" *ngIf="calendar != undefined">
+    <div class="cha-datepicker-container">
+      <div class="bs-calendar-container">
+        <div class="panel-heading text-center">
+          <span class="input-lg">
+            {{(calendar.CurrentMonth == 1 && dateType == 1 ) ? 'January' : ''}}
+            {{(calendar.CurrentMonth == 1 && dateType == 2) ? 'Baishakh' : '' }}
+
+            {{(calendar.CurrentMonth == 2 && dateType == 1 ) ? 'February' : ''}}
+            {{(calendar.CurrentMonth == 2 && dateType == 2) ? 'Jestha' : '' }}
+
+            {{(calendar.CurrentMonth == 3 && dateType == 1 ) ? 'March' : ''}}
+            {{(calendar.CurrentMonth == 3 && dateType == 2) ? 'Ashar' : '' }}
+
+            {{(calendar.CurrentMonth == 4 && dateType == 1 ) ? 'April' : ''}}
+            {{(calendar.CurrentMonth == 4 && dateType == 2) ? 'Shrawan' : ''}}
+
+            {{(calendar.CurrentMonth == 5 && dateType == 1 ) ? 'May' : ''}}
+            {{(calendar.CurrentMonth == 5 && dateType == 2) ? 'Bhadra' : '' }}
+
+            {{(calendar.CurrentMonth == 6 && dateType == 1 ) ? 'June' : ''}}
+            {{(calendar.CurrentMonth == 6 && dateType == 2) ? 'Ashwin' : '' }}
+
+            {{(calendar.CurrentMonth == 7 && dateType == 1 ) ? 'July' : ''}}
+            {{(calendar.CurrentMonth == 7 && dateType == 2) ? 'Kartik' : '' }}
+
+            {{(calendar.CurrentMonth == 8 && dateType == 1 ) ? 'August' : ''}}
+            {{(calendar.CurrentMonth == 8 && dateType == 2) ? 'Mangsir' : '' }}
+
+            {{(calendar.CurrentMonth == 9 && dateType == 1 ) ? 'September' : ''}}
+            {{(calendar.CurrentMonth == 9 && dateType == 2) ? 'Poush' : '' }}
+
+            {{(calendar.CurrentMonth == 10 && dateType == 1 ) ? 'October' : ''}}
+            {{(calendar.CurrentMonth == 10 && dateType == 2) ? 'Magh' : '' }}
+
+            {{(calendar.CurrentMonth == 11 && dateType == 1 ) ? 'November' : ''}}
+            {{(calendar.CurrentMonth == 11 && dateType == 2) ? 'Falgun' : '' }}
+
+            {{(calendar.CurrentMonth == 12 && dateType == 1 ) ? 'December' : ''}}
+            {{(calendar.CurrentMonth == 12 && dateType == 2) ? 'Chaitra' : '' }} ,
+
+            {{calendar.CurrentYear}}
+          </span>
+          <button class="btn btn-default btn-sm" (click)="dateTypeToggle()">
+            {{ dateType == 1 ? "AD" : "BS" }}
+          </button>
+        </div>
+        <div class="cha-datepicker-head theme-blue">
+          <button class="previous" (click)="getPrevMonthCalendarData(tempDate.Month)">
+            <i class="fa fa-chevron-left"></i>
+          </button>
+          <button type="button" class="current" (click)="getTodayCalendar()">
+            Current Month
+          </button>
+          <button class="next" (click)="getNextMonthCalendarData(tempDate.Month)">
+            <i class="fa fa-chevron-right"></i>
+          </button>
+        </div>
+        <div class="cha-datepicker-body" style="min-height: 226px;">
+          <table class="days weeks">
+            <tr>
+              <th class="text-center weekday">Sun</th>
+              <th class="text-center weekday">Mon</th>
+              <th class="text-center weekday">Tue</th>
+              <th class="text-center weekday">Wed</th>
+              <th class="text-center weekday">Thu</th>
+              <th class="text-center weekday">Fri</th>
+              <th class="text-center weekday">Sat</th>
+            </tr>
+            <tr *ngFor="let week of calendar.MonthWeeks">
+              <td *ngFor="let item of week.Days" class="is-other-month">
+                <span [ngStyle]="{background:item.State}" style="color: white;" *ngIf="item != null && item.Selected != ''" class="{{item.State}}" (click)="selectDate(item.Selected, tempDate.Year,tempDate.Month,item.Value)">
+                  {{ item.Value }}
+                </span>
+                <span [ngStyle]="{background:item.State}" *ngIf="item != null && item.Selected == ''" class="{{item.State}}">
+                  {{ item.Value }}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<br />
+<div class="panel panel-default" *ngIf="chartData.length > 0">
+  <div class="panel-heading">Login Chart</div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-lg-12">
+        <login-view-chart [loginData]="chartData" [chartType]="'pie'"></login-view-chart>
+      </div>
+      <div class="col-lg-12">
+        <login-view-chart [loginData]="chartData" [chartType]="'bar'"></login-view-chart>
+      </div>
+    </div>
+  </div>
+</div>
+<br />
+<div class="panel panel-default">
+  <div class="panel-heading">Login Legends</div>
+  <div class="panel-body" *ngIf="chartData.length > 0">
+    <div class="col-lg-4 col-md-6" style="padding: 0; font-size:12px;" *ngFor="let status of chartData">
+      <div class="list-group-item" style="margin: 2px 2px;">
+        <span class="spncolor" [ngStyle]="{background:status.ColorCode}"><b>{{status.Count}}</b></span>
+        {{status.StatusName}}
+      </div>
+    </div>
+  </div>
+  <div class="panel-body" *ngIf="chartData.length == 0">
+    <i class="text-warning">
+      No data available.
+    </i>
+  </div>
+</div>
+

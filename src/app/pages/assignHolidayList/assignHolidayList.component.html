@@ -1,0 +1,15 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Assign Holiday List</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h5><b>Assign Holiday Group</b></h5>
+                <hr />
+            </div>
+            <assignsupervisor-search [employeeSearchOption]="selectEmployeeOptions" [showReportTo]="false" (selectedEmployee)="selectedEmployee($event)" name="employee"></assignsupervisor-search>
+        </div>
+    </div>
+</div>

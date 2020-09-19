@@ -1,0 +1,11 @@
+﻿<ul style="list-style:none;white-space:nowrap; padding: 0px 0px 0px 6px; border-left: 1px solid #333;">
+    <li *ngFor="let paramListItem of paramListObj" style="margin: 5px 3px;">
+        <a style="color:#333; background: none;" *ngIf="paramListItem.isGroup == true" (click)="paramListItem.isOpen = !paramListItem.isOpen" [ngClass]="{'fa-caret-right': !paramListItem.isOpen, 'fa-caret-down':paramListItem.isOpen}" class="fa"></a>
+        <a style="color:#333; background: none;" *ngIf="paramListItem.isGroup != true"   class="fa fa-minus-circle"></a>
+        <a style="padding: 5px; border-radius: 2px;  text-overflow: ellipsis;" [ngClass]="{ 'bg-primary': paramListItem.isSelected == true, 'text-muted': paramListItem.isSelected != true}" (click)='filterSelected(paramListItem);'>
+            <i class="fa fa-folder" [ngClass]="{ 'fa-folder':paramListItem.isGroup == true, 'fa-file':paramListItem.isGroup != true }"></i>
+            {{paramListItem.PName}}
+        </a>
+        <childParam [paramListObj]='paramListItem.ChildParam' *ngIf="paramListItem.isOpen == true" (returnParamList)="filterSelected($event);"></childParam>
+    </li>
+</ul>

@@ -1,0 +1,231 @@
+﻿<div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4>
+                        Employee Expenses <b *ngIf="hrmLedgerList.length > 0">[{{getHRMLedger(pagination.SortBy)}}]</b> :
+                        <button class="btn btn-success btn-sm" (click)="openModal()" *ngIf="replicateDataToggle == false">
+                            Add New
+                        </button>
+                        <button class="btn btn-sm" (click)="replicateToggle()" [ngClass]="{'btn-success':replicateDataToggle == false, 'btn-danger':replicateDataToggle == true }">
+                            {{ replicateDataToggle == false ? 'Replicate Existing' : 'Cancel Replication' }}
+                        </button>
+
+                        <!--<button class="btn btn-success btn-sm">
+                            Import
+                        </button>-->
+                    </h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3" *ngIf="replicateDataToggle == false">
+                    <label>
+                        Employee Name
+                    </label>
+                    <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployeeForm($event)"></employee-search>
+                </div>
+                <div class="col-lg-4">
+                    <picker-year-month [(filterByYear)]="replicateYear" [(filterByMonth)]="replicateMonth" (filterByYearChange)="getReplicationData();" (filterByMonthChange)="getReplicationData();"></picker-year-month>
+                </div>
+                <!--<div class="col-lg-2">
+                    <label>
+                        Year
+                    </label>
+                    <select [(ngModel)]="replicateYear" class="form-control" (ngModelChange)="getReplicationData()">
+                        <option value="-1">--Select--</option>
+                        <option value="{{item.NYear}}" *ngFor="let item of yearList">{{item.NYear}}</option>
+                    </select>
+                </div>
+                <div class="col-lg-2">
+                    <label>
+                        Month
+                    </label>
+                    <select [(ngModel)]="replicateMonth" class="form-control" (ngModelChange)="getReplicationData()">
+                        <option value="-1">--Select--</option>
+                        <option value="{{item.Id}}" *ngFor="let item of monthList">{{item.NepMonthName}}</option>
+                    </select>
+                </div>-->
+
+                <div class="col-lg-3" *ngIf="replicateDataToggle != false">
+                    <label>
+                        Replicate To Date
+                    </label>
+                    <chaNepaliDatePicker id="TDate" [inputDate]="inputDate" [inputDatePickerOptions]="defaultDateOptions" (selectedDate)='onDateSelect($event)' *ngIf="inputDate && defaultDateOptions"></chaNepaliDatePicker>
+                </div>
+                <div class="col-lg-3">
+                    <label>
+                        Ledger Type
+                    </label>
+                    <select class="form-control" [(ngModel)]="pagination.SortBy" (ngModelChange)="toggleSortBy()">
+                        <option *ngFor="let item of hrmLedgerList" value="{{item.ALId}}">
+                            {{item.ALDesc}}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2" *ngIf="replicateDataToggle != false">
+                    <br />
+                    <button type="submit" class="btn btn-default" (click)="getReplicationData()">Go</button>
+                </div>
+            </div>
+
+            <hr style="border:1px solid #5cb85c;" />
+            <div class="row" *ngIf="employeeList.length > 0">
+                <div class="col-md-12">
+                    <table class="table table-responsive table-bordered table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th *ngIf="replicateDataToggle != false"></th>
+                                <th>Employee No.</th>
+                                <th>Employee Name</th>
+                                <th>Transaction Date</th>
+                                <th>Amount</th>
+                                <th>Remarks</th>
+                                <th *ngIf="replicateDataToggle == false">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let employee of employeeList">
+                                <td *ngIf="replicateDataToggle != false">
+                                    <button class="btn btn-xs btn-danger" (click)="deleteReplicatedItem(employee)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                                <td>{{employee.EmployeeNo}}</td>
+                                <td>{{employee.EmployeeName}}</td>
+                                <td>
+                                    <date-view [inputDate]="employee.TDate" *ngIf="employee.TDate != null"></date-view>
+                                    <span *ngIf="employee.TDate == null">-</span>
+                                </td>
+                                <td class="text-right">
+                                    <span *ngIf="replicateDataToggle == false">
+                                        {{employee.Amount | NPRCurrency}}
+                                    </span>
+                                    <span *ngIf="replicateDataToggle != false">
+                                        <input type="number" [(ngModel)]="employee.Amount" class="form-control" />
+                                    </span>
+                                </td>
+                                <td>
+                                    <span *ngIf="replicateDataToggle == false">
+                                        {{employee.Rmrks}}
+                                    </span>
+                                    <span *ngIf="replicateDataToggle != false">
+                                        <textarea [(ngModel)]="employee.Rmrks" class="form-control" style="resize: none" rows="4"></textarea>
+                                    </span>
+                                </td>
+                                <td *ngIf="replicateDataToggle == false">
+                                    <button class="btn btn-xs btn-info" (click)="openEditModal(employee)">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+            <div class="row" *ngIf="replicateDataToggle != false && employeeList.length > 0">
+                <div class="col-lg-12 text-center">
+                    <button class="btn btn-sm btn-success" (click)="saveReplication()">
+                        Save Replicated Data
+                    </button>
+                </div>
+            </div>
+            <div class="alert alert-info" *ngIf="employeeList.length == 0">
+                No data available.
+            </div>
+        </div>
+        <div class="panel-footer" *ngIf="replicateDataToggle == false">
+            <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+        </div>
+    </div>
+</div>
+
+
+<div bsModal #newIncentivesModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong> {{InputHRIncentive.Id != null ? 'Edit' : 'Add New'}}  Employee Expense</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="EmployeeName">Employee Name:</label>
+                            <div class="col-sm-8">
+                                <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployeeForm($event)" *ngIf="InputHRIncentive.Id == null"></employee-search>
+                                <span class="form-control input-sm" *ngIf="InputHRIncentive.Id != null">
+                                    <employee-name [employeeId]="InputHRIncentive.StaffId"></employee-name>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="TDate">Transaction Date:</label>
+                            <div class="col-sm-8">
+                                <chaNepaliDatePicker id="TDate" [inputDate]="inputDate" [inputDatePickerOptions]="defaultDateOptions" (selectedDate)='onTDateSelect($event)' *ngIf="inputDate && defaultDateOptions"></chaNepaliDatePicker>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="AlId">Allowance Type:</label>
+                            <div class="col-sm-8">
+                                <select id="ALId" required class="form-control" [(ngModel)]="InputHRIncentive.ALId" name="ALId" #ALId="ngModel">
+                                    <option value="{{item.ALId}}" *ngFor="let item of hrmLedgerList">{{item.ALDesc}}</option>
+                                </select>
+                                <div *ngIf="ALId.errors && (ALId.dirty || ALId.touched)" class="alert alert-danger">
+                                    <div [hidden]="!ALId.errors.required">
+                                        Please Select Allowance Type !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="Amount">Amount:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="Amount" placeholder="Enter Amount" required [(ngModel)]="InputHRIncentive.Amount" (ngModelChange)="checkMoney(InputHRIncentive.Amount,1)" name="Amount" #Amount="ngModel" />
+                                <div *ngIf="Amount.errors && (Amount.dirty || Amount.touched)" class="alert alert-danger">
+                                    <div [hidden]="!Amount.errors.required">
+                                        Amount is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="validAmount" class="alert alert-danger">
+                                    Insert Money Value Eg:457.75!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="Amount">Remarks:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="Rmrks" placeholder="Enter Remarks" required [(ngModel)]="InputHRIncentive.Rmrks" name="Rmrks" #Rmrks="ngModel" />
+                                <div *ngIf="Rmrks.errors && (Rmrks.dirty || Rmrks.touched)" class="alert alert-danger">
+                                    <div [hidden]="!Rmrks.errors.required">
+                                        Remarks is required !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" (click)="saveIncentive()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Save</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>
+<div *ngIf="isLoading == true" class="text-center loading-modal modal">
+    <p class="text-center modal-dialog modal-sm">
+        <i class="fa fa-spinner fa-circle-o-notch fa-spin"></i>
+        Loading
+    </p>
+    <div *ngIf="saveCount > 0">
+        Saving Replicated Data {{saveCount}} of {{employeeList.length}} items.
+    </div>
+</div>

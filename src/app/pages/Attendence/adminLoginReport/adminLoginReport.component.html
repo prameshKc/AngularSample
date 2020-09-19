@@ -1,0 +1,279 @@
+<ol class="breadcrumb" *ngIf="backToMonthAtt==false && backToAtt==false">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-calendar"></i> Daily Attendance Calendar</li>
+</ol>
+<div>
+    <div class="panel panel-default" *ngIf="viewLoginReport == false">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4>
+                        Employee Daily Login Report :
+                        <button class="btn btn-sm btn-default" (click)="generateCSVfile()">Export</button>
+                    </h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <span *ngIf="selectedDate">
+                        <date-view [inputDate]="selectedDate"></date-view>
+                    </span>
+                    <button type="button" class="btn btn-sm btn-default" (click)="todayReport()">Today's Report</button>
+                </div>
+                <div class="col-md-4 col-md-offset-2">
+                    <chaNepaliDatePicker id="leaveDate" [inputDate]="inputDate" [inputDatePickerOptions]="inputDateOptions" (selectedDate)='onDateSelect($event)' *ngIf="inputDate && inputDateOptions"></chaNepaliDatePicker>
+                </div>
+            </div>
+            <hr style="border:1px solid #5cb85c;" />
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="form-group form-group-sm">
+                        <label for="EmpSearch">
+                            Employee Name
+                        </label>
+                        <div>
+                            <input class="form-control input-sm" id="EmpSearch" [(ngModel)]="searchText" (ngModelChange)="filter()" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group form-group-sm">
+                        <department-select (selectedDept)="selectedDept($event)"></department-select>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group form-group-sm">
+                        <designation-select (selectedDesg)="selectedDesg($event)"></designation-select>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Employee No.</th>
+                            <th>Name</th>
+                            <th>Department Name</th>
+                            <th>Designation Name</th>
+                            <th>Check-In</th>
+                            <th>Check-Out</th>
+                            <th>Login Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let employee of employeeList" (click)="toggle(employee.EmployeeId);">
+                            <td>{{employee.EmployeeNo}}</td>
+                            <td>{{employee.EmployeeName}}</td>
+                            <td>{{employee.DepartmentName}}</td>
+                            <td>{{employee.DesignationName}}</td>
+                            <td>
+                                {{employee.CheckInTime != null ? employee.CheckInTime : '-' }}
+                            </td>
+                            <td>
+                                {{employee.CheckOutTime != null ? employee.CheckOutTime : '-' }}
+                            </td>
+                            <td>
+                                {{employee.StatusName}}
+                            </td>
+                            <td>
+                                {{employee.StaffRemarks != null ? employee.StaffRemarks : '-'}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+        </div>
+    </div>
+
+    <div class="panel panel-default" *ngIf="viewLoginReport == true">
+        <div class="panel-body">
+
+            <div class="alert alert-dismissable">
+                <div class="col-sm-1" style="line-height: 65px; vertical-align: middle;">
+                    <button class="btn btn-default btn-lg" *ngIf="isFromAttendance==false && isFromAttendance2==false" (click)="cicoToggle = false;toggle(requiredEmployeeId);"><i class="fa fa-backward"></i></button>
+                    <button class="btn btn-default btn-lg" *ngIf="isFromAttendance==true || isFromAttendance2==true" (click)="cicoToggle = false;backToMonthWiseAtt()"><i class="fa fa-backward"></i></button>
+                </div>
+                <div class="col-sm-8">
+                    <blockquote class="text-capitalize help-block">
+                        <p>
+                            <strong>Login Report:- </strong>
+                            {{selectedEmployee.FirstName}} {{selectedEmployee.MiddleName}} {{selectedEmployee.LastName}}
+                        </p>
+                        <footer>
+                            <strong> Employee Number: </strong> {{selectedEmployee.EmployeeNo}}
+                        </footer>
+                    </blockquote>
+                </div>
+                <div class="col-sm-3 text-right" style="line-height: 65px; vertical-align: middle;">
+                    <button class="btn btn-default btn-lg" (click)="getMonthlyRep()">CICO Report</button>
+                </div>
+            </div>
+            <div class="row" *ngIf="cicoToggle == false">
+                <div class="col-md-7">
+                    <chaCalendar id="dailyCalendar" [requiredEmployeeId]="requiredEmployeeId" [refresh]="isRefreshCalendar" (selectedDate)='getLoginDetails($event)'></chaCalendar>
+                </div>
+                <div class="col-md-5">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Monthly Login Report</div>
+                        <div class="panel-body" *ngIf="!loginDetailsVm">
+                            <div class="alert alert-info">
+                                Please select a highlighted day from the calendar.
+                            </div>
+                        </div>
+                        <div class="panel-body" *ngIf="loginDetailsVm">
+                            <div class="well well-sm">
+                                <div class="col-sm-5"><strong>Date</strong></div>
+                                <div class="col-sm-7">
+                                    <span *ngIf="loginDetailsVm.TDate">
+                                        <date-view [inputDate]="loginDetailsVm.TDate"></date-view>
+                                    </span>
+                                    <span *ngIf="!loginDetailsVm.TDate">
+                                        -
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="well well-sm" *ngIf="loginDetailsVm.LoginGroup">
+                                <div>
+                                    <div class="col-sm-5">
+                                        <strong>Shift Name</strong>
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <strong>Shift Time</strong>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="col-sm-5">{{loginDetailsVm.LoginGroup.GroupName == null? '':loginDetailsVm.LoginGroup.GroupName}}</div>
+                                    <div class="col-sm-7">
+                                        <time-view [inputTime]="loginDetailsVm.LoginGroup.DefaultOfficeHourFrom"></time-view>
+                                        -
+                                        <time-view [inputTime]="loginDetailsVm.LoginGroup.DefaultOfficeHourTill"></time-view>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="well well-sm">
+                                <div>
+                                    <div class="col-sm-6">
+                                        <strong>Login Time</strong>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Logout Time</strong>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="col-sm-6">
+                                        <time-view [inputTime]="loginDetailsVm.CheckInTime" *ngIf="loginDetailsVm.CheckInTime"></time-view>
+                                        <span *ngIf="!loginDetailsVm.CheckInTime">-</span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <time-view [inputTime]="loginDetailsVm.CheckOutTime" *ngIf="loginDetailsVm.CheckOutTime"></time-view>
+                                        <span *ngIf="!loginDetailsVm.CheckOutTime">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="well well-sm" *ngIf="loginDetailsVm.CheckInGeom">
+                                <div>
+                                    <strong>Check-In Location</strong>
+                                </div>
+                                <div>
+                                    <div style="height: 150px;"
+                                         leaflet
+                                         [leafletOptions]="checkInOptions">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="well well-sm" *ngIf="loginDetailsVm.CheckOutGeom">
+                                <div>
+                                    <strong>
+                                        Check-Out Location
+                                    </strong>
+                                </div>
+                                <div>
+                                    <div style="height: 150px;"
+                                         leaflet
+                                         [leafletOptions]="checkOutOptions">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="well well-sm">
+                                <div class="col-sm-6">
+                                    <strong>Login Status</strong>
+                                </div>
+                                <div class="col-sm-6"><label class="label" [ngStyle]="{background: loginDetailsVm.LoginStatus.ColorCode}">{{loginDetailsVm.LoginStatus.StatusName}}</label></div>
+                            </div>
+                            <div class="well well-sm" *ngIf="loginDetailsVm.StaffRemarks">
+                                <div class="col-sm-4">
+                                    <strong>Staff Remarks</strong>
+                                </div>
+                                <div class="col-sm-8">{{loginDetailsVm.StaffRemarks}}</div>
+                            </div>
+                            <div class="well well-sm" *ngIf="loginDetailsVm.LoginValidate.length > 0">
+                                <div class="col-sm-4"><strong>Verification Remarks</strong></div>
+                                <div class="col-sm-8">{{loginDetailsVm.LoginValidate[0].VerificationRemarks}}</div>
+                            </div>
+
+                            <div class="well well-sm" *ngIf="loginDetailsVm.LoginValidate.length > 0">
+                                <div class="col-sm-4"><strong>Verified By</strong></div>
+                                <div class="col-sm-8">{{loginDetailsVm.LoginValidate[0].User.UserName}}</div>
+                            </div>
+                            <div class="well well-sm" *ngIf="loginDetailsVm.EmployeeId != userDetails.EmployeeId">
+                                <div class="panel-heading">
+                                    <strong>
+                                        Validate Login Report:
+                                    </strong>
+                                </div>
+                                <div class="row" *ngIf="loginStatusValidate.length > 0">
+                                    <div class="col-sm-5">
+                                        <strong>
+                                            Status
+                                        </strong>
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <select [(ngModel)]="updateLoginReportObj.LoginStatusId" class="form-control">
+                                            <option value="{{item.LoginStatusId}}" *ngFor="let item of loginStatusValidate">
+                                                {{item.StatusName}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <strong>Remarks</strong>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <textarea class="form-control" style="resize: none;" cols="20" id="VerificationRemarks" name="VerificationRemarks" rows="4" placeholder="Enter remarks..." [(ngModel)]="updateLoginValidateObj.VerificationRemarks"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-footer" *ngIf="loginDetailsVm && loginDetailsVm.EmployeeId != userDetails.EmployeeId">
+
+                            <button class="btn btn-success btn-xs disabled" *ngIf="(updateLoginReportObj.LoginStatusId == null || updateLoginReportObj.LoginStatusId == '') || (updateLoginValidateObj.VerificationRemarks == null || updateLoginValidateObj.VerificationRemarks == '')">Save</button>
+                            <button class="btn btn-success btn-xs" (click)="updateVerificationRemarks(loginDetailsVm)" *ngIf="!((updateLoginReportObj.LoginStatusId == null || updateLoginReportObj.LoginStatusId == '') || (updateLoginValidateObj.VerificationRemarks == null || updateLoginValidateObj.VerificationRemarks == ''))">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="cicoToggle != false">
+                <hrMonthlyRep [EmpId]="selectedEmployee.EmployeeId" [filterByYear]="filterYear" [filterByMonth]="filterMonth" *ngIf="EmpId != null"></hrMonthlyRep>
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="backToMonthAtt">
+    <monthwiseAttendance></monthwiseAttendance>
+</div>
+<div *ngIf="backToAtt">
+    <employeeAttendanceDetail></employeeAttendanceDetail>
+</div>
+<div *ngIf="isLoading" class="text-center loading-modal modal">
+    <p class="text-center modal-dialog modal-sm">
+        <i class="fa fa-spinner fa-circle-o-notch fa-spin"></i>
+        Loading
+    </p>
+</div>

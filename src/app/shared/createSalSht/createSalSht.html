@@ -1,0 +1,85 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Create Salary Sheet</li>
+</ol>
+
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Create Salary Sheet
+            </div>
+            <div class="panel-body">
+                <form class="form-horizontal" #cssForm="ngForm">
+                    <div class="form-group">
+                        <label for="CompanyId" class="control-label col-sm-2">Branch:</label>
+                        <div class="col-sm-6">
+                            <!--<div *ngIf="svCBList.length > 1">
+                                <input required type="button" class="form-control dropdown-toggle" name="CompanyId" placeholder="Select Company" [(ngModel)]="CompanyName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <div class="dropdown-menu dropDownComp dropdown-menu-left" style="color: black;">
+                                    <childCompany [CompanyListObj]="CBList" (returnCompanyList)="selectBranch($event);"></childCompany>
+                                </div>
+                            </div>-->
+
+                            <div [ngClass]="{'open':CBSelectIsExpand == true }"  *ngIf="svCBList.length > 1">
+                                <input required type="button" (click)="CBSelectIsExpand = !CBSelectIsExpand" class="form-control btn-block dropdown-toggle" name="CompanyId" placeholder="Select Company" [(ngModel)]="CompanyName">
+                                <div class="dropdown-menu" role="menu" *ngIf="CBSelectIsExpand">
+                                    <companySelect [CompanyListObj]="CBList" (returnCompanyList)="selectBranch($event); CBSelectIsExpand = false;"></companySelect>
+                                </div>
+                            </div>
+                            <div *ngIf="svCBList.length == 1">
+                                <div class="form-control">{{CompanyName}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="FiscalYear" class="control-label col-sm-2">Fiscal Year:</label>
+                        <div class="col-sm-6">
+                            <select name="FiscalYear" id="InputCSS.FiscalYear" class="form-control" [(ngModel)]="InputCSS.FYID" #FYID="ngModel" required>
+                                <option value="-1">--Select--</option>
+                                <option value="{{item.FYID}}" *ngFor="let item of fiscalYearList">{{defaultDateType == 1 ? item.FYNameAD : item.FyName}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Year" class="control-label col-sm-2">Year:</label>
+                        <div class="col-sm-6">
+                            <select name="Year" id="Year" class="form-control" [(ngModel)]="InputCSS.Year" #Year="ngModel" required>
+                                <option value="-1">--Select--</option>
+                                <option value="{{item}}" *ngFor="let item of yearList">{{item}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Month" class="control-label col-sm-2">Month:</label>
+                        <div class="col-sm-6">
+                            <select name="Month" id="Month" class="form-control" [(ngModel)]="InputCSS.Month" #Month="ngModel" required>
+                                <option value="-1">--Select--</option>
+                                <option value="{{item.Id}}" *ngFor="let item of monthList">{{defaultDateType == 1 ? item.EngName : item.NepName}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="isBonus" class="control-label col-sm-2">
+                            With Dashain Bonus:
+                        </label>
+                        <div class="col-sm-6">
+                            <input type="checkbox" class="checkbox" [(ngModel)]="InputCSS.IsBonus" id="isBonus" name="isBonus" #isBonus="ngModel" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-8 text-center">
+                            <button class="btn btn-sm btn-success" disabled *ngIf="cssForm.errors || !InputCSS.FYID || !InputCSS.Month || !InputCSS.Year">
+                                Create Salary Sheet
+                            </button>
+                            <button class="btn btn-sm btn-success" (click)="createSalSht()" *ngIf="!cssForm.errors && InputCSS.FYID && InputCSS.Month && InputCSS.Year">
+                                Create Salary Sheet
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

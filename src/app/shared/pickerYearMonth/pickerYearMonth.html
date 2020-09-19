@@ -1,0 +1,16 @@
+<div class="row">
+    <div class="col-lg-6">
+        <label class="control-label" for="Year">Year</label>
+        <select [(ngModel)]="filterByYear" class="form-control input-sm" (ngModelChange)="yearSelect()">
+            <option value="-1`">---Select Year---</option>
+            <option value="{{item}}" *ngFor="let item of YearList">{{item}}</option>
+        </select>
+    </div>
+    <div class="col-lg-6" *ngIf="hideMonth != true">
+        <label class="control-label" for="Month">Month</label>
+        <select [(ngModel)]="filterByMonth" class="form-control input-sm" (ngModelChange)="monthSelect()">
+            <option value="-1`">---Select Month---</option>
+            <option value="{{item.Id}}" *ngFor="let item of MonthList">{{dateType == 1 ? item.EngName : item.NepName}}</option>
+        </select>
+    </div>
+</div>

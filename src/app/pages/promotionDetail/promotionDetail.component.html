@@ -1,0 +1,179 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Employee Promotion Detail</li>
+</ol>
+
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h5><strong>Employee Promotion Information</strong></h5>
+                <hr style="border:1px solid #5cb85c;" />
+                <div>
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group col-md-12">
+                            <label class="control-label col-md-2" for="EffectiveFrom">Date Range:</label>
+                            <div class="col-md-10">
+                                <div class="col-sm-4">
+                                    <chaNepaliDatePicker id="EffectiveFrom" [inputDate]="inputFromDate" [inputDatePickerOptions]="inputFromDateOptions" (selectedDate)='onEffectiveFromSelect1($event)' *ngIf="inputFromDate && inputFromDateOptions"></chaNepaliDatePicker>
+                                    <div [hidden]="isEffFromGreater==false" class="alert-danger">
+                                        "Effective From must be Less than Effective To"
+                                    </div>
+                                    <div [hidden]="requiredFromDate==false" class="alert-danger">
+                                        "Please Select From Date"
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <chaNepaliDatePicker id="EffectiveTo" [inputDate]="inputToDate" [inputDatePickerOptions]="inputToDateOptions" (selectedDate)='onEffectiveToSelect1($event)' *ngIf="inputToDate && inputToDateOptions"></chaNepaliDatePicker>
+                                    <div [hidden]="requiredToDate==false" class="alert-danger">
+                                        "Please Select To Date"
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <button type="button" class="btn btn-xs btn-danger pull-right" (click)="hideDetail()">Cancel</button>
+                                    <button type="submit" (click)="submit(ePEffectiveFromInString,ePEffectiveToInString)" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success pull-right">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="filterObj.Sort != null && filterObj.Sort != ''">
+                        <button class="close" (click)="promotionAndFilter()"><i class="fa fa-times"></i></button>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                            <b>Sorted By: </b>
+                            {{filterObj.SortingAttribute == 'Employee/EmployeeNo' ? 'Employee No' : ''}}
+                            {{filterObj.SortingAttribute == 'Employee/FirstName' ? 'Employee Name' : ''}}
+                            {{filterObj.SortingAttribute == 'EffectiveFrom' ? 'EffectiveFrom' : ''}}
+                            {{filterObj.SortingAttribute == 'Date' ? 'Decision Date' : ''}}
+                            {{filterObj.SortingAttribute == 'PostedOn' ? 'Posted Date' : ''}}
+                            {{filterObj.SortingAttribute == 'Division/DivisionName' ? 'Division Name' : ''}}
+                            {{filterObj.SortingAttribute == 'Department/DepartmentName' ? 'Department Name' : ''}}
+                            {{filterObj.SortingAttribute == 'Designation/DesignationName' ? 'Designation Name' : ''}}
+                            {{filterObj.SortingAttribute == 'CostCenter/CostCenterName' ? 'Cost Center Name' : ''}}
+                            {{filterObj.SortingAttribute == 'Category/CategoryName' ? 'Category Name' : ''}}
+                            {{filterObj.SortingAttribute == 'WorkArea/WorkAreaName' ? 'Work Area Name' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-12 table-responsive">                   
+                    <table class="table table-bordered table-condensed" *ngIf="displayEPTable">
+                        <thead *ngIf="EmployeePromotionList.length>0">
+                            <tr>
+                                <th rowspan="2"><span (click)="sortBy('Employee/EmployeeNo')">Employee No</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/EmployeeNo')"></span></th>
+                                <th rowspan="2"><span (click)="sortBy('Employee/FirstName')">Employee Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/FirstName')"></span></th>
+                                <th colspan="2" class="text-center">Current Designation</th>
+                                <th rowspan="2"><span (click)="sortBy('Department/DepartmentName')">Department</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Department/DepartmentName')"></span></th>
+                                <th rowspan="2">Action</th>
+                            </tr>
+                            <tr>
+                                <th><span (click)="sortBy('Designation/DesignationName')">Designation</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Designation/DesignationName')"></span></th>
+                                <th><span (click)="sortBy('EffectiveFrom')">Effective From Date</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('EffectiveFrom')"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of EmployeePromotionList">
+                                <td>
+                                    {{item.Employee.EmployeeNo}}
+                                </td>
+                                <td>
+                                    {{item.Employee.FirstName}} {{item.Employee.MiddleName}} {{item.Employee.LastName}}
+                                </td>
+                                <td>
+                                    {{item.Designation ? item.Designation.DesignationName : '-'}}
+                                </td>
+                                <td>
+                                    <span *ngIf="item.EffectiveFrom">
+                                        <date-view [inputDate]="item.EffectiveFrom"></date-view>
+                                    </span>
+                                    <span *ngIf="!item.EffectiveFrom">
+                                        -
+                                    </span>
+                                </td>
+                                <td>
+                                    {{item.Department ? item.Department.DepartmentName : '-'}}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-default" tooltip="View History" placement="top" (click)="viewHistory(item.EmployeeId)"> View History</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>               
+            </div>
+            <div *ngIf="(EmployeePromotionList.length == 0 && displayEPTable==true)">
+                <div class="text-warning">No items available</div>
+            </div>
+            <div class="panel-footer" *ngIf="displayEPTable">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #EmployeePositionHistoryModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideEmployeePositionModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Employee Position History</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-condensed">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">Employee No:  <span>{{employeeNo}}</span></th>
+                                    <th rowspan="2">
+                                        Date of Join:
+                                        <span *ngIf="dateOfJoin">
+                                            <date-view [inputDate]="dateOfJoin"></date-view>
+                                        </span>
+                                        <span *ngIf="!dateOfJoin">
+                                            -
+                                        </span>
+                                    </th>
+
+                                </tr>
+                                <tr>
+                                    <th colspan="2">Employee Name: <span>{{employeeName}}</span></th>
+                                </tr>
+                                <tr>
+                                    <th>Effective From Date</th>
+                                    <th>Designation</th>
+                                    <th>Department</th>
+                                </tr>
+                                <tr *ngFor="let item of employeePositionHistoryList">
+                                    <td>
+                                        <span *ngIf="item.EffectiveFrom">
+                                            <date-view [inputDate]="item.EffectiveFrom"></date-view>
+                                        </span>
+                                        <span *ngIf="!item.EffectiveFrom">
+                                            -
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {{item.Designation ? item.Designation.DesignationName : '-'}}
+                                    </td>
+                                    <td>
+                                        {{item.Department ? item.Department.DepartmentName : '-'}}
+                                    </td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <button class="btn btn-xs btn-primary" (click)="exportToCSV()">Export to CSV</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideEmployeePositionModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

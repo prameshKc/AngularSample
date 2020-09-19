@@ -1,0 +1,149 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Generate Notice</li>
+</ol>
+<div class="col-md-12">
+    <div class="header">
+        <h5><strong>Generate Notice</strong></h5>
+    </div>
+    <div class="panel-body col-md-12">
+        <form #bookForm="ngForm" class="form-horizontal">
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="Subject">Subject:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="Subject" placeholder="Enter Subject" [(ngModel)]="InputNotice.Subject" name="Subject" #Subject="ngModel" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="Body">Body:</label>
+                <div class="col-sm-8">
+                    <ck-editor name="Body" [(ngModel)]="InputNotice.Body"
+                               (ngModelChange)="onEditorInputChange($event)" skin="moono-lisa"
+                               lang="en" [fullPage]="true">
+                    </ck-editor>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="EmpId">Send To:</label>
+                <div class="col-sm-8">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="btn-toolbar" role="toolbar" aria-label="...">
+                                <div class="btn-group btn-group-sm" role="group" aria-label="DeptWise">
+                                    <button class="btn btn-default" (click)="isEmpWise = true;getCount()">
+                                        Employee Wise
+                                    </button>
+                                    <button class="btn btn-default" (click)="isEmpWise = false;getCount()">
+                                        Department Wise
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" *ngIf="!isEmpWise">
+                        <div class="col-md-5">
+                            <div id="employeeList-container">
+                                <select id="employeeList" multiple="multiple" [(ngModel)]="EmpList" name="empList" #empList="ngModel" (click)="getSelectValues(EmpList)">
+                                    <option [ngValue]="item" *ngFor="let item of departmentList;let in=index" (dblclick)="selectedItem(item,in)">
+                                        {{item}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <span class="form-control">{{TotalItem}}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="trigger-container"><i class="fa fa-angle-right right" (click)="copyMultiple(1)"></i></div>
+                            <div class="trigger-container"><i class="fa fa-angle-double-right right" (click)="copyAll(1)"></i></div>
+                            <div class="trigger-container"><i class="fa fa-angle-double-left left" (click)="copyAll(2)"></i></div>
+                            <div class="trigger-container"><i class="fa fa-angle-left left" (click)="copyMultiple(2)"></i></div>
+                        </div>
+                        <div class="col-md-5">
+                            <div id="employeeSelected">
+                                <select id="employeeList" multiple="multiple" [(ngModel)]="EmpList2" name="empList2" #empList2="ngModel" (click)="getSelectValues(EmpList2)">
+                                    <option [ngValue]="item" *ngFor="let item of showDeptList;let inde=index" (dblclick)="cancelledItem(item,inde)">
+                                        {{item}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <span class="form-control">{{SelectedItem}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="isEmpWise">
+                        <div class="col-md-5">
+                            <div id="employeeList-container">
+                                <select id="employeeList" multiple="multiple" [(ngModel)]="EmpList" name="empList" #empList="ngModel" (click)="getSelectValues(EmpList)">
+                                    <option [ngValue]="item" *ngFor="let item of employeeList;let in=index" (dblclick)="selectedItem(item,in)">
+                                        {{item.EmployeeName}}({{item.EmployeeNo}}) [ {{item.DepartmentName}} ]
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <span class="form-control">{{TotalItem}}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="trigger-container"><i class="fa fa-angle-right right" (click)="copyMultiple(1)"></i></div>
+                            <div class="trigger-container"><i class="fa fa-angle-double-right right" (click)="copyAll(1)"></i></div>
+                            <div class="trigger-container"><i class="fa fa-angle-double-left left" (click)="copyAll(2)"></i></div>
+                            <div class="trigger-container"><i class="fa fa-angle-left left" (click)="copyMultiple(2)"></i></div>
+                        </div>
+                        <div class="col-md-5">
+                            <div id="employeeSelected">
+                                <select id="employeeList" multiple="multiple" [(ngModel)]="EmpList2" name="empList2" #empList2="ngModel" (click)="getSelectValues(EmpList2)">
+                                    <option [ngValue]="item" *ngFor="let item of showList;let inde=index" (dblclick)="cancelledItem(item,inde)">
+                                        {{item.EmployeeName}}({{item.EmployeeNo}}) [ {{item.DepartmentName}} ]
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <span class="form-control">{{SelectedItem}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-sm-10">
+        <button type="button" class="btn btn-xs btn-danger pull-right" (click)="cancel()">Cancel</button>
+        <button type="submit" (click)="openModal()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success pull-right">Send Notice</button>
+    </div>
+</div>
+<div bsModal #sendMailModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Send Mail</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Do you want to send Email?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="sendMail()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="saveNotice()">No</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#example-selectedClass').multiselect({});
+    });
+</script>

@@ -1,0 +1,67 @@
+:host ::ng-deep {
+    color: #333;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /*width: 250px;*/
+}
+
+@media screen and (max-width:450px) {
+    :host ::ng-deep {
+        width: 100%;
+    }
+}
+
+:host ::ng-deep app-drawer {
+    /*background-color: #aaaaaa;*/
+}
+
+:host ::ng-deep a {
+    color: #fff !important;
+}
+
+  :host ::ng-deep a.active {
+    font-weight: 600;
+    background-color: #ccc !important;
+    color: #333 !important;
+  }
+
+:host ::ng-deep fa.drawer_icon {
+    color: #888;
+    /* margin-left:-28px; */
+}
+
+/* 
+:host:hover ::ng-deep>a>fa.drawer_icon:not([dropdownIcon="true"]),
+:host:focus ::ng-deep>a>fa.drawer_icon:not([dropdownIcon="true"]), */
+:host ::ng-deep a.active fa {
+    color: #f38218;
+}
+
+:host:hover ::ng-deep>a,
+:host:focus ::ng-deep>a {
+    background-color: #ddd;
+    border-left: #f38218 4px solid;
+    color: #333;
+}
+
+:host:hover ::ng-deep>a.active,
+:host:focus ::ng-deep>a.active {
+    background-color: #bbb;
+}
+
+:host:focus ::ng-deep>a,
+:host:hover ::ng-deep>a {
+    padding-left: 0px;
+}
+
+
+:host ::ng-deep fa.drawer_icon[dropdownIcon="true"] {
+    float: left;
+}
+
+:host ::ng-deep fa.drawer_icon_chev[dropdownIcon="true"] {
+    float: right;
+    padding-right: 5px;
+}

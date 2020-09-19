@@ -1,0 +1,131 @@
+<ol class="breadcrumb">
+  <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+</ol>
+<div class="container-fluid row">
+  <div class="col-xs-12">
+    <div>
+      <!--<div class="panel panel-default">-->
+      <div class="row">
+        <div class="col-md-8">
+          <div class="row">
+            <div class="col-md-12">
+              <div *ngIf="showBirthdayNotification">
+                <birthdayNotification></birthdayNotification>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="bg-white panel-body">
+                <h5><strong>Notice Board</strong></h5>
+                <hr style="border:1px solid #5cb85c;margin-bottom:0px;" />
+                <notice-list></notice-list>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="bg-white holiday_list">
+            <h5>
+              <i class="glyphicon glyphicon-list-alt"></i> <strong>Upcoming Holiday List</strong>
+            </h5>
+            <hr style="border:1px solid #5cb85c;margin-bottom:0px;" />
+            <div class="list-group">
+              <div class="list-group-item" *ngFor="let listDetails of employeeHolidayList" tooltip="{{listDetails.HolidayDescription}}" placement="top">
+                <p>{{listDetails.HolidayName}}</p>
+                <p class="holiday_date token" *ngIf="listDetails.HolidayDate">
+                  <i>{{ listDetails.HolidayDate | date: 'EEEE' }}</i>, <date-view [inputDate]="listDetails.HolidayDate"></date-view>
+                  <br />
+                  <strong>
+                    [ {{ listDetails.HolidayDate | DaysRemaining }} ]
+                  </strong>
+                </p>
+                <p class="holiday_date token" *ngIf="!listDetails.HolidayDate">
+                  -
+                </p>
+              </div>
+              <div *ngIf="employeeHolidayList.length<=0" style="margin:0 0 auto;text-align:center;font-size:14px;">
+                <a class="list-group-item-warning">There is no holidays in this list !!</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br />
+      <div class="row">
+        <div class="col-md-12">
+          <div class="bg-white leave_detail">
+            <h5><strong>Leave Detail</strong></h5>
+            <hr style="border:1px solid #5cb85c; margin: 10px 5px;" />
+            <Leave [isDashBoard]="true"></Leave>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="bg-white leave_policy">
+            <h5><strong>Leave Policy</strong></h5>
+            <hr style="border:1px solid #5cb85c; margin: 10px 0 5px;" />
+
+            <div class="panel-body table-container">
+              <table class="table table-bordered table-hover table-striped table-condensed table-responsive">
+                <thead>
+                  <tr>
+                    <th>S.No</th>
+                    <th>Leave Type</th>
+                    <th>Effective From</th>
+                    <th>Previous Balance</th>
+                    <th>Eligible Leave</th>
+                    <th>Earn Leave</th>
+                    <th>Consume Leave</th>
+                    <th>Balance Leave</th>
+                    <th>Consumed Unpaid Leave</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="leavePolicyEmployeeList.length > 0">
+                  <tr *ngFor="let item of leavePolicyEmployeeList; let in=index">
+                    <td>{{in+1}}</td>
+                    <td>
+                      {{item.LoginStatus.StatusName}}
+                    </td>
+                    <td>
+                      <span *ngIf="item.EffectiveFrom">
+                        <date-view [inputDate]="item.EffectiveFrom"></date-view>
+                      </span> 
+                      <span *ngIf="!item.EffectiveFrom">
+                        -
+                      </span>
+                    </td>
+                    <td>
+                      {{item.PreviousBalance}}
+                    </td>
+                    <td>
+                      {{item.EligibleLeave}}
+                    </td>
+                    <td>
+                      {{item.EarnLeave}}
+                    </td>
+                    <td>
+                      {{item.CosumeLeave}}
+                    </td>
+                    <td>
+                      {{item.BalanceLeave}}
+                    </td>
+                    <td>
+                      {{item.ConsumedUnpaidLeave}}
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="leavePolicyEmployeeList.length == 0">
+                  <tr>
+                    <td colspan="9">
+                      <div class="text-warning">No items available</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,193 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Job Code</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <button class="btn btn-sm btn-default" (click)="openJobCodeModal()" tooltip="Generate Job Code" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Generate Job Code</button>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-12"><h5> Search By Parameters</h5></div>
+                        <div class="col-md-3">
+                            <div class="col-md-10">
+                                <select class="form-control" id="UnitCodeId" [(ngModel)]="filterByUnit" (ngModelChange)="onFilter()" [disabled]="isDisable" name="UnitCodeId" #UnitCodeId="ngModel">
+                                    <option value="0">--Select Unit--</option>
+                                    <option *ngFor="let item of unitList" value="{{item.Id}}">
+                                        {{item.UnitName}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2"><h5>AND</h5></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="col-md-10">
+                                <select class="form-control" id="ClientCodeId" [(ngModel)]="filterByClient" (ngModelChange)="onFilter()" [disabled]="isDisable" name="ClientCodeId" #ClientCodeId="ngModel">
+                                    <option value="0">--Select Client--</option>
+                                    <option *ngFor="let item of clientList" value="{{item.Id}}">
+                                        {{item.CompanyName}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2"><h5>AND</h5></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="col-md-10">
+                                <select class="form-control" id="ServiceTypeNameId" [(ngModel)]="filterByServiceType" (ngModelChange)="onFilter()" [disabled]="isDisable" name="ServiceTypeNameId" #ServiceTypeNameId="ngModel">
+                                    <option value="0">--Select Service Type--</option>
+                                    <option *ngFor="let item of serviceTypeNameList" value="{{item.Id}}">
+                                        {{item.TypeName}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2"><h5>AND</h5></div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" id="FYID" [(ngModel)]="filterByFiscalYear" (ngModelChange)="onFilter()" [disabled]="isDisable" name="FYID" #FYID="ngModel">
+                                <!--(ngModelChange)="onFilter(filterByFiscalYear)"-->
+                                <option *ngFor="let item of fiscalYearList" value="{{item.FYID}}">
+                                    {{item.FyName}}({{item.FYNameAD}})
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-12 text-center"><h5>OR</h5></div>
+                    <div class="col-md-12">
+                        <div class="col-md-3"><h5>By Job Code</h5></div>
+                        <div class="form-group col-md-3">
+                            <input type="text" class="form-control" id="JobCodeId" placeholder="Enter Job Code" required maxlength="8" [(ngModel)]="JobCodeSearch" (ngModelChange)="onJobCodeChange($event)" name="JobCodeId" #JobCodeId="ngModel" />
+                            <div *ngIf="JobCodeId.errors && (JobCodeId.dirty || JobCodeId.touched)" class="alert alert-danger">
+                                <div [hidden]="!JobCodeId.errors.required">
+                                    Job Code is required !
+                                </div>
+                            </div>
+                            <div [hidden]="!incorrectJobCode" class="alert alert-danger">
+                                Please Enter Valid Eight(8) Digit Job Code!
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-xs btn-default" (click)="reset()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="col-lg-12">
+                    <table class="table table-bordered table-hover table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Unit Name:</th>
+                                <th>Client Name</th>
+                                <th>Service Type</th>
+                                <th>Job Code</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="filteredbyUnitList.length>0">
+                            <tr *ngFor="let item of filteredbyUnitList">
+                                <td>{{item.UnitName}}</td>
+                                <td>{{item.ClientName}}</td>
+                                <td>{{item.ServiceTypeName}}</td>
+                                <td><span *ngFor="let jobCodes of item.JobCode; let i = index;">[{{jobCodes.JobCode}}] , </span></td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="jobCodeList.length == 0">
+                            <tr class="text-warning">
+                                <td colspan="4">
+                                    <div class="text-warning">No items available</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+<!--</div>-->
+
+<div bsModal #jobCodeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <form #bookForm="ngForm" class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" aria-label="Close" (click)="hideJobCodeModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h5><strong>Generate Job Code</strong></h5>
+                </div>
+                <div class="modal-body" style="font-size:12px;">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed">
+                            <tbody>
+                                <tr>
+                                    <td>Unit</td>
+                                    <td>
+                                        <select class="form-control" id="UnitCodeId" [(ngModel)]="InputJobCode.UnitCodeId" (ngModelChange)="onUnitChange()" name="UnitCodeId" #UnitCodeId="ngModel">
+                                            <option *ngFor="let item of unitList" value="{{item.Id}}">
+                                                {{item.UnitName}}
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Client</td>
+                                    <td>
+                                        <select class="form-control" id="ClientCodeId" [(ngModel)]="InputJobCode.ClientCodeId" (ngModelChange)="onClientChange()" name="ClientCodeId" #ClientCodeId="ngModel">
+                                            <option *ngFor="let item of clientList" value="{{item.Id}}">
+                                                {{item.CompanyName}}
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Fiscal Year</td>
+                                    <td>
+                                        <select class="form-control" id="FYID" [(ngModel)]="filterByFiscalYear" (ngModelChange)="onFYSelect()" [disabled]="isDisable" name="FYID" #FYID="ngModel">
+                                            <option *ngFor="let item of fiscalYearList" value="{{item.FYID}}">
+                                             {{item.FYNameAD}}
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Service type</td>
+                                    <td>
+                                        <select class="form-control" id="ServiceTypeNameId" [(ngModel)]="InputJobCode.ServiceTypeNameId" (ngModelChange)="onServiceTypeChange($event,InputJobCode.UnitCodeId,InputJobCode.ClientCodeId)" name="ServiceTypeNameId" #ServiceTypeNameId="ngModel">
+                                            <option *ngFor="let item of serviceTypeNameList" value="{{item.Id}}">
+                                                {{item.TypeName}}
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div [hidden]="!invalidJobCode" class="alert alert-danger">
+                            This Unit and Client has already an existing Job Code!
+                        </div>
+                        <div class="col-md-12" *ngIf="InputJobList.length>0">
+                            <label class="col-md-4">Job Code</label>
+                            <div class="col-md-8" *ngFor="let item of InputJobList">
+                                <div>{{item.JobCode}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" [disabled]="invalidJobCode" class="btn btn-xs btn-success" (click)="saveJobCode()">Save</button>
+                    <button type="button" class="btn btn-xs btn-danger" (click)="hideJobCodeModal()">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

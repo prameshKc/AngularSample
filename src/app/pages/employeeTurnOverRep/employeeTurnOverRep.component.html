@@ -1,0 +1,92 @@
+<div>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+        <li class="active"><i class="fa fa-list-ul"></i> Employee Turn Over Report</li>
+    </ol>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <label>
+                            Transaction Period
+                        </label>
+                        <div class="input-group input-group-sm">
+                            <div class="form-control">
+                                <date-view [inputDate]="filterStartDate" *ngIf="filterStartDate != null"></date-view>
+                                <strong *ngIf="filterStartDate && filterEndDate"> &harr; </strong>
+                                <date-view [inputDate]="filterEndDate" *ngIf="filterEndDate != null"></date-view>
+                            </div>
+
+                            <span class="input-group-addon btn-default" (click)="openRangeCalendar = !openRangeCalendar">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                        </div>
+                        <div [hidden]="!openRangeCalendar" class="dropdown">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <label>
+                                        Transaction From
+                                    </label>
+                                    <chaNepaliDatePicker id="filterFromDate" [inputDate]="filterFromDate" [inputDatePickerOptions]="fromDateOptions" (selectedDate)='onFilterDateSelect($event, "F")' *ngIf="filterFromDate != null && defaultDateOptions"></chaNepaliDatePicker>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label>
+                                        Transaction Till
+                                    </label>
+                                    <chaNepaliDatePicker id="filterToDate" [inputDate]="filterToDate" [inputDatePickerOptions]="tillDateOptions" (selectedDate)='onFilterDateSelect($event, "T")' *ngIf="filterToDate != null && defaultDateOptions"></chaNepaliDatePicker>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    <button class="btn btn-sm btn-default" (click)="getTurnOverRep()">
+                                        Apply Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" *ngIf="compId != null">
+
+                  <div class="col-lg-12">
+                    <div class="well well-sm bg-white">
+                      <strong>Company Name:</strong>
+                      <company-name [companyId]="compId"></company-name>
+                    </div>
+                  </div>
+                  <div class="col-lg-12">
+                    <div class="table-responsive">
+                      <table class="table table-bordered table-responsive">
+                        <thead>
+                          <tr class="text-center">
+                            <th>Department Name</th>
+                            <th>ActiveStaff</th>
+                            <th>NewEmployee</th>
+                            <th>ResignEmployee</th>
+                            <th>Promotion</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let item of empTurnOverList">
+                            <td>{{item.DepartmentName}}</td>
+                            <td>{{item.ActiveStaff}}</td>
+                            <td>{{item.NewEmployee}}</td>
+                            <td>{{item.ResignEmployee}}</td>
+                            <td>{{item.Promotion}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

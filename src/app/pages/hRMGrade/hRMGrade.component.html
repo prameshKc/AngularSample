@@ -1,0 +1,162 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Grade Setup</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" (click)="openModal()" tooltip="Add Grade" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Grade </button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Grade Name" [(ngModel)]="filterObj.Name" (ngModelChange)="filterGradeInfo()">
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterGradeInfo()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="gradeInfoAndFilter()"><i class="fa fa-times"></i></button>
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                            <b>Sorted By:</b>
+                            {{filterObj.SortingAttribute == 'GdDesc' ? 'Grade Name' : ''}}
+                            {{filterObj.SortingAttribute == 'GdAmt' ? 'Grade Value' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-bordered table-hover table-striped table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th><span (click)="sortBy('GdDesc')">Grade Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('GdDesc')"></span></th>
+                                    <th><span (click)="sortBy('GdAmt')">Grade Value</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('GdAmt')"></span></th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of gradeInfoList;let in=index">
+                                    <td>
+                                        {{in+1}}
+                                    </td>
+                                    <td>
+                                        {{item.GdDesc}}
+                                    </td>
+                                    <td>
+                                        {{item.GdAmt}}
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-xs btn-info" (click)="getGradeInfo(item.GdId)" tooltip="Edit Grade" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                        <button class="btn btn-xs btn-danger" (click)="openDeleteModal(item.GdId)" tooltip="Delete Grade" placement="top"><span class="glyphicon glyphicon-trash"></span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="gradeInfoList.length == 0">
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #gradeInfoModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddGradeInfo == true;"><strong>Add Grade </strong></h5>
+                <h5 *ngIf="isEditGradeInfo == true;"><strong>Edit Grade </strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="GdDesc">Grade Name:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="GdDesc" placeholder="Enter Grade Name" required [(ngModel)]="InputGradeInfo.GdDesc" (ngModelChange)="checkDuplicate($event)" name="GdDesc" #GdDesc="ngModel" />
+                                <div *ngIf="GdDesc.errors && (GdDesc.dirty || GdDesc.touched)" class="alert alert-danger">
+                                    <div [hidden]="!GdDesc.errors.required">
+                                        Grade Name is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="!duplicateName" class="alert alert-danger">
+                                    Grade Name already exist!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="GdAmt">Grade Value:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="GdAmt" placeholder="Enter Grade Value" required [(ngModel)]="InputGradeInfo.GdAmt" (ngModelChange)="checkMoney(InputGradeInfo.GdAmt)" name="GdAmt" #GdAmt="ngModel" />
+                                <div *ngIf="GdAmt.errors && (GdAmt.dirty || GdAmt.touched)" class="alert alert-danger">
+                                    <div [hidden]="!GdAmt.errors.required">
+                                        Grade Value is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="validFormat" class="alert alert-danger">
+                                    Insert Numeric Value Eg:4.75!
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" (click)="saveGradeInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit" (click)="editGradeInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Grade</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Grade?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteGradeInfo()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

@@ -1,0 +1,141 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Work Area</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" tooltip="Add Work Area" (click)="openWorkAreaModal()" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Work Area</button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <!--<form class="form-inline pull">
+                            <label for="sort" class="text-left">Sort</label>
+                            <select name="sort" id="sort" class="form-control input-sm btn-default" [(ngModel)]="filterObj.Sort" (ngModelChange)="filterWorkArea()">
+                                <option value="">Select...</option>
+                                <option value="true">Ascending</option>
+                                <option value="false">Decending</option>
+                            </select>                            
+                        </form>-->
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Work Area" [(ngModel)]="filterObj.Name" (ngModelChange)="filterWorkArea()">
+                            <input class="input-sm" type="submit" (click)="filterWorkArea()" hidden />
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterWorkArea()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="workAreaAndFilter()"><i class="fa fa-times"></i></button>
+
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                        <b>Sorted By:</b> 
+                            {{filterObj.SortingAttribute == 'WorkAreaName' ? 'Work Area Name' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-hover table-striped table-condensed table-bordered">
+                            <thead>
+                                <tr>
+                                    <th><span (click)="sortBy('WorkAreaName')">Work Area Name</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('WorkAreaName')"></span></th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of workAreaList">
+                                    <td>{{item.WorkAreaName}}</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-xs btn-info glyphicon glyphicon-edit" tooltip="Edit" (click)="getWorkArea(item.WorkAreaId)"></button>
+                                        <button class="btn btn-xs btn-danger glyphicon glyphicon-trash" tooltip="Delete" (click)="openDeleteModal(item.WorkAreaId)"></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="workAreaList.length == 0">
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div bsModal #workAreaModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideWorkAreaModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddWorkArea == true;"><strong>Add Work Area</strong></h5>
+                <h5 *ngIf="isEditWorkArea == true;"><strong>Edit Work Area</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="WorkAreaName">Work Area Name:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="WorkAreaName" placeholder="Enter Work Area" required [(ngModel)]="InputWorkArea.WorkAreaName" name="WorkAreaName" #WorkAreaName="ngModel" />
+                                <div *ngIf="WorkAreaName.errors && (WorkAreaName.dirty || WorkAreaName.touched)" class="alert alert-danger">
+                                    <div [hidden]="!WorkAreaName.errors.required">
+                                        Work Area Name is required !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="saveWorkArea()">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="editWorkArea()">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideWorkAreaModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded==true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Work Area</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Work Area?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteWorkArea()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

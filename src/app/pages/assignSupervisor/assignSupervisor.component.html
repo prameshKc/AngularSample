@@ -1,0 +1,16 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-user-o"></i> Assign Supervisor</li>
+</ol>
+
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h5><b>Assign Supervisor</b></h5>
+            </div>
+            <hr />
+            <assignsupervisor-search [employeeSearchOption]="selectEmployeeOptions" [showReportTo]="true" (selectedEmployee)="selectedEmployee($event)" name="employee"></assignsupervisor-search>
+        </div>
+    </div>
+</div>

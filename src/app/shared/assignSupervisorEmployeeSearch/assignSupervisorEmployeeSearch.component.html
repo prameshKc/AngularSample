@@ -1,0 +1,129 @@
+﻿<!--<div *ngIf="displayEmployeeList.length > 0">-->
+<div class="panel-body ">
+    <div class="row">
+
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <label for="name">Employee Name:</label>
+            <div class="input-group">
+                <input class="form-control input-sm" [(ngModel)]="searchText" (ngModelChange)="selected = null;filter($event);" />
+                <span class="input-group-btn">
+                    <button class="btn btn-default btn-sm" type="button" (click)="searchText = '';filter($event);"><i class="fa fa-close"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <label for="department">Department:</label>
+            <select class="form-control input-sm" [(ngModel)]="InputDepartment" (ngModelChange)="filter($event)">
+                <option value="">All</option>
+                <option *ngFor="let item of svDepartmentList" value="{{item.DepartmentName}}">{{item.DepartmentName}}</option>
+            </select>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <label for="designation">Designation</label>
+            <select class="form-control input-sm" [(ngModel)]="InputDesignation" (ngModelChange)="filter($event)">
+                <option value="">All</option>
+                <option *ngFor="let item of svDesignationList" value="{{item.DesignationName}}">{{item.DesignationName}}</option>
+            </select>
+        </div>
+        <div class="col-lg-3  col-md-6 col-sm-12" *ngIf="showReportTo==true">
+            <label for="Supervisor">Supervisor</label>
+            <select class="form-control input-sm" [(ngModel)]="InputSupervisor" (ngModelChange)="getEmployeeUnderSupervisor($event)">
+                <option value="">All</option>
+                <option *ngFor="let item of supervisorList" value="{{item.EmployeeId}}">{{item.employeeNameJoint}}</option>
+            </select>
+        </div>
+        <div class="col-lg-12 col-md-6 col-sm-12">
+            <div class="row alert alert-info" *ngIf="InputDepartment!='' || InputDesignation!='' || InputSupervisor!=''">
+                <p><b>Filtered By:</b> {{InputDepartment?'Department':''}} {{InputDepartment && InputDesignation?'and':''}} {{InputDesignation?'Designation':''}} {{InputSupervisor && InputDesignation?'and':''}} {{InputSupervisor?'Supervisor':''}}</p>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered">
+                    <thead style="vertical-align: middle;">
+                        <tr>
+                            <th>
+                                Select/SelectAll
+                                <br />
+                                <input type="checkbox" class="input-sm" name="SelectAll" [(ngModel)]="SelectAll" (ngModelChange)="selectAll($event)">
+                            </th>
+                            <th>Employee No</th>
+                            <th>Employee Name</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th *ngIf="showReportTo==true">Current Supervisor</th>
+                            <th *ngIf="showReportTo==false">Current Holiday Group</th>
+                        </tr>
+                    </thead>
+
+                    <tbody *ngIf="displayEmployeeList.length > 0">
+                        <tr *ngFor="let item of displayEmployeeList | searchfilter: 'EmployeeName' : searchText">
+                            <td class="text-center">
+                                <!--<input type="checkbox" id="select" name="select" (click)="InputEmployee = item; selectFrmModal();">-->
+                                <input type="checkbox" class="input-sm" name="Selected" id="item.EmployeeId" [(ngModel)]="item.Selected">
+                            </td>
+                            <td>{{item.EmployeeNo}}</td>
+                            <td>{{item.EmployeeName}}</td>
+                            <td>
+                                {{item.DepartmentName != null ? item.DepartmentName : '-'}}
+                            </td>
+                            <td>
+                                {{item.DesignationName !=null ? item.DesignationName : '-'}}
+                            </td>
+                            <td *ngIf="showReportTo==true">
+                                <reportTo [employeeId]="item.ReportTo[0].ReportTo1" *ngIf="item.ReportTo.length > 0"></reportTo>
+                                <span *ngIf="item.ReportTo.length == 0">Not Assigned</span>
+                            </td>
+                            <td *ngIf="showReportTo==false">
+                                <holidayListName [holidayListId]="item.EmployeeHolidayList[0].HolidayListId" *ngIf="item.EmployeeHolidayList.length > 0"></holidayListName>
+                                <!--{{item.EmployeeHolidayList.length > 0 ? item.EmployeeHolidayList[0].HolidayList.ListName : 'Not Assigned'}}-->
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody *ngIf="displayEmployeeList.length == 0">
+                        <tr>
+                            <td colspan="6" class="alert-warning">No Items Available</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div *ngIf="showReportTo==true">
+                <div class="alert alert-danger" *ngIf="error"><i class="glyphicon glyphicon-exclamation-sign"></i> The employee is already assigned to the selected supervisor</div>
+                <form class="form-horizontal col-lg-offset-4">
+                    <div class="form-group">
+                        <label for="supervisor" class="control-label col-md-5" name="supervisor">Select Supervisor:</label>
+                        <div class="col-md-7">
+                            <select class="form-control input-sm" [(ngModel)]="reportToId" name="item.employeeNameJoint">
+                                <option *ngFor="let item of supervisorList" [ngValue]="item.EmployeeId">{{item.employeeNameJoint}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-xs btn-warning pull-right" (click)="resetButton()" style="margin-left:5px;">Reset</button>
+                    <button class="btn btn-xs btn-success pull-right" (click)="assignSupervisor(reportToId,displayEmployeeList)">Submit</button>
+                </form>
+            </div>
+            <div *ngIf="showReportTo==false">
+                <div class="alert alert-danger" *ngIf="error"><i class="glyphicon glyphicon-exclamation-sign"></i> The employee is already assigned to the selected Holiday Group</div>
+                <form class="form-horizontal col-lg-offset-4">
+                    <div class="form-group">
+                        <label for="supervisor" class="control-label col-md-5" name="supervisor">Select Holiday Group:</label>
+                        <div class="col-md-7">
+                            <select class="form-control input-sm" [(ngModel)]="holidayListId" name="holidayListId">
+                                <option *ngFor="let item of holidayList" [ngValue]="item.HolidayListId">{{item.ListName}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-xs btn-warning pull-right" (click)="resetButton()" style="margin-left:5px;">Reset</button>
+                    <button class="btn btn-xs btn-success pull-right" (click)="assignHoliday(holidayListId,displayEmployeeList)">Submit</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="panel-footer">
+    <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+</div>
+

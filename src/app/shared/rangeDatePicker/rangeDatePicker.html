@@ -1,0 +1,38 @@
+﻿<label>
+    Transaction Period
+</label>
+<div class="input-group input-group-sm">
+    <div class="form-control">
+        <date-view [inputDate]="filterFromDate" *ngIf="filterFromDate != null"></date-view>
+        <strong *ngIf="filterFromDate && filterToDate"> &harr; </strong>
+        <date-view [inputDate]="filterToDate" *ngIf="filterToDate != null"></date-view>
+    </div>
+
+    <span class="input-group-addon btn-default" (click)="openRangeCalendar = !openRangeCalendar">
+        <i class="fa fa-calendar"></i>
+    </span>
+</div>
+<div [hidden]="!openRangeCalendar" class="dropdown">
+    <div class="row">
+        <div class="col-lg-6">
+            <label>
+                Transaction From
+            </label>
+            <chaNepaliDatePicker id="filterFromDate" [(inputDate)]="filterFromDate" [inputDatePickerOptions]="fromDateOptions" (selectedDate)='onFilterDateSelect($event, "F")' *ngIf="filterFromDate != null && defaultDateOptions"></chaNepaliDatePicker>
+        </div>
+        <div class="col-lg-6">
+            <label>
+                Transaction Till
+            </label>
+            <chaNepaliDatePicker id="filterToDate" [(inputDate)]="filterToDate" [inputDatePickerOptions]="tillDateOptions" (selectedDate)='onFilterDateSelect($event, "T")' *ngIf="filterToDate != null && defaultDateOptions"></chaNepaliDatePicker>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-lg-12 text-center">
+            <button class="btn btn-sm btn-default" (click)="applyFilterFn()">
+                Apply Filter
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+﻿<ul style="list-style:none;white-space:nowrap; padding-left: 8px; border-left: 1px solid #333;">
+    <li *ngFor="let menuListItem of menuListObj">
+        <a (click)="menuListItem.isOpen = !menuListItem.isOpen" style="width: 10px; text-align: center; display: inline-block;">
+            <i [ngClass]="{'fa-caret-right': (menuListItem.isOpen != true && menuListItem.IsGroup == true), 'fa-caret-down': (menuListItem.isOpen == true && menuListItem.IsGroup == true), 'fa-minus-circle': menuListItem.IsGroup != true }"
+               class="fa" style="color:#333; font-size: small;"></i>
+        </a>
+        <span>
+            <input id="{{menuListItem.MenuId}}" name="menuVsTemplate" type="checkbox" [(ngModel)]="menuListItem.isSelected" (ngModelChange)="toggleItem(menuListItem)" />
+            <i class="fa" [ngClass]="{'fa-folder': menuListItem.IsGroup == true, 'fa-file': menuListItem.IsGroup != true}"></i>
+            <label for="{{menuListItem.MenuId}}">
+                {{menuListItem.MenuCaption}}
+            </label>
+            <selectMenu [menuListObj]='menuListItem.ChildMenu' *ngIf="menuListItem.isOpen == true && menuListItem.isSelected == true"></selectMenu>
+        </span>
+    </li>
+</ul>

@@ -1,0 +1,309 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Employee Position</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" (click)="postMail()" placement="top"><i class="glyphicon glyphicon-plus-sign"></i>Test Email</button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <form class="form-inline pull">
+                            <label for="sort" class="text-left">Sort </label>
+                            <select name="sort" id="sort" class="form-control input-sm btn-default" [(ngModel)]="filterObj.Sort" (ngModelChange)="filterEmployeePosition()">
+                                <option value="">Select...</option>
+                                <option value="true">Ascending</option>
+                                <option value="false">Decending</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Employee Position" [(ngModel)]="filterObj.Name">
+                            <input class="input-sm" type="submit" (click)="filterEmployeePosition()" hidden />
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterEmployeePosition()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="employeePositionAndFilter()"><i class="fa fa-times"></i></button>
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')"><b>Sorted By:</b> {{filterObj.Sort == 'true' ? 'Employee Position ascending' : 'Employee Position descending'}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-bordered table-hover table-striped table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Employee Name</th>
+                                    <th>Date</th>
+                                    <th>Company</th>
+                                    <th>Division</th>
+                                    <th>Department</th>
+                                    <th>Designation</th>
+                                    <th>Cost Center Name</th>
+                                    <th>Category</th>
+                                    <th>Work Area</th>
+                                    <th>Effective From</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of employeePositionList">
+                                    <td>{{item.Employee.FirstName}} {{item.Employee.MiddleName}} {{item.Employee.LastName}}</td>
+                                    <td>{{item.Date | date}}</td>
+                                    <td>{{item.Company ? item.Company.CompanyName : '-'}}</td>
+                                    <td>{{item.Division ? item.Division.DivisionName : '-' }}</td>
+                                    <td>{{item.Department ? item.Department.DepartmentName : '-'}}</td>
+                                    <td>{{item.Designation ? item.Designation.DesignationName : '-' }}</td>
+                                    <td>{{item.CostCenter ? item.CostCenter.CostCenterName : '-'}}</td>
+                                    <td>{{item.Category ? item.Category.CategoryName : '-'}}</td>
+                                    <td>{{item.WorkArea ? item.WorkArea.WorkAreaName : '-'}}</td>
+                                    <td>{{item.EffectiveFrom | date}}</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-xs btn-info" (click)="getEmployeePosition(item.EmployeeId)" tooltip="Edit Employee Position" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="employeePositionList.length == 0">
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination" style="padding:0px; margin: 0px;">
+                        <li class="pull-left col-md-1" style="padding-right:0px;">
+                            <button class="btn" aria-label="Previous" (click)="filterHome(pagination.CurrentPage-1)">
+                                <span aria-hidden="true">&laquo;</span>
+                            </button>
+                        </li>
+                        <li class="pull-left col-md-3" style="padding-left:0px;padding-right:0px;">
+                            <div class="input-group">
+                                <input type="number" *ngIf="pagination.TotalPage == 0" max="{{pagination.TotalPage}}" min="1" value="0" (ngModelChange)="filterHome(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                                <input type="number" *ngIf="pagination.TotalPage>0" max="{{pagination.TotalPage}}" min="1" [(ngModel)]="pagination.CurrentPage" (ngModelChange)="filterHome(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                                <span class="input-group-addon" id="basic-addon2">of {{pagination.TotalPage}} page(s)</span>
+                            </div>
+                        </li>
+                        <li class="pull-left col-md-1">
+                            <button class="btn" aria-label="Next" (click)="filterHome(pagination.CurrentPage+1)">
+                                <span aria-hidden="true">&raquo;</span>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #employeePositionModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideEmployeePositionModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+                <h5><strong>Edit Employee Position</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="col-md-12">
+                            <h5><strong>Employee Position Information</strong></h5>
+                            <div *ngFor="let data of employeePositionListById">                                
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="EmployeeId">Employee:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="EmployeeId" required [(ngModel)]="data.EmployeeId" name="EmployeeId" #EmployeeId="ngModel">
+                                                <option *ngFor="let item of employeeList" value="{{item.EmployeeId}}">
+                                                    {{item.FirstName}} {{item.MiddleName}} {{item.LastName}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="EmployeeId.errors && (EmployeeId.dirty || EmployeeId.touched)" class="alert alert-danger">
+                                                <div [hidden]="!EmployeeId.errors.required">
+                                                    Select Employee Name!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="Date">Date:</label>
+                                        <div class="col-sm-8">
+                                            <div class="input-group">
+                                                <input type="text" [(ngModel)]="ePDateInString" id="Date" required placeholder="YYYY-MM-DD" name="Date" class="form-control" value="" #Date="ngModel" (click)="toggleDate = !toggleDate">
+                                                <label class="input-group-addon btn" for="Date">
+                                                    <span class="fa fa-calendar"></span>
+                                                </label>
+                                            </div>
+                                            <div class="col-sm-8">
+                                                <datepicker *ngIf="toggleDate" id="Date" [(ngModel)]="data.Date" (ngModelChange)="onEPDateChange($event)" [onlyCurrentMonth]="true" [showWeeks]="false" name="Date" #Date="ngModel"></datepicker>
+                                            </div>
+                                            <div *ngIf="Date.errors && (Date.dirty || Date.touched)" class="alert alert-danger">
+                                                <div [hidden]="!Date.errors.required">
+                                                    Select Date!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="CompanyId">Company:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="CompanyId" required [(ngModel)]="data.CompanyId" name="CompanyId" #CompanyId="ngModel">
+                                                <option *ngFor="let item of companyList" value="{{item.CompanyId}}">
+                                                    {{item.CompanyName}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="CompanyId.errors && (CompanyId.dirty || CompanyId.touched)" class="alert alert-danger">
+                                                <div [hidden]="!CompanyId.errors.required">
+                                                    Select Company Name!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="DivisionId">Division:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="DivisionId" required [(ngModel)]="data.DivisionId" name="DivisionId" #DivisionId="ngModel">
+                                                <option *ngFor="let item of divisionList" value="{{item.DivisionId}}">
+                                                    {{item.DivisionName}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="DivisionId.errors && (DivisionId.dirty || DivisionId.touched)" class="alert alert-danger">
+                                                <div [hidden]="!DivisionId.errors.required">
+                                                    Select Division Name!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="DepartmentId">Department:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="DepartmentId" required [(ngModel)]="data.DepartmentId" name="DepartmentId" #DepartmentId="ngModel">
+                                                <option *ngFor="let item of departmentList" value="{{item.DepartmentId}}">
+                                                    {{item.DepartmentName}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="DepartmentId.errors && (DepartmentId.dirty || DepartmentId.touched)" class="alert alert-danger">
+                                                <div [hidden]="!DepartmentId.errors.required">
+                                                    Select Department Name!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="DesignationId">Designation:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="DesignationId" required [(ngModel)]="data.DesignationId" name="DesignationId" #DesignationId="ngModel">
+                                                <option *ngFor="let item of designationList" value="{{item.DesignationId}}">
+                                                    {{item.DesignationName}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="DesignationId.errors && (DesignationId.dirty || DesignationId.touched)" class="alert alert-danger">
+                                                <div [hidden]="!DesignationId.errors.required">
+                                                    Select Designation Name!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="CostCenterId">Cost Center:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="CostCenterId" required [(ngModel)]="data.CostCenterId" name="CostCenterId" #CostCenterId="ngModel">
+                                                <option *ngFor="let item of costCenterList" value="{{item.CostCenterId}}">
+                                                    {{item.CostCenterName}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="CostCenterId.errors && (CostCenterId.dirty || CostCenterId.touched)" class="alert alert-danger">
+                                                <div [hidden]="!CostCenterId.errors.required">
+                                                    Select Cost Center Name!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="CategoryId">Category:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="CategoryId" required [(ngModel)]="data.CategoryId" name="CategoryId" #CategoryId="ngModel">
+                                                <option *ngFor="let item of categoryList" value="{{item.CategoryId}}">
+                                                    {{item.CategoryName}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="CategoryId.errors && (CategoryId.dirty || CategoryId.touched)" class="alert alert-danger">
+                                                <div [hidden]="!CategoryId.errors.required">
+                                                    Select Category Name!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="WorkAreaId">Work Area:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="WorkAreaId" required [(ngModel)]="data.WorkAreaId" name="WorkAreaId" #WorkAreaId="ngModel">
+                                                <option *ngFor="let item of workAreaList" value="{{item.WorkAreaId}}">
+                                                    {{item.WorkAreaName}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="WorkAreaId.errors && (WorkAreaId.dirty || WorkAreaId.touched)" class="alert alert-danger">
+                                                <div [hidden]="!WorkAreaId.errors.required">
+                                                    Select Work Area Name!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="EffectiveFrom">Effective From:</label>
+                                        <div class="col-sm-8">
+                                            <div class="input-group">
+                                                <input type="text" required [(ngModel)]="ePEffectiveFromInString" id="EffectiveFrom" placeholder="YYYY-MM-DD" name="EffectiveFrom" class="form-control" value="" #EffectiveFrom="ngModel" (click)="toggleEDate = !toggleEDate">
+                                                <label class="input-group-addon btn" for="EffectiveFrom">
+                                                    <span class="fa fa-calendar"></span>
+                                                </label>
+                                            </div>
+                                            <div class="col-sm-8">
+                                                <datepicker *ngIf="toggleEDate" id="EffectiveFrom" [(ngModel)]="data.EffectiveFrom" (ngModelChange)="onEPEffectiveFromChange($event)" [onlyCurrentMonth]="true" [showWeeks]="false" name="EffectiveFrom" #EffectiveFrom="ngModel"></datepicker>
+                                            </div>
+                                            <div *ngIf="EffectiveFrom.errors && (EffectiveFrom.dirty || EffectiveFrom.touched)" class="alert alert-danger">
+                                                <div [hidden]="!EffectiveFrom.errors.required">
+                                                    Select Date!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" (click)="editEmployeePosition()" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideEmployeePositionModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

@@ -1,0 +1,160 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Religion</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" (click)="openReligionModal()" tooltip="Add Religion" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Religion</button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <form class="form-inline pull">
+                            <label for="sort" class="text-left">Sort </label>
+                            <select name="sort" id="sort" class="form-control input-sm btn-default" [(ngModel)]="filterObj.Sort" (ngModelChange)="filterReligion()">
+                                <option value="">Select...</option>
+                                <option value="true">Ascending</option>
+                                <option value="false">Decending</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Religion" [(ngModel)]="filterObj.Name">
+                            <input class="input-sm" type="submit" (click)="filterReligion()" hidden />
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterReligion()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="religionAndFilter()"><i class="fa fa-times"></i></button>
+
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')"><b>Sorted By:</b> {{filterObj.Sort == 'true' ? 'Religion Name ascending' : 'Religion Name descending'}}</p>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-bordered table-hover table-striped table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Religion Name</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of religionList">
+                                    <td>
+                                        {{item.ReligionName}}
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-xs btn-info" (click)="getReligion(item.ReligionId)" tooltip="Edit Religion" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                        <button class="btn btn-xs btn-danger" (click)="openDeleteModal(item.ReligionId)" tooltip="Delete Religion" placement="top"><span class="glyphicon glyphicon-trash"></span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="religionList.length == 0">
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination" style="padding:0px; margin: 0px;">
+                        <li class="pull-left col-md-1" style="padding-right:0px;">
+                            <button class="btn" aria-label="Previous" (click)="filterHome(pagination.CurrentPage-1)">
+                                <span aria-hidden="true">&laquo;</span>
+                            </button>
+                        </li>
+                        <li class="pull-left col-md-3" style="padding-left:0px;padding-right:0px;">
+                            <div class="input-group">
+                                <input type="number" *ngIf="pagination.TotalPage == 0" max="{{pagination.TotalPage}}" min="1" value="0" (ngModelChange)="filterHome(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                                <input type="number" *ngIf="pagination.TotalPage>0" max="{{pagination.TotalPage}}" min="1" [(ngModel)]="pagination.CurrentPage" (ngModelChange)="filterHome(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                                <span class="input-group-addon" id="paginationFont">of {{pagination.TotalPage}} page(s)</span>
+                            </div>
+                        </li>
+                        <li class="pull-left col-md-1">
+                            <button class="btn" aria-label="Next" (click)="filterHome(pagination.CurrentPage+1)">
+                                <span aria-hidden="true">&raquo;</span>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #religionModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideReligionModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddReligion == true;"><strong>Add Religion</strong></h5>
+                <h5 *ngIf="isEditReligion == true;"><strong>Edit Religion</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="ReligionName">Religion Name:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="ReligionName" placeholder="Enter Religion Name" required [(ngModel)]="InputReligion.ReligionName" name="ReligionName" #ReligionName="ngModel" />
+                                <div *ngIf="ReligionName.errors && (ReligionName.dirty || ReligionName.touched)" class="alert alert-danger">
+                                    <div [hidden]="!ReligionName.errors.required">
+                                        Religion Name is required !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" (click)="saveReligion()" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit" (click)="editReligion()" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideReligionModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Religion</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Religion?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteReligion()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

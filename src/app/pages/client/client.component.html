@@ -1,0 +1,200 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Client</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <button class="btn btn-sm btn-default" tooltip="Add Client" (click)="openClientModal()" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Client</button>
+                    </div>
+                    <div class="col-sm-4 text-right">
+                        <form class="form-inline pull">
+                            <label for="search" class="text-left">Search By:</label>
+                            <select name="search" id="search" class="form-control input-sm btn-default" [(ngModel)]="filterObj.SearchBy ">
+                                <option value="">Select...</option>
+                                <option value="CompanyName">Company Name</option>
+                                <option value="Address">Address</option>
+                                <option value="TelephoneNo">Telephone No</option>
+                                <option value="Email">Email</option>
+                                <option value="ClientCode">Client Code</option>
+                                <option value="ContactPersonName">Contact Person Name</option>
+                                <option value="ContactPersonTelephoneNo">Contact Person Telephone No</option>
+                                <option value="ContactPersonEmail">Contact Person Email</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Search Parameter" [(ngModel)]="filterObj.Name" (ngModelChange)="filterClient()">
+                            <input class="input-sm" type="submit" (click)="filterClient()" hidden />
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterClient()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="clientAndFilter()"><i class="fa fa-times"></i></button>
+
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                            <b>Sorted By:</b>
+                            {{filterObj.SortingAttribute == 'CompanyName' ? 'Company Name' : ''}}
+                            {{filterObj.SortingAttribute == 'Address' ? 'Address' : ''}}
+                            {{filterObj.SortingAttribute == 'TelephoneNo' ? 'Telephone No' : ''}}
+                            {{filterObj.SortingAttribute == 'Email' ? 'Email' : ''}}
+                            {{filterObj.SortingAttribute == 'ClientCode' ? 'Client Code' : ''}}
+                            {{filterObj.SortingAttribute == 'ContactPersonName' ? 'Contact Person Name' : ''}}
+                            {{filterObj.SortingAttribute == 'ContactPersonTelephoneNo' ? 'Contact Person Telephone No' : ''}}
+                            {{filterObj.SortingAttribute == 'ContactPersonEmail' ? 'Contact Person Email' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-hover table-striped table-condensed table-bordered">
+                            <thead>
+                                <tr>
+                                    <th><span (click)="sortBy('CompanyName')">Company Name</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('CompanyName')"></span></th>
+                                    <th><span (click)="sortBy('Address')">Address</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('Address')"></span></th>
+                                    <th><span (click)="sortBy('TelephoneNo')">Telephone No</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('TelephoneNo')"></span></th>
+                                    <th><span (click)="sortBy('Email')">Email</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('Email')"></span></th>
+                                    <th><span (click)="sortBy('ClientCode')">Client Code</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('ClientCode')"></span></th>
+                                    <th><span (click)="sortBy('ContactPersonName')">Contact Person Name</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('ContactPersonName')"></span></th>
+                                    <th><span (click)="sortBy('ContactPersonTelephoneNo')">Contact Person Telephone No</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('ContactPersonTelephoneNo')"></span></th>
+                                    <th><span (click)="sortBy('ContactPersonEmail')">Contact Person Email</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('ContactPersonEmail')"></span></th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of clientList">
+                                    <td>{{item.CompanyName}}</td>
+                                    <td>{{item.Address?item.Address:'-'}}</td>
+                                    <td>{{item.TelephoneNo?item.TelephoneNo:'-'}}</td>
+                                    <td>{{item.Email?item.Email:'-'}}</td>
+                                    <td>{{item.ClientCode}}</td>
+                                    <td>{{item.ContactPersonName?item.ContactPersonName:'-'}}</td>
+                                    <td>{{item.ContactPersonTelephoneNo?item.ContactPersonTelephoneNo:'-'}}</td>
+                                    <td>{{item.ContactPersonEmail?item.ContactPersonEmail:'-'}}</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-xs btn-info" (click)="getClient(item.Id)" tooltip="Edit Client" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="clientList.length == 0">
+                                <tr>
+                                    <td colspan="9">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div bsModal #clientModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideClientModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddClient == true;"><strong>Add Client</strong></h5>
+                <h5 *ngIf="isEditClient == true;"><strong>Edit Client</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="CompanyName">Company Name:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="CompanyName" placeholder="Enter Company Name" required [(ngModel)]="InputClient.CompanyName" (ngModelChange)="onCompanyNameChange($event)" name="CompanyName" #CompanyName="ngModel" />
+                                <div *ngIf="CompanyName.errors && (CompanyName.dirty || CompanyName.touched)" class="alert alert-danger">
+                                    <div [hidden]="!CompanyName.errors.required">
+                                        Company Name is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="!duplicateName" class="alert alert-danger">
+                                    Duplicate Company Name is not allowed!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="Address">Address:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Address" placeholder="Enter Address" [(ngModel)]="InputClient.Address" name="Address" #Address="ngModel" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="TelephoneNo">Telephone No:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="TelephoneNo" placeholder="Enter Telephone No" [(ngModel)]="InputClient.TelephoneNo" name="TelephoneNo" #TelephoneNo="ngModel" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="Email">Email:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Email" placeholder="Enter Email" [(ngModel)]="InputClient.Email" name="Email" #Email="ngModel" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="ClientCode">Client Code:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="ClientCode" placeholder="Enter Client Code" required maxlength="2" [(ngModel)]="InputClient.ClientCode" (ngModelChange)="onClientCodeChange($event)" name="ClientCode" #ClientCode="ngModel" />
+                                <div *ngIf="ClientCode.errors && (ClientCode.dirty || ClientCode.touched)" class="alert alert-danger">
+                                    <div [hidden]="!ClientCode.errors.required">
+                                        Client Code is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="!duplicateCode" class="alert alert-danger duplicate">
+                                    Duplicate Client Code is not allowed!
+                                </div>
+                                <div [hidden]="!twoDigit" class="alert alert-danger duplicate">
+                                    Client Code must be of two digit!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="ContactPersonName">Contact Person Name:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="ContactPersonName" placeholder="Enter Contact Person Name" [(ngModel)]="InputClient.ContactPersonName" name="ContactPersonName" #ContactPersonName="ngModel" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="ContactPersonTelephoneNo">Contact Person Telephone No:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="ContactPersonTelephoneNo" placeholder="Enter Contact Person Telephone No" [(ngModel)]="InputClient.ContactPersonTelephoneNo" name="ContactPersonTelephoneNo" #ContactPersonTelephoneNo="ngModel" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="ContactPersonEmail">Contact Person Email:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="ContactPersonEmail" placeholder="Enter Contact Person Telephone No" [(ngModel)]="InputClient.ContactPersonEmail" name="ContactPersonEmail" #ContactPersonEmail="ngModel" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" [disabled]="!bookForm.form.valid || duplicateCode || twoDigit || duplicateName" class="btn btn-xs btn-success" (click)="saveClient()">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit" [disabled]="!bookForm.form.valid || duplicateCode || twoDigit || duplicateName" class="btn btn-xs btn-success" (click)="editClient()">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideClientModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

@@ -1,0 +1,16 @@
+﻿<ul style="list-style:none;white-space:nowrap; padding-left: 8px; border-left: 1px solid #333;">
+    <li *ngFor="let compListItem of CompanyListObj">
+        <a (click)="compListItem.isOpen = !compListItem.isOpen" style="width: 10px; text-align: center; display: inline-block;">
+            <i [ngClass]="{'fa-caret-right': (compListItem.isOpen != true && compListItem.isGroup == true), 'fa-caret-down': (compListItem.isOpen == true && compListItem.isGroup == true), 'fa-minus-circle': compListItem.isGroup != true }"
+               class="fa" style="color:#333; font-size: small;"></i>
+        </a>
+        <span>
+            <input id="{{compListItem.ComapnyId}}" name="UserVsCompany" type="checkbox" [(ngModel)]="compListItem.isSelected" (ngModelChange)="toggleItem(compListItem)" *ngIf="compListItem.isGroup != true" />
+            <i class="fa" [ngClass]="{'fa-folder': compListItem.isGroup == true, 'fa-file': compListItem.isGroup != true}"></i>
+            <label for="{{compListItem.ComapnyId}}">
+                {{compListItem.CompanyName}}
+            </label>
+            <selectCompany [CompanyListObj]='compListItem.ChildCompany' *ngIf="compListItem.isOpen == true && compListItem.isSelected == true"></selectCompany>
+        </span>
+    </li>
+</ul>

@@ -1,0 +1,140 @@
+﻿<div class="panel panel-default" *ngIf="isAccess == true">
+    <div class="panel-heading" (click)="formToggleFunc()">
+        <strong>Employee Grievance</strong>
+        <i class="fa pull-right" [ngClass]="{'fa-chevron-down': formToggle != true,'fa-chevron-up': formToggle == true}"></i>
+    </div>
+    <div class="panel-body" *ngIf="formToggle == true">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Nature Of Grievance</th>
+                        <th>Description</th>
+                        <th>Additional Info</th>
+                        <th>Document</th>
+                        <th *ngIf="isEditAccess">Action</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="displayECList.length == 0">
+                    <!--Certificate List-->
+                    <tr>
+                        <td [colSpan]="isEditAccess ? 7 : 6" class="text-danger">
+                            No data available.
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="displayECList.length > 0">
+                    <tr *ngFor="let item of displayECList; let i = index">
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.Name}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.Code}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.NatureOfGrievance}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.Description}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.AdditionalInfo}}
+                            </div>
+                        </td>
+                        <td>
+                            <a class="btn btn-xs btn-link" href="{{item.Doc}}" target="_blank" *ngIf="item.Doc != null">Download</a>
+                            <i class="btn btn-xs btn-link disabled btn-danger" *ngIf="item.Doc == null">No Document Available</i>
+                        </td>
+                        <td class="text-center" *ngIf="isEditAccess">
+                            <button class="btn btn-primary btn-xs" (click)="editGrievance(item)" tooltip="Edit" container="body">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-xs" (click)="openDeleteModal(item.Id)" tooltip="Delete" container="body">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="isEditAccess">
+                    <tr>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEGriev.Name" type="text" />
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEGriev.Code" type="text" />
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEGriev.NatureOfGrievance" type="text" />
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEGriev.Description" type="text" />
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEGriev.AdditionalInfo" type="text" />
+                        </td>
+                        <td>
+                            <input type="file" class="form-control input-sm" accept="pdf" [(ngModel)]="GrievCert" (change)="onFileChange($event)" />
+                            <div class="text-danger">{{isValidFile}}</div>
+                        </td>
+                        <td class="text-center">
+                            <div *ngIf="isUploading">
+                                <button class="btn btn-default btn-xs">
+                                    <i class="fa fa-spin fa-spinner"></i> Loading
+                                </button>
+                            </div>
+                            <div *ngIf="isUploading == false">
+                                <div *ngIf="InputEGriev.Name && InputEGriev.Code && InputEGriev.NatureOfGrievance && InputEGriev.Description && InputEGriev.AdditionalInfo && isValidFile == null">
+                                    <button class="btn btn-success btn-xs" (click)="addGrievance()" tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                                <div *ngIf="!(InputEGriev.Name && InputEGriev.Code && InputEGriev.NatureOfGrievance && InputEGriev.Description && InputEGriev.AdditionalInfo && isValidFile == null)">
+                                    <button class="btn btn-success btn-xs" disabled tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel-footer" *ngIf="formToggle == true">
+        <button class="btn btn-danger btn-xs pull-right" (click)="initialize()">Reset</button>
+    </div>
+</div>
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteChildModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Grievance</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Grievance?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-sm btn-success" (click)="delete()">Yes</button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="hideDeleteChildModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>

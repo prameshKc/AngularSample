@@ -1,0 +1,78 @@
+﻿.ng-valid[required], .ng-valid.required {
+    border-left: 5px solid #42A948; /*green*/
+}
+
+.ng-invalid:not(form) {
+    border-left: 5px solid #a94442; /*red*/
+}
+
+
+a:hover,
+a:focus {
+    cursor: pointer;
+    background: rgba(0,0,0,0.2);
+    color: white;
+}
+
+.panel {
+    border: 2px solid;
+    border-radius: 4px;
+    /*-webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: 0 3px 3px rgba(0,0,0,.05);*/
+    font-size: 12px;
+    border-color: #ddd;
+    -webkit-box-shadow: 4px 4px 5px 0px rgba(107,106,107,0.75);
+    -moz-box-shadow: 4px 4px 5px 0px rgba(107,106,107,0.75);
+    box-shadow: 4px 4px 5px 0px rgba(107,106,107,0.75);
+}
+
+.btn-link {
+    text-decoration: none;
+    color: black;
+}
+
+.btnTd {
+    display: block;
+    margin: auto;
+}
+
+/*.positionTable > tbody > tr:first-child > td {
+    color:#320acc;
+}*/
+
+.scrollit{
+    overflow-y: scroll;
+    margin-bottom: 30px;
+    height: auto;
+}
+
+.dropDownDept {
+    min-width: 258px;
+}
+
+.blue-color {
+    color: #320acc;
+}
+
+.activeStatus {
+    background-color: #428bca;
+    color: #fff;   
+    border-radius: 5px;
+}
+
+.nav-pills > li > a:hover {
+    background-color: #4088c6;
+    color: #fff;   
+    border-radius: 5px;
+}
+.user-image{
+    border:1px solid black;
+    width:100%;
+}
+.user-info-data{
+
+}
+.user-info-data>li{
+    list-style-type: none;
+
+}

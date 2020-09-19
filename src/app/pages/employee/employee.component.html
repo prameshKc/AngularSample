@@ -1,0 +1,1755 @@
+<div *ngIf="selectedListDiv==true">
+  <ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Employee</li>
+  </ol>
+</div>
+
+<div class="container-fluid row" *ngIf="selectedListDiv==true">
+  <div class="col-xs-12">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-sm-6">
+            <button class="btn btn-sm btn-default" *ngIf="isAdmin==true" (click)="openEmployeeDiv()" tooltip="Add Employee" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Employee</button>
+          </div>
+          <div class="col-sm-3 col-sm-offset-3 text-right">
+            <div class="input-group input-group-sm pull-right">
+              <input type="text" class="form-control" placeholder="Enter Search Parameter" [(ngModel)]="filterObj.Name" (ngModelChange)="filterEmployee()" />
+              <input class="input-sm" type="submit" (click)="filterEmployee()" hidden />
+              <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterEmployee()"><i class="glyphicon glyphicon-search"></i></span>
+            </div>
+          </div>
+        </div>
+        <hr style="border:1px solid #5cb85c;" />
+        <div class="col-lg-12">
+          <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.SortingAttribute!='PostedOn' && filterObj.SortingAttribute!='ModifiedOn') ">
+            <button class="close" (click)="employeeAndFilter()"><i class="fa fa-times"></i></button>
+            <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+            <p *ngIf="(filterObj.SortingAttribute != 'PostedOn' && filterObj.SortingAttribute != 'ModifiedOn')">
+              <b>Sorted By: </b>
+              {{filterObj.SortingAttribute == 'EmployeeNo' ? 'Employee No' : ''}}
+              {{filterObj.SortingAttribute == 'EmployeeName' ? 'Employee Name' : ''}}
+              {{filterObj.SortingAttribute == 'DepartmentName' ? 'Department Name' : ''}}
+              {{filterObj.SortingAttribute == 'DesignationName' ? 'Designation Name' : ''}}
+              {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+            </p>
+          </div>
+        </div>
+        <div>
+          <ul class="nav nav-pills">
+            <li role="presentation" [ngClass]="{'activeStatus' : active == true}">
+              <a class="nav-link" [ngStyle]="{'color' : active == true?'white':'black'}" (click)="getActiveEmployee()">Active Employees</a>
+            </li>
+            <li role="presentation" [ngClass]="{'activeStatus' : inactive == true}">
+              <a class="nav-link" [ngStyle]="{'color' : inactive == true?'white':'black'}" (click)="getInactiveEmployee()">Inactive Employees</a>
+            </li>
+            <li role="presentation" [ngClass]="{'activeStatus' : resigned == true}">
+              <a class="nav-link" [ngStyle]="{'color' : resigned == true?'white':'black'}" (click)="getResignedEmployee()">Resigned Employees</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="table-container table-responsive">
+          <table class="table table-bordered table-hover table-striped table-condensed">
+            <thead>
+              <tr>
+                <th><span (click)="sortBy('EmployeeNo')">Employee No.</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('EmployeeNo')"></span></th>
+                <th><span (click)="sortBy('EmployeeName')">Employee Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('EmployeeName')"></span></th>
+                <th><span>Joined Date</span></th>
+                <th><span (click)="sortBy('DepartmentName')">Department</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('DepartmentName')"></span></th>
+                <th><span (click)="sortBy('DesignationName')">Designation</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('DesignationName')"></span></th>
+                <th><span>Email</span></th>
+                <th><span>Contact Number</span></th>
+                <th>Photo</th>
+                <th *ngIf="resigned">Resigned On</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody *ngIf="!resigned">
+              <tr *ngFor="let item of employeeList">
+                <td (click)="openDetails(item.EmployeeId)"><a>{{item.EmployeeNo}}</a></td>
+                <td>{{item.EmployeeName}}</td>
+                <td>
+                  <span *ngIf="item.DateOfJoin">
+                    <date-view [inputDate]="item.DateOfJoin"></date-view>
+                  </span>
+                  <span *ngIf="!item.DateOfJoin">
+                    -
+                  </span>
+                </td>
+                <td> {{item.DepartmentName ? item.DepartmentName : '-'}}</td>
+                <td>{{item.DesignationName ? item.DesignationName : '-'}}</td>
+                <td>{{item.Email ? item.Email : '-'}}</td>
+                <td>{{item.ContactNumber ? item.ContactNumber : '-'}}</td>
+                <td>
+                  <span *ngIf="item.Photo=='no'">-</span>
+                  <span *ngIf="item.Photo=='yes'">
+                    <img [src]="item.newPhoto | async" alt="{{item.EmployeeName}}" height="50" width="50">
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-xs btn-info glyphicon glyphicon-edit" tooltip="Edit" *ngIf="isAdmin==true && resigned==false" (click)="getEmployee(item.EmployeeId)"></button>
+                  <button class="btn btn-xs btn-warning glyphicon glyphicon-list" tooltip="Details" (click)="openDetails(item.EmployeeId)"></button>
+                  <!--<button class="btn btn-xs btn-default glyphicon glyphicon-open" tooltip="Employee Transfer and Promotion" *ngIf="employeeTransferAndPromotion==true && resigned==false" (click)="goToTransferAndPromotion(item.EmployeeId)"></button>-->
+                  <button class="btn btn-xs btn-default glyphicon glyphicon-share-alt" tooltip="Employee Shift Change" *ngIf="employeeShiftChange==true && resigned==false" (click)="goToChangeShift(item.EmployeeId,item.EmployeeNo,item.EmployeeName)"></button>
+                </td>
+              </tr>
+            </tbody>
+            <tbody *ngIf="resigned">
+              <tr *ngFor="let item of resignedEmpList">
+                <td (click)="openDetails(item.EmployeeId)"><a>{{item.EmployeeNo}}</a></td>
+                <td>{{item.EmployeeName}}</td>
+                <td>
+                  <span *ngIf="item.DateOfJoin">
+                    <date-view [inputDate]="item.DateOfJoin"></date-view>
+                  </span>
+                  <span *ngIf="!item.DateOfJoin">
+                    -
+                  </span>
+                </td>
+                <td> {{item.DepartmentName ? item.DepartmentName : '-'}}</td>
+                <td>{{item.DesignationName ? item.DesignationName : '-'}}</td>
+                <td>{{item.Email ? item.Email : '-'}}</td>
+                <td>{{item.ContactNumber ? item.ContactNumber : '-'}}</td>
+                <td>
+                  <span *ngIf="item.Photo=='no'">-</span>
+                  <span *ngIf="item.Photo=='yes' && (item.newPhoto | async) != null">
+                    <img [src]="item.newPhoto | async" alt="{{item.EmployeeName}}" height="50" width="50">
+                  </span>
+                </td>
+                <td>
+                  <span *ngIf="item.EffectiveFrom">
+                    <date-view [inputDate]="item.EffectiveFrom"></date-view>
+                  </span>
+                  <span *ngIf="!item.EffectiveFrom">
+                    -
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-xs btn-warning glyphicon glyphicon-list" tooltip="Details" (click)="openDetails(item.EmployeeId)"></button>
+                  <button class="btn btn-xs btn-primary glyphicon glyphicon-th-list" tooltip="Attendance Details" (click)="openAttendanceDetails(item.EmployeeId)"></button>
+                </td>
+              </tr>
+            </tbody>
+            <tbody *ngIf="!resigned && employeeList.length == 0">
+              <tr>
+                <td colspan="9">
+                  <div class="text-warning">No items available</div>
+                </td>
+              </tr>
+            </tbody>
+            <tbody *ngIf="resigned && resignedEmpList.length == 0">
+              <tr>
+                <td colspan="10">
+                  <div class="text-warning">No items available</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <button type="button" *ngIf="resigned && resignedEmpList.length > 0" class="btn btn-xs btn-primary pull-right" tooltip="Export To CSV" (click)="exportToCSVResigned(resignedEmpList)"><i class="glyphicon glyphicon-export"></i>Export to CSV</button>
+          <button type="button" *ngIf="!resigned && employeeList.length > 0" class="btn btn-xs btn-primary pull-right" tooltip="Export To CSV" (click)="exportToCSV(employeeList)"><i class="glyphicon glyphicon-export"></i>Export to CSV</button>
+        </div>
+      </div>
+      <!--pagination-->
+      <div class="panel-footer">
+        <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+      </div>
+    </div>
+  </div>
+</div>
+<employee-position *ngIf="openEmpTAndP" [selectedId]="selectedEmp" (selectedEmployeePosition)="selectedEmployeePosition($event)"></employee-position>
+<employee-shift *ngIf="openEmpShift" [selectedId]="selectedEmpShift" [refresh]="isRefreshEmployee" [empName]="empName" [empNo]="empNo" (selectedEmployeeShift)="selectedEmployeeShift($event)"></employee-shift>
+
+
+<div class="container-fluid row" *ngIf="selectedModalLoaded==true">
+  <div class="col-xs-12">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="row">
+          <div class="modal-header">
+            <button *ngIf="isEditMyProfile==false" class="close" (click)="hideEmployeeDiv()"><i class="fa fa-times"></i></button>
+            <button *ngIf="isEditMyProfile==true" class="close" (click)="hideEditProfile()"><i class="fa fa-times"></i></button>
+            <h5 *ngIf="isAddEmployee == true"><strong>Add Employee</strong></h5>
+            <h5 *ngIf="isEditEmployee == true"><strong>Edit Employee</strong></h5>
+            <h5 *ngIf="isEditMyProfile == true"><strong>Edit Profile</strong></h5>
+
+          </div>
+          <div class="modal-body" style="font-size:12px;">
+            <div class="panel-body">
+              <form #bookForm="ngForm" class="form-horizontal">
+                <div *ngIf="isAddEmployee==true">
+                  <div class="col-md-12">
+                    <h5><strong>Employee Personal Information</strong></h5>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6" *ngIf="isAutoGenerated==false">
+                        <label class="control-label col-sm-4" for="EmployeeNo">Employee No:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="EmployeeNo" required placeholder="Enter Employee Number" [(ngModel)]="InputEmployee.EmployeeNo" (ngModelChange)="onEmployeeNoChange($event)" name="EmployeeNo" #EmployeeNo="ngModel" />
+                          <div *ngIf="showDiv==true" class="alert alert-danger">
+                            This Employee No. Already Exits!
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="FirstName">First Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="FirstName" required placeholder="Enter First Name" [(ngModel)]="InputEmployee.FirstName" name="FirstName" #FirstName="ngModel" />
+                          <div *ngIf="FirstName.errors && (FirstName.dirty || FirstName.touched)" class="alert alert-danger">
+                            <div [hidden]="!FirstName.errors.required">
+                              First Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="MiddleName">Middle Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="MiddleName" placeholder="Enter Middle Name" [(ngModel)]="InputEmployee.MiddleName" name="MiddleName" #MiddleName="ngModel" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="LastName">Last Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="LastName" required placeholder="Enter Last Name" [(ngModel)]="InputEmployee.LastName" name="LastName" #LastName="ngModel" />
+                          <div *ngIf="LastName.errors && (LastName.dirty || LastName.touched)" class="alert alert-danger">
+                            <div [hidden]="!LastName.errors.required">
+                              Last Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="DateOfBirth">Date of Birth:</label>
+                        <div class="col-sm-8">
+                          <chaNepaliDatePicker id="DateOfBirth" [inputDate]="inputDOB" [inputDatePickerOptions]="inputDOBOptions" (selectedDate)='onDOBSelect($event)' *ngIf="inputDOB && inputDOBOptions"></chaNepaliDatePicker>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="BloodGroup">Blood Group:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="bloodId" [(ngModel)]="InputEmployee.BloodGroup" name="bloodId" #bloodId="ngModel">
+                            <option *ngFor="let item of bloodGroupList" value="{{item.bloodGroup}}">
+                              {{item.bloodGroup}}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="ReligionId">Religion:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="ReligionId" required [(ngModel)]="InputEmployee.ReligionId" name="ReligionId" #ReligionId="ngModel">
+                            <option *ngFor="let item of religionList" value="{{item.ReligionId}}">
+                              {{item.ReligionName}}
+                            </option>
+                          </select>
+                          <div *ngIf="ReligionId.errors && (ReligionId.dirty || ReligionId.touched)" class="alert alert-danger">
+                            <div [hidden]="!ReligionId.errors.required">
+                              Select Religion Name!
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Gender">Gender:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="Gender" [(ngModel)]="InputEmployee.Gender" required name="Gender" #Gender="ngModel">
+                            <option *ngFor="let item of genderList" value="{{item.genderName}}">
+                              {{item.genderName}}
+                            </option>
+                          </select>
+                          <div *ngIf="Gender.errors && (Gender.dirty || Gender.touched)" class="alert alert-danger">
+                            <div [hidden]="!Gender.errors.required">
+                              Select Gender!
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="ContactNumber">Contact Number:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="ContactNumber" placeholder="Enter Contact Number" [(ngModel)]="InputEmployee.ContactNumber" name="ContactNumber" #ContactNumber="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="MobileNumber">Mobile Number:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="MobileNumber" placeholder="Enter Mobile Number" [(ngModel)]="InputEmployee.MobileNumber" name="MobileNumber" #MobileNumber="ngModel" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <h5><strong>Address</strong></h5>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Street2">Street 2 Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="Street2" placeholder="Enter Street 2 Name" [(ngModel)]="InputEmployee.Street2" (ngModelChange)="onStreet2($event)" name="Street2" #Street2="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Street1">Street 1 Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="Street1" required placeholder="Enter Street 1 Name" [(ngModel)]="InputEmployee.Street1" (ngModelChange)="onStreet1($event)" name="Street1" #Street1="ngModel" />
+                          <div *ngIf="Street1.errors && (Street1.dirty || Street1.touched)" class="alert alert-danger">
+                            <div [hidden]="!Street1.errors.required">
+                              Street1 Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="City">City Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="City" required placeholder="Enter City Name" [(ngModel)]="InputEmployee.City" (ngModelChange)="onCity($event)" name="City" #City="ngModel" />
+                          <div *ngIf="City.errors && (City.dirty || City.touched)" class="alert alert-danger">
+                            <div [hidden]="!City.errors.required">
+                              City Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="State">State Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="State" required placeholder="Enter State Name" [(ngModel)]="InputEmployee.State" (ngModelChange)="onState($event)" name="State" #State="ngModel" />
+                          <div *ngIf="State.errors && (State.dirty || State.touched)" class="alert alert-danger">
+                            <div [hidden]="!State.errors.required">
+                              State Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Country">Country Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="Country" required placeholder="Enter Country Name" [(ngModel)]="InputEmployee.Country" (ngModelChange)="onCountry($event)" name="Country" #Country="ngModel" />
+                          <div *ngIf="Country.errors && (Country.dirty || Country.touched)" class="alert alert-danger">
+                            <div [hidden]="!Country.errors.required">
+                              Country Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="col-sm-8">
+                        <h5><strong>Permanent Address</strong></h5>
+                      </div>
+                      Copy Address <input type="checkbox" [(ngModel)]="copyAddress" (ngModelChange)="addressCopy($event)" name="copyAddress" />
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="PerStreet2">Street 2 Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="PerStreet2" placeholder="Enter Permanent Street 2 Name" [(ngModel)]="InputEmployee.PerStreet2" name="PerStreet2" #PerStreet2="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="PerStreet1">Street 1 Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="PerStreet1" placeholder="Enter Permanent Street 1 Name" [(ngModel)]="InputEmployee.PerStreet1" name="PerStreet1" #PerStreet1="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="PerCity">City Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="PerCity" placeholder="Enter Permanent City Name" [(ngModel)]="InputEmployee.PerCity" name="PerCity" #PerCity="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="PerState">State Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="PerState" placeholder="Enter Permanent State Name" [(ngModel)]="InputEmployee.PerState" name="PerState" #PerState="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="PerCountry">Country Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="PerCountry" placeholder="Enter Permanent Country Name" [(ngModel)]="InputEmployee.PerCountry" name="PerCountry" #PerCountry="ngModel" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="DateOfJoin">Joined Date:</label>
+                        <div class="col-sm-8">
+                          <chaNepaliDatePicker id="DateOfJoin" [inputDate]="inputDOJ" [inputDatePickerOptions]="inputDOJOptions" (selectedDate)='onDOJSelect($event)' *ngIf="inputDOJ && inputDOJOptions"></chaNepaliDatePicker>
+                          <!--<div [hidden]="DOJLTCurrentDate==false" class="alert alert-danger">
+                              Joined Date is less than Current Date !
+                          </div>-->
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Email">Email:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="Email" placeholder="Enter Email" [(ngModel)]="InputEmployee.Email" name="Email" #Email="ngModel" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="COGNumber">CUG Number:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="COGNumber" placeholder="Enter CUG Number" [(ngModel)]="InputEmployee.COGNumber" name="COGNumber" #COGNumber="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Photo">Photo:</label>
+                        <div class="col-sm-6">
+                          <input type="file" class="form-control" [(ngModel)]="employeePhoto" (change)="onChange(employeePhoto, $event)" name="Photo" #Photo="ngModel" />
+                          <div *ngIf="invalidImage==true" class="alert alert-danger">
+                            Image should be of 1:1 or 300px*300px
+                          </div>
+                          <div *ngIf="invalidImage==false" class="text-warning">
+                            Image size=300px*300px(1:1)
+                          </div>
+                        </div>
+                        <div class="form-group col-sm-2 pull-right">
+                          <img [src]="InputEmployee.Photo" *ngIf="InputEmployee.Photo != null" height="42" width="42">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="ReportToId">Report To:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="ReportToId" [(ngModel)]="ReportToId" (ngModelChange)="selectedReportTo($event)" name="ReportToId">
+                            <option *ngFor="let item of supervisorList" value="{{item.ReportToId}}">
+                              {{item.employeeNameJoint}}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="ExceptionToPayroll">Exception To Payroll:</label>
+                        <div class="col-sm-8">
+                          <input type="checkbox" [(ngModel)]="InputEmployee.ExceptionToPayroll" name="ExceptionToPayroll" #ExceptionToPayroll="ngModel" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <employee-nominee [empId]="InputEmployee.EmployeeId" (employeeNomineeList)="getENList($event);"></employee-nominee>
+                  </div>
+                  <hr style="border:1px solid #5cb85c;" />
+                  <div class="col-md-12">
+                    <h5><strong>Holiday Group Information</strong></h5>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="HolidayListId">Holiday List:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="HolidayListId" required [(ngModel)]="InputHolidayList.HolidayListId" name="HolidayListId" #HolidayListId="ngModel">
+                            <option *ngFor="let item of holidayList" value="{{item.HolidayListId}}">
+                              {{item.ListName}}
+                            </option>
+                          </select>
+                          <div *ngIf="HolidayListId.errors && (HolidayListId.dirty || HolidayListId.touched)" class="alert alert-danger">
+                            <div [hidden]="!HolidayListId.errors.required">
+                              Select Holiday List Group!
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="EffectiveFromDate">Effective From:</label>
+                        <div class="col-sm-8">
+                          <chaNepaliDatePicker id="EffectiveFromDate" [inputDate]="inputEHEffectiveFromDate" [inputDatePickerOptions]="inputEHEffectiveFromDateOptions" (selectedDate)='onEHEffectiveFromDateSelect($event)' *ngIf="inputEHEffectiveFromDate && inputEHEffectiveFromDateOptions"></chaNepaliDatePicker>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <hr style="border:1px solid #5cb85c;" *ngIf="showMultipleShiftCheckbox==false" />
+                  <!--Employee Shift-->
+                  <div class="col-md-12" *ngIf="showMultipleShiftCheckbox==false">
+                    <h5><strong>Employee Shift Information</strong></h5>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="GroupId">Shift Name:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="GroupId" required [(ngModel)]="InputEmployeeShift.GroupId" name="GroupId" #GroupId="ngModel">
+                            <option *ngFor="let item of loginGroupList" value="{{item.GroupId}}">
+                              {{item.GroupName}}
+                            </option>
+                          </select>
+                          <div *ngIf="GroupId.errors && (GroupId.dirty || GroupId.touched)" class="alert alert-danger">
+                            <div [hidden]="!GroupId.errors.required">
+                              Select Shift Name!
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="FromDate">Effective From:</label>
+                        <div class="col-sm-8">
+                          <chaNepaliDatePicker id="FromDate1" [inputDate]="inputESFromDate" [inputDatePickerOptions]="inputESFromDateOptions" (selectedDate)='onESFromDateSelect($event)' *ngIf="inputESFromDate && inputESFromDateOptions"></chaNepaliDatePicker>
+                          <!--<chaNepaliDatePicker id="FromDate1" [inputDate]="inputESFromDate" [inputDatePickerOptions]="inputESFromDateOptions" (selectedDate)='onESFromDateSelect($event)' *ngIf="inputESFromDate && inputESFromDatOptions"></chaNepaliDatePicker>-->
+                          <!--<div [hidden]="ESFromDateLTCurrentDate==false" class="alert alert-danger">
+                              From Date is less than Current Date.
+                          </div>-->
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="AutoLogin">Auto Login:</label>
+                        <div class="col-sm-8">
+                          <input type="checkbox" [(ngModel)]="InputEmployeeShift.AutoLogin" (ngModelChange)="AutoLoginChecked($event)" [disabled]="disableAL" id="AutoLogin" name="AutoLogin" #AutoLogin="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="IsOneTimeLogin">Is One Time Login:</label>
+                        <div class="col-sm-8">
+                          <input type="checkbox" [(ngModel)]="InputEmployeeShift.IsOneTimeLogin" (ngModelChange)="IsOneTimeLoginChecked()" [disabled]="disableIOTL" id="IsOneTimeLogin" name="IsOneTimeLogin" #IsOneTimeLogin="ngModel" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="LoginDeviceType">Login Device Type:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="LoginDeviceId" required [(ngModel)]="InputEmployeeShift.LoginDeviceId" [disabled]="disableLDC" name="LoginDeviceId" #LoginDeviceId="ngModel">
+                            <option *ngFor="let item of loginDeviceTypeList" value="{{item.LoginDeviceId}}">
+                              {{item.LoginDeviceName}}
+                            </option>
+                          </select>
+                          <div *ngIf="LoginDeviceId.errors && (LoginDeviceId.dirty || LoginDeviceId.touched)" class="alert alert-danger">
+                            <div [hidden]="!LoginDeviceId.errors.required">
+                              Select Login Device Type!
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <hr style="border:1px solid #5cb85c;" />
+                  <!--Employee Shift-->
+                  <div class="col-md-12" *ngIf="showMultipleShiftCheckbox==true">
+                    <h5><strong>Employee Shift Information</strong></h5>
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>Shift Name</th>
+                          <th>Effective From</th>
+                          <th>Auto Login</th>
+                          <th>Is One Time Login</th>
+                          <th>Login Device</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <div>
+                              <select class="form-control" id="GroupId2" required [(ngModel)]="selectedValue" (ngModelChange)="onGroupIdChangeES($event)" name="GroupId2" #GroupId2="ngModel">
+                                <option value="">Select Shift</option>
+                                <option *ngFor="let item of loginGroupList" [ngValue]="item">
+                                  {{item.GroupName}}
+                                </option>
+                              </select>
+                              <div *ngIf="GroupId2.errors && (GroupId2.dirty || GroupId2.touched)" class="alert alert-danger">
+                                <div [hidden]="!GroupId2.errors.required">
+                                  Select Shift Name!
+                                </div>
+                              </div>
+                              <div *ngIf="showMultipleShiftAlreadyExist==true" class="alert alert-danger">
+                                <div>
+                                  This Shift Name is Already Selected!
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div>
+                              <chaNepaliDatePicker id="FromDate1" [inputDate]="inputESFromDate" [inputDatePickerOptions]="inputESFromDateOptions" (selectedDate)='onESFromDateSelect($event)' *ngIf="inputESFromDate && inputESFromDateOptions"></chaNepaliDatePicker>
+                              <!--<div [hidden]="ESFromDateLTCurrentDate==false" class="alert alert-danger">
+                                  From Date is less than Current Date.
+                              </div>-->
+                            </div>
+                          </td>
+                          <td>
+                            <div>
+                              <input type="checkbox" [(ngModel)]="InputEmployeeShift.AutoLogin" (ngModelChange)="AutoLoginChecked($event)" [disabled]="disableAL" id="AutoLogin" name="AutoLogin" #AutoLogin="ngModel" />
+                            </div>
+                          </td>
+                          <td>
+                            <div>
+                              <input type="checkbox" [(ngModel)]="InputEmployeeShift.IsOneTimeLogin" (ngModelChange)="IsOneTimeLoginChecked()" [disabled]="disableIOTL" id="IsOneTimeLogin" name="IsOneTimeLogin" #IsOneTimeLogin="ngModel" />
+                            </div>
+                          </td>
+                          <td>
+                            <div>
+                              <select class="form-control" id="LoginDeviceType" required [(ngModel)]="selectedValue2" (ngModelChange)="loginDeviceChange($event)" [disabled]="disableLDC" name="LoginDeviceType" #LoginDeviceType="ngModel">
+                                <option *ngFor="let item of loginDeviceTypeList" [ngValue]="item">
+                                  {{item.LoginDeviceName}}
+                                </option>
+                              </select>
+                              <div *ngIf="LoginDeviceType.errors && (LoginDeviceType.dirty || LoginDeviceType.touched)" class="alert alert-danger">
+                                <div [hidden]="!LoginDeviceType.errors.required">
+                                  Select Login Device Type!
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <input id="isMultipleShift" type="checkbox" *ngIf="showMultipleShiftCheckbox==true" [(ngModel)]="showMultipleShift" name="isMultipleShift">
+                    <label *ngIf="showMultipleShiftCheckbox==true">Has Multiple Shift</label>
+                    <button type="button" *ngIf="showMultipleShift==true" class="btn btn-xs btn-success pull-right" (click)="addEmployeeShift()">Add Employee Shift</button>
+                    <table class="table table-bordered" *ngIf="(showEmployeeShiftTable==true && Shift.length>0)">
+                      <thead>
+                        <tr>
+                          <th>Shift Name</th>
+                          <th>Effective From</th>
+                          <th>Auto Login</th>
+                          <th>Is One Time Login</th>
+                          <th>Login Device</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let item of Shift; let in=index">
+                          <td>{{item.GroupName}}</td>
+                          <td>
+                            <span *ngIf="item.FromDate">
+                              <date-view [inputDate]="item.FromDate"></date-view>
+                            </span>
+                            <span *ngIf="!item.FromDate">
+                              -
+                            </span>
+                          </td>
+                          <td>{{item.AutoLogin}}</td>
+                          <td>{{item.IsOneTimeLogin}}</td>
+                          <td>{{item.LoginDeviceName}}</td>
+                          <td class="text-center">
+                            <button type="button" class="btn btn-xs btn-danger" (click)="removeEmployeeShift(in)"><i class="glyphicon glyphicon-trash"></i> Remove</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <hr style="border:1px solid #5cb85c;" *ngIf="showMultipleShiftCheckbox==true" />
+                  <!--Employee Position-->
+                  <div class="row">
+                    <div class="col-md-12">
+                      <h5><strong>Employee Position Information</strong></h5>
+                    </div>
+                  </div>
+                  <div class="row">
+
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Date">Decision Date:</label>
+                        <div class="col-sm-8">
+                          <chaNepaliDatePicker id="Date" [inputDate]="inputEPDate" [inputDatePickerOptions]="inputEPDateOptions" (selectedDate)='onEPDateSelect($event)' *ngIf="inputEPDate && inputEPDateOptions"></chaNepaliDatePicker>
+                          <div [hidden]="DecisionDateLTCurrentDate==false" class="alert alert-danger">
+                            Date is less than Current Date.
+                          </div>
+                          <!--<div [hidden]="DecisionDateLTEffectiveFrom==false" class="alert alert-danger">
+                              Decision Date should be less than Effective From Date.
+                          </div>-->
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-12">
+                      <div class="form-group col-md-12">
+                        <label class="control-label col-sm-2" for="CompanyId">Company:</label>
+                        <div class="col-sm-10">
+                          <div [ngClass]="{'open':CBSelectIsExpand == true }">
+                            <input required type="button" (click)="CBSelectIsExpand = !CBSelectIsExpand" class="form-control btn-block dropdown-toggle" name="CompanyId" placeholder="Select Company" [(ngModel)]="CompanyName">
+                            <div class="dropdown-menu" role="menu" *ngIf="CBSelectIsExpand">
+                              <companySelect [CompanyListObj]="CBList" (returnCompanyList)="selectBranch($event); CBSelectIsExpand = false;"></companySelect>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="DepartmentId">Department:</label>
+                        <div class="col-sm-8">
+                          <input required type="button" class="form-control btn-block dropdown-toggle" name="DepartmentId" placeholder="Select Department" [(ngModel)]="DepartmentName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                            <childDepartment [departmentListObj]="departmentList" (returnDepartmentList)="selectedDept($event);"></childDepartment>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="DesignationId">Designation:</label>
+                        <div class="col-sm-8">
+                          <input required type="button" class="form-control btn-block dropdown-toggle" name="DesignationId" placeholder="Select Designation" [(ngModel)]="DesignationName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                            <childDesignation [designationListObj]="designationList" (returnDesignationList)="selectedDesg($event);"></childDesignation>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6" *ngIf="divisionRequired==true">
+                        <label class="control-label col-sm-4" for="DivisionId">Division:</label>
+                        <div class="col-sm-8">
+                          <div class="input-group">
+                            <input type="text" class="form-control" name="DivisionId" placeholder="Select Division" [(ngModel)]="DivisionName">
+                            <div class="input-group-btn">
+                              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                              <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                                <childDivision [divisionListObj]="divisionList" (returnDivisionList)="selectedDiv($event);"></childDivision>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6" *ngIf="costCenterRequired==true">
+                        <label class="control-label col-sm-4" for="CostCenterId">Cost Center:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="CostCenterId" [(ngModel)]="InputEmployeePosition.CostCenterId" name="CostCenterId" #CostCenterId="ngModel">
+                            <option *ngFor="let item of costCenterList" value="{{item.CostCenterId}}">
+                              {{item.CostCenterName}}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="CategoryId">Category:</label>
+                        <div class="col-sm-8">
+                          <div class="input-group">
+                            <input type="text" class="form-control" name="CategoryId" placeholder="Select Category" [(ngModel)]="CategoryName">
+                            <div class="input-group-btn">
+                              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                              <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                                <childCategory [categoryListObj]="categoryList" (returnCategoryList)="selectedCat($event);"></childCategory>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6" *ngIf="workAreaRequired==true">
+                        <label class="control-label col-sm-4" for="WorkAreaId">Work Area:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="WorkAreaId" [(ngModel)]="InputEmployeePosition.WorkAreaId" name="WorkAreaId" #WorkAreaId="ngModel">
+                            <option *ngFor="let item of workAreaList" value="{{item.WorkAreaId}}">
+                              {{item.WorkAreaName}}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="EffectiveFrom">Effective From:</label>
+                        <div class="col-sm-8">
+                          <chaNepaliDatePicker id="EffectiveFrom" [inputDate]="inputEPEffectiveFromDate" [inputDatePickerOptions]="inputEPEffectiveFromDateOptions" (selectedDate)='onEPEffectiveFromSelect($event)' *ngIf="inputEPEffectiveFromDate && inputEPEffectiveFromDateOptions"></chaNepaliDatePicker>
+                          <div [hidden]="DecisionDateLTEffectiveFrom==false" class="alert alert-danger">
+                            Effective From should be greater than Decision Date.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+
+                    <div *ngIf="isContractEmp == true">
+                      <employee-contract [empId]="Employee.EmployeeId" (employeeContract)="saveContract($event)"></employee-contract>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="isEditEmployee==true">
+                  <div class="col-md-12">
+                    <div class="col-md-12" *ngIf="isAutoGenerated==false">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="EmployeeNo">Employee No:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="EmployeeNo" required placeholder="Enter Employee Number" [(ngModel)]="Employee.EmployeeNo" (ngModelChange)="onEmployeeNoChange($event)" name="EmployeeNo" #EmployeeNo="ngModel" />
+                          <div *ngIf="showDiv==true" class="alert alert-danger">
+                              This Employee No. Already Exits!
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="FirstName">First Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="FirstName" required placeholder="Enter First Name" [(ngModel)]="Employee.FirstName" name="FirstName" #FirstName="ngModel" />
+                          <div *ngIf="FirstName.errors && (FirstName.dirty || FirstName.touched)" class="alert alert-danger">
+                            <div [hidden]="!FirstName.errors.required">
+                              First Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="MiddleName">Middle Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="MiddleName" placeholder="Enter Middle Name" [(ngModel)]="Employee.MiddleName" name="MiddleName" #MiddleName="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="LastName">Last Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="LastName" required placeholder="Enter Last Name" [(ngModel)]="Employee.LastName" name="LastName" #LastName="ngModel" />
+                          <div *ngIf="LastName.errors && (LastName.dirty || LastName.touched)" class="alert alert-danger">
+                            <div [hidden]="!LastName.errors.required">
+                              Last Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="DateOfBirth">Date of Birth:</label>
+                        <div class="col-sm-8">
+                          <chaNepaliDatePicker id="DateOfBirth" [inputDate]="inputDOB" [inputDatePickerOptions]="inputDOBOptions" (selectedDate)='onDOBEditSelect($event)' *ngIf="inputDOB && inputDOBOptions"></chaNepaliDatePicker>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="BloodGroup">Blood Group:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="bloodId" [(ngModel)]="Employee.BloodGroup" name="bloodId" #bloodId="ngModel">
+                            <option *ngFor="let item of bloodGroupList" value="{{item.bloodGroup}}">
+                              {{item.bloodGroup}}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="ReligionId">Religion:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="ReligionId" required [(ngModel)]="Employee.ReligionId" name="ReligionId" #ReligionId="ngModel">
+                            <option *ngFor="let item of religionList" value="{{item.ReligionId}}">
+                              {{item.ReligionName}}
+                            </option>
+                          </select>
+                          <div *ngIf="ReligionId.errors && (ReligionId.dirty || ReligionId.touched)" class="alert alert-danger">
+                            <div [hidden]="!ReligionId.errors.required">
+                              Select Religion Name!
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Gender">Gender:</label>
+                        <div class="col-sm-8">
+                          <select class="form-control" id="Gender" [(ngModel)]="Employee.Gender" required name="Gender" #Gender="ngModel">
+                            <option *ngFor="let item of genderList" value="{{item.genderName}}">
+                              {{item.genderName}}
+                            </option>
+                          </select>
+                          <div *ngIf="Gender.errors && (Gender.dirty || Gender.touched)" class="alert alert-danger">
+                            <div [hidden]="!Gender.errors.required">
+                              Select Gender!
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="ContactNumber">Contact Number:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="ContactNumber" placeholder="Enter Contact Number" [(ngModel)]="Employee.ContactNumber" name="ContactNumber" #ContactNumber="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="MobileNumber">Mobile Number:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="MobileNumber" placeholder="Enter Mobile Number" [(ngModel)]="Employee.MobileNumber" name="MobileNumber" #MobileNumber="ngModel" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <h5><strong>Address</strong></h5>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Street2">Street 2 Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="Street2" placeholder="Enter Street 2 Name" [(ngModel)]="Employee.Street2" (ngModelChange)="onStreet2Edit($event)" name="Street2" #Street2="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Street1">Street 1 Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="Street1" required placeholder="Enter Street 1 Name" [(ngModel)]="Employee.Street1" (ngModelChange)="onStreet1Edit($event)" name="Street1" #Street1="ngModel" />
+                          <div *ngIf="Street1.errors && (Street1.dirty || Street1.touched)" class="alert alert-danger">
+                            <div [hidden]="!Street1.errors.required">
+                              Street1 Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="City">City Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="City" required placeholder="Enter City Name" [(ngModel)]="Employee.City" (ngModelChange)="onCityEdit($event)" name="City" #City="ngModel" />
+                          <div *ngIf="City.errors && (City.dirty || City.touched)" class="alert alert-danger">
+                            <div [hidden]="!City.errors.required">
+                              City Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="State">State Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="State" required placeholder="Enter State Name" [(ngModel)]="Employee.State" (ngModelChange)="onStateEdit($event)" name="State" #State="ngModel" />
+                          <div *ngIf="State.errors && (State.dirty || State.touched)" class="alert alert-danger">
+                            <div [hidden]="!State.errors.required">
+                              State Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Country">Country Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="Country" required placeholder="Enter Country Name" [(ngModel)]="Employee.Country" (ngModelChange)="onCountryEdit($event)" name="Country" #Country="ngModel" />
+                          <div *ngIf="Country.errors && (Country.dirty || Country.touched)" class="alert alert-danger">
+                            <div [hidden]="!Country.errors.required">
+                              Country Name is required !
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="col-sm-8">
+                        <h5><strong>Permanent Address</strong></h5>
+                      </div>
+                      Copy Address <input type="checkbox" [(ngModel)]="copyAddress" (ngModelChange)="addressCopyEdit($event)" name="copyAddress" />
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="PerStreet2">Street 2 Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="PerStreet2" placeholder="Enter Permanent Street 2 Name" [(ngModel)]="Employee.PerStreet2" name="PerStreet2" #PerStreet2="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="PerStreet1">Street 1 Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="PerStreet1" placeholder="Enter Permanent Street 1 Name" [(ngModel)]="Employee.PerStreet1" name="PerStreet1" #PerStreet1="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="PerCity">City Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="PerCity" placeholder="Enter Permanent City Name" [(ngModel)]="Employee.PerCity" name="PerCity" #PerCity="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="PerState">State Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="PerState" placeholder="Enter Permanent State Name" [(ngModel)]="Employee.PerState" name="PerState" #PerState="ngModel" />
+
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="PerCountry">Country Name:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="PerCountry" placeholder="Enter Permanent Country Name" [(ngModel)]="Employee.PerCountry" name="PerCountry" #PerCountry="ngModel" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="DateOfJoin">Joined Date:</label>
+                        <div class="col-sm-8">
+                          <chaNepaliDatePicker id="DateOfJoin" [inputDate]="inputDOJ" [inputDatePickerOptions]="inputDOJOptions" (selectedDate)='onDOJEditSelect($event)' *ngIf="inputDOJ && inputDOJOptions"></chaNepaliDatePicker>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Email">Email:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="Email" placeholder="Enter Email" [(ngModel)]="Employee.Email" name="Email" #Email="ngModel" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="COGNumber">CUG Number:</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="COGNumber" placeholder="Enter CUG Number" [(ngModel)]="Employee.COGNumber" name="COGNumber" #COGNumber="ngModel" />
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Photo">Photo:</label>
+                        <div class="col-sm-6">
+                          <input type="file" class="form-control" [(ngModel)]="employeePhoto" (change)="onChange(employeePhoto, $event)" name="Photo" #Photo="ngModel" />
+                          <div *ngIf="invalidImage==true" class="alert alert-danger">
+                            Image should be of 1:1 or 300px*300px
+                          </div>
+                          <div *ngIf="invalidImage==false" class="text-warning">
+                            Image size=300px*300px(1:1)
+                          </div>
+                        </div>
+                        <div class="form-group col-sm-2 pull-right">
+                          <img [src]="Employee.Photo" *ngIf="Employee.Photo != null" height="42" width="42">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="Status">Status:</label>
+                        <div class="col-sm-8" *ngIf="Employee.Status==3">
+                          <span class="form-control">Resigned</span>
+                        </div>
+                        <div class="col-sm-8" *ngIf="Employee.Status!=3">
+                          <div class="col-sm-4">
+                            <input type="radio" name="Status" [value]="1" [(ngModel)]="Employee.Status" /> Active
+                          </div>
+                          <div class="col-sm-4">
+                            <input type="radio" name="Status" [value]="2" [(ngModel)]="Employee.Status" /> Inactive
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="ReportTo">Report To:</label>
+                        <div class="col-sm-8">
+                          <span class="form-control">{{ReportToEmployeeName.employeeNameJoint}}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="ExceptionToPayroll">Exception To Payroll:</label>
+                        <div class="col-sm-8">
+                          <input type="checkbox" [(ngModel)]="Employee.ExceptionToPayroll" name="ExceptionToPayroll" #ExceptionToPayroll="ngModel" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <employee-nominee [empId]="Employee.EmployeeId" (employeeNomineeList)="getENList($event);"></employee-nominee>
+                  </div>
+                  <div *ngIf="isAddEditToggle==true">
+                    <button type="submit" (click)="editEmployee()" [disabled]="!bookForm.form.valid || invalidImage==true" class="btn btn-xs btn-success pull-right">Save Changes</button>
+                  </div>
+                  <hr style="border:1px solid #5cb85c;" />
+                  <div class="col-md-12">
+                    <h5><strong>Holiday Group Information</strong></h5>
+                    <div class="col-md-12" *ngFor="let data of employeeHolidayList">
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="HolidayListId">Holiday List:</label>
+                        <div class="col-sm-8">
+                          <span class="form-control">{{data.HolidayList.ListName}}</span>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label class="control-label col-sm-4" for="EffectiveFromDate">Effective From:</label>
+                        <div class="col-sm-8">
+                          <chaNepaliDatePicker id="EffectiveFromDate" [inputDate]="inputEHEffectiveFromDate" [inputDatePickerOptions]="inputEHEffectiveFromDateOptions" (selectedDate)='onEHEffectiveFromDateSelect($event)' *ngIf="inputEHEffectiveFromDate && inputEHEffectiveFromDateOptions"></chaNepaliDatePicker>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <hr style="border:1px solid #5cb85c;" *ngIf="EmployeeShiftList.length>0" />
+                  <h5><strong>Employee Shift Information</strong></h5>
+                  <input type="checkbox" *ngIf="showMultipleShiftCheckbox==true" [(ngModel)]="showMultipleShiftEdit" name="isMultipleShift">
+                  <label *ngIf="showMultipleShiftCheckbox==true">Has Multiple Shift</label>
+                  <!--<button type="button" class="btn btn-xs btn-success pull-right" *ngIf="(showMultipleShiftEdit && isUpdateEmployeeShift==true)" (click)="addNewEmployeeShift()">Add Employee Shift</button>-->
+                  <div class="col-md-12" *ngIf="(updateShift==true)">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>Shift Name</th>
+                          <th>Effective From</th>
+                          <th>Auto Login</th>
+                          <th>Is One Time Login</th>
+                          <th>Login Device</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <div>
+                              <select class="form-control" id="GroupId2" required [(ngModel)]="EmployeeShiftList2.GroupId" name="GroupId2" #GroupId2="ngModel">
+                                <option *ngFor="let item of loginGroupList" value="{{item.GroupId}}">
+                                  {{item.GroupName}}
+                                </option>
+                              </select>
+                              <div *ngIf="GroupId2.errors && (GroupId2.dirty || GroupId2.touched)" class="alert alert-danger">
+                                <div [hidden]="!GroupId2.errors.required">
+                                  Select Shift Name!
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div>
+                              <chaNepaliDatePicker id="FromDate1" [inputDate]="EmployeeShiftList2.InputFromDate" [inputDatePickerOptions]="inputESFromDateOptions" (selectedDate)='onESFromDateEditSelect($event)' *ngIf="inputESFromDate && inputESFromDateOptions"></chaNepaliDatePicker>
+                            </div>
+                          </td>
+                          <td>
+                            <div>
+                              <input type="checkbox" [(ngModel)]="EmployeeShiftList2.AutoLogin" id="AutoLogin" name="AutoLogin" #AutoLogin="ngModel" />
+                            </div>
+                          </td>
+                          <td>
+                            <div>
+                              <input type="checkbox" [(ngModel)]="EmployeeShiftList2.IsOneTimeLogin" id="IsOneTimeLogin" name="IsOneTimeLogin" #IsOneTimeLogin="ngModel" />
+                            </div>
+                          </td>
+                          <td>
+                            <div>
+                              <select class="form-control" id="LoginDeviceId" required [(ngModel)]="EmployeeShiftList2.LoginDeviceId" name="LoginDeviceId" #LoginDeviceId="ngModel">
+                                <option *ngFor="let item of loginDeviceTypeList" value="{{item.LoginDeviceId}}">
+                                  {{item.LoginDeviceName}}
+                                </option>
+                              </select>
+                              <div *ngIf="LoginDeviceId.errors && (LoginDeviceId.dirty || LoginDeviceId.touched)" class="alert alert-danger">
+                                <div [hidden]="!LoginDeviceId.errors.required">
+                                  Select Login Device Type!
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div class="col-md-12">
+                      <div class="col-md-6"></div>
+                      <div class="col-md-6">
+                        <button type="button" class="btn btn-xs btn-danger pull-right" (click)="cancelUpdateEmployeeShift()">Cancel</button>
+                        <button type="button" class="btn btn-xs btn-warning pull-right" (click)="updateEmployeeShift()">Update</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <h5></h5>
+                    <table class="table table-bordered" *ngIf="EmployeeShiftList.length>0">
+                      <thead>
+                        <tr>
+                          <th>Shift Name</th>
+                          <th>Effective From</th>
+                          <th>Auto Login</th>
+                          <th>Is One Time Login</th>
+                          <th>Login Device</th>
+                          <th *ngIf="isUpdateEmployeeShift==true">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let data of EmployeeShiftList; let in = index">
+                          <td style="display:none;">{{data.LoginGroup.ShiftId}}</td>
+                          <td>{{data.LoginGroup.GroupName}}</td>
+                          <td>
+                            <span *ngIf="data.FromDate">
+                              <date-view [inputDate]="data.FromDate"></date-view>
+                            </span>
+                            <span *ngIf="!data.FromDate">
+                              -
+                            </span>
+                          </td>
+                          <td>{{data.AutoLogin}}</td>
+                          <td>{{data.IsOneTimeLogin}}</td>
+                          <td>{{data.LoginDeviceType.LoginDeviceName}}</td>
+                          <td *ngIf="isUpdateEmployeeShift==true">
+                            <button type="submit" *ngIf="isUpdateEmployeeShift==true" class="btn btn-xs btn-info text-center" (click)="editEmployeeShift(data.LoginGroup.ShiftId,data.Id,in,data.EmployeeId)"><i class="glyphicon glyphicon-edit"></i></button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <hr style="border:1px solid #5cb85c;" />
+                  <!--Employee Position-->
+                  <div class="row" *ngIf="EmployeePositionList2.length>0">
+                    <div *ngFor="let data of EmployeePositionList2">
+                      <h5><strong>Employee Position Information</strong></h5>
+                      <div class="col-md-12">
+                        <div class="col-md-12">
+                          <div class="form-group col-md-6">
+                            <label class="control-label col-sm-4" for="Date">Decision Date:</label>
+                            <div class="col-sm-8">
+                              <chaNepaliDatePicker id="Date" [inputDate]="inputEPDate" [inputDatePickerOptions]="inputEPDateOptions" (selectedDate)='onEPDateEditSelect($event)' *ngIf="inputEPDate && inputEPDateOptions"></chaNepaliDatePicker>
+                            </div>
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label class="control-label col-sm-4" for="CompanyId">Company:</label>
+                            <div class="col-sm-8">
+                              <div [ngClass]="{'open':CBSelectIsExpand == true }">
+                                <input required type="button" (click)="CBSelectIsExpand = !CBSelectIsExpand" class="form-control btn-block dropdown-toggle" name="CompanyId" placeholder="Select Company" [(ngModel)]="CompanyName">
+                                <div class="dropdown-menu" role="menu" *ngIf="CBSelectIsExpand">
+                                  <companySelect [CompanyListObj]="CBList" (returnCompanyList)="selectBranchEdit($event); CBSelectIsExpand = false;"></companySelect>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-12">
+                          <div class="form-group col-md-6">
+                            <label class="control-label col-sm-4" for="DepartmentId">Department:</label>
+                            <div class="col-sm-8">
+                              <div class="input-group">
+                                <input required type="text" class="form-control" name="DepartmentId" placeholder="Select Department" [(ngModel)]="DepartmentName">
+                                <div class="input-group-btn">
+                                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                                  <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                                    <childDepartment [departmentListObj]="departmentList" (returnDepartmentList)="selectedDeptEdit($event,data.Id);"></childDepartment>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label class="control-label col-sm-4" for="DesignationId">Designation:</label>
+                            <div class="col-sm-8">
+                              <div class="input-group">
+                                <input required type="text" class="form-control" name="DesignationId" placeholder="Select Designation" [(ngModel)]="DesignationName">
+                                <div class="input-group-btn">
+                                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                                  <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                                    <childDesignation [designationListObj]="designationList" (returnDesignationList)="selectedDesgEdit($event,data.Id);"></childDesignation>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-12">
+                          <div class="form-group col-md-6" *ngIf="divisionRequired==true">
+                            <label class="control-label col-sm-4" for="DivisionId">Division:</label>
+                            <div class="col-sm-8">
+                              <div class="input-group">
+                                <input required type="text" class="form-control" name="DivisionId" placeholder="Select Division" [(ngModel)]="DivisionName">
+                                <div class="input-group-btn">
+                                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                                  <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                                    <childDivision [divisionListObj]="divisionList" (returnDivisionList)="selectedDivEdit($event,data.Id);"></childDivision>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group col-md-6" *ngIf="costCenterRequired==true">
+                            <label class="control-label col-sm-4" for="CostCenterId">Cost Center:</label>
+                            <div class="col-sm-8">
+                              <select class="form-control" id="CostCenterId" [(ngModel)]="data.CostCenterId" name="CostCenterId" #CostCenterId="ngModel">
+                                <option *ngFor="let item of costCenterList" value="{{item.CostCenterId}}">
+                                  {{item.CostCenterName}}
+                                </option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-12">
+                          <div class="form-group col-md-6">
+                            <label class="control-label col-sm-4" for="CategoryId">Category:</label>
+                            <div class="col-sm-8">
+                              <div class="input-group">
+                                <input type="text" class="form-control" name="CategoryId" placeholder="Select Category" [(ngModel)]="CategoryName">
+                                <div class="input-group-btn">
+                                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                                  <div class="dropdown-menu dropDownDept dropdown-menu-right">
+                                    <childCategory [categoryListObj]="categoryList" (returnCategoryList)="selectedCatEdit($event,data.Id);"></childCategory>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group col-md-6" *ngIf="workAreaRequired==true">
+                            <label class="control-label col-sm-4" for="WorkAreaId">Work Area:</label>
+                            <div class="col-sm-8">
+                              <select multiple class="form-control" id="WorkAreaId" [(ngModel)]="workArea" name="WorkAreaId" disabled>
+                                <option *ngFor="let item of workArea" [ngValue]="item">
+                                  {{item.WorkAreaName}}
+                                </option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-12">
+                          <div class="form-group col-md-6">
+                            <label class="control-label col-sm-4" for="EffectiveFrom">Effective From:</label>
+                            <div class="col-sm-8">
+                              <chaNepaliDatePicker id="EffectiveFrom" [inputDate]="inputEPEffectiveFromDate" [inputDatePickerOptions]="inputEPEffectiveFromDateOptions" (selectedDate)='onEPEffectiveFromEditSelect($event)' *ngIf="inputEPEffectiveFromDate && inputEPEffectiveFromDateOptions"></chaNepaliDatePicker>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <button type="submit" *ngIf="isUpdateEmployeePosition==true" class="btn btn-xs btn-warning pull-right" (click)="editEmployeePosition()">Update Employee Position</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="isContractEmp == true">
+                    <employee-contract [empId]="Employee.EmployeeId" (employeeContract)="saveContract($event)"></employee-contract>
+                  </div>
+                  <hr style="border:1px solid #5cb85c;" />
+                  <div>
+                    <employee-cv [empId]="Employee.EmployeeId"></employee-cv>
+                    <employee-certificate [empId]="Employee.EmployeeId"></employee-certificate>
+                    <employee-education [empId]="Employee.EmployeeId"></employee-education>
+                    <employee-experience [empId]="Employee.EmployeeId"></employee-experience>
+                    <employee-training [empId]="Employee.EmployeeId"></employee-training>
+                    <employee-decoration [empId]="Employee.EmployeeId"></employee-decoration>
+                    <employee-genericinfo [empId]="Employee.EmployeeId"></employee-genericinfo>
+                    <employee-grievance [empId]="Employee.EmployeeId"></employee-grievance>
+                    <employee-other-activity [empId]="Employee.EmployeeId"></employee-other-activity>
+                    <employee-research [empId]="Employee.EmployeeId"></employee-research>
+                    <employee-swmc [empId]="Employee.EmployeeId"></employee-swmc>
+                    <employee-vacancy [empId]="Employee.EmployeeId"></employee-vacancy>
+                    <employee-other-document [empId]="Employee.EmployeeId"></employee-other-document>
+
+                  </div>
+                </div>
+                <div *ngIf="isEditMyProfile==true && selectedId!=null">
+                  <div class="col-md-12">
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="EmployeeName"> Name:</label>
+                      <div class="col-sm-8">
+                        <span class="form-control">{{Employee.FirstName}} {{Employee.MiddleName}} {{Employee.LastName}}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="DateOfBirth">Date of Birth:</label>
+                      <div class="col-sm-8">
+                        <chaNepaliDatePicker id="DateOfBirth" [inputDate]="inputDOB" [inputDatePickerOptions]="inputDOBOptions" (selectedDate)='onDOBEditSelect($event)' *ngIf="inputDOB && inputDOBOptions"></chaNepaliDatePicker>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="BloodGroup">Blood Group:</label>
+                      <div class="col-sm-8">
+                        <select class="form-control" id="bloodId" [(ngModel)]="Employee.BloodGroup" name="bloodId" #bloodId="ngModel">
+                          <option *ngFor="let item of bloodGroupList" value="{{item.bloodGroup}}">
+                            {{item.bloodGroup}}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="ReligionId">Religion:</label>
+                      <div class="col-sm-8">
+                        <select class="form-control" id="ReligionId" required [(ngModel)]="Employee.ReligionId" name="ReligionId" #ReligionId="ngModel">
+                          <option *ngFor="let item of religionList" value="{{item.ReligionId}}">
+                            {{item.ReligionName}}
+                          </option>
+                        </select>
+                        <div *ngIf="ReligionId.errors && (ReligionId.dirty || ReligionId.touched)" class="alert alert-danger">
+                          <div [hidden]="!ReligionId.errors.required">
+                            Select Religion Name!
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="Gender">Gender:</label>
+                      <div class="col-sm-8">
+                        <select class="form-control" id="Gender" [(ngModel)]="Employee.Gender" required name="Gender" #Gender="ngModel">
+                          <option *ngFor="let item of genderList" value="{{item.genderName}}">
+                            {{item.genderName}}
+                          </option>
+                        </select>
+                        <div *ngIf="Gender.errors && (Gender.dirty || Gender.touched)" class="alert alert-danger">
+                          <div [hidden]="!Gender.errors.required">
+                            Select Gender!
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="ContactNumber">Contact Number:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="ContactNumber" placeholder="Enter Contact Number" [(ngModel)]="Employee.ContactNumber" name="ContactNumber" #ContactNumber="ngModel" />
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="MobileNumber">Mobile Number:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="MobileNumber" placeholder="Enter Mobile Number" [(ngModel)]="Employee.MobileNumber" name="MobileNumber" #MobileNumber="ngModel" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <h5><strong>Address</strong></h5>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="Street2">Street 2 Name:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="Street2" placeholder="Enter Street 2 Name" [(ngModel)]="Employee.Street2" (ngModelChange)="onStreet2Edit($event)" name="Street2" #Street2="ngModel" />
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="Street1">Street 1 Name:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="Street1" required placeholder="Enter Street 1 Name" [(ngModel)]="Employee.Street1" (ngModelChange)="onStreet1Edit($event)" name="Street1" #Street1="ngModel" />
+                        <div *ngIf="Street1.errors && (Street1.dirty || Street1.touched)" class="alert alert-danger">
+                          <div [hidden]="!Street1.errors.required">
+                            Street1 Name is required !
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="City">City Name:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="City" required placeholder="Enter City Name" [(ngModel)]="Employee.City" (ngModelChange)="onCityEdit($event)" name="City" #City="ngModel" />
+                        <div *ngIf="City.errors && (City.dirty || City.touched)" class="alert alert-danger">
+                          <div [hidden]="!City.errors.required">
+                            City Name is required !
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="State">State Name:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="State" required placeholder="Enter State Name" [(ngModel)]="Employee.State" (ngModelChange)="onStateEdit($event)" name="State" #State="ngModel" />
+                        <div *ngIf="State.errors && (State.dirty || State.touched)" class="alert alert-danger">
+                          <div [hidden]="!State.errors.required">
+                            State Name is required !
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="Country">Country Name:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="Country" required placeholder="Enter Country Name" [(ngModel)]="Employee.Country" (ngModelChange)="onCountryEdit($event)" name="Country" #Country="ngModel" />
+                        <div *ngIf="Country.errors && (Country.dirty || Country.touched)" class="alert alert-danger">
+                          <div [hidden]="!Country.errors.required">
+                            Country Name is required !
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="col-sm-8">
+                      <h5><strong>Permanent Address</strong></h5>
+                    </div>
+                    Copy Address <input type="checkbox" [(ngModel)]="copyAddress" (ngModelChange)="addressCopyEdit($event)" name="copyAddress" />
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="PerStreet2">Street 2 Name:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="PerStreet2" placeholder="Enter Permanent Street 2 Name" [(ngModel)]="Employee.PerStreet2" name="PerStreet2" #PerStreet2="ngModel" />
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="PerStreet1">Street 1 Name:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="PerStreet1" placeholder="Enter Permanent Street 1 Name" [(ngModel)]="Employee.PerStreet1" name="PerStreet1" #PerStreet1="ngModel" />
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="PerCity">City Name:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="PerCity" placeholder="Enter Permanent City Name" [(ngModel)]="Employee.PerCity" name="PerCity" #PerCity="ngModel" />
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="PerState">State Name:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="PerState" placeholder="Enter Permanent State Name" [(ngModel)]="Employee.PerState" name="PerState" #PerState="ngModel" />
+
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="PerCountry">Country Name:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="PerCountry" placeholder="Enter Permanent Country Name" [(ngModel)]="Employee.PerCountry" name="PerCountry" #PerCountry="ngModel" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="DateOfJoin">Joined Date:</label>
+                      <div class="col-sm-8">
+                        <span class="form-control" *ngIf="Employee.DateOfJoin">
+                          <date-view [inputDate]="Employee.DateOfJoin"></date-view>
+                        </span>
+                        <span class="form-control" *ngIf="!Employee.DateOfJoin">
+
+                        </span>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="Email">Email:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="Email" placeholder="Enter Email" [(ngModel)]="Employee.Email" name="Email" #Email="ngModel" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="COGNumber">CUG Number:</label>
+                      <div class="col-sm-8">
+                        <span class="form-control">{{Employee.COGNumber}}</span>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="Photo">Photo:</label>
+                      <div class="col-sm-6">
+                        <input type="file" class="form-control" [(ngModel)]="employeePhoto" (change)="onChange(employeePhoto, $event)" name="Photo" #Photo="ngModel" />
+                        <div *ngIf="invalidImage==true" class="alert alert-danger">
+                          Image should be of 1:1 or 300px*300px
+                        </div>
+                        <div *ngIf="invalidImage==false" class="text-warning">
+                          Image size=300px*300px(1:1)
+                        </div>
+                      </div>
+                      <div class="form-group col-sm-2 pull-right">
+                        <img [src]="Employee.Photo" *ngIf="Employee.Photo != null" height="42" width="42">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group col-md-6">
+                      <label class="control-label col-sm-4" for="ReportTo">Report To:</label>
+                      <div class="col-sm-8">
+                        <span class="form-control">{{ReportToEmployeeName.employeeNameJoint}}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <button type="button" class="btn btn-xs btn-danger pull-right" (click)="hideEditProfile()">Cancel</button>
+                    <button type="submit" (click)="editEmployee()" [disabled]="!bookForm.form.valid || invalidImage==true" class="btn btn-xs btn-success pull-right">Edit</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button *ngIf="isAddEditToggle==false && isEditMyProfile==false" type="submit" (click)="saveEmployee(InputEmployee.Photo)" [disabled]="!bookForm.form.valid || showDiv==true || invalidImage==true" class="btn btn-xs btn-success">Save</button>
+            <button *ngIf="isEditMyProfile==false" type="button" class="btn btn-xs btn-danger" (click)="hideEmployeeDiv()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="selectedDetailDiv==true">
+  <div class="col-xs-12">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="modal-body" style="font-size:12px;" *ngIf="DetailEmployee.EmployeeId != null">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-4">
+                <img [src]="DetailEmployee.Photo" alt="N/A" *ngIf="DetailEmployee.Photo != null" class="user-image">
+              </div>
+              <div class="col-md-8">
+                <ul class="user-info-data">
+                  <li><label>Employee Name:</label>  {{DetailEmployee.FirstName}} {{DetailEmployee.MiddleName}} {{DetailEmployee.LastName}}</li>
+                  <li>
+                    <label>Date Of Birth:</label>
+                    <span *ngIf="DetailEmployee.DateOfBirth">
+                      <date-view [inputDate]="DetailEmployee.DateOfBirth"></date-view>
+                    </span>
+                    <span *ngIf="!DetailEmployee.DateOfBirth">
+                      -
+                    </span>
+                  </li>
+                  <li><label>Blood Group:</label>  {{DetailEmployee.BloodGroup ? DetailEmployee.BloodGroup: 'N/A'}}</li>
+                  <li><label>Religion:</label>  {{DetailEmployee.Religion.ReligionName}}</li>
+                  <li><label>Temporary Address:</label>  {{DetailEmployee.TemporaryAddress}}</li>
+                  <li><label>Permanent Address:</label>  {{DetailEmployee.PermanentAddress}}</li>
+                  <li><label>Email Address:</label>  {{DetailEmployee.Email ? DetailEmployee.Email : 'N/A'}}</li>
+                  <li><label>Gender:</label>  {{DetailEmployee.Gender}}</li>
+                  <li><label>Contact Number:</label>  {{DetailEmployee.ContactNumber ? DetailEmployee.ContactNumber: 'N/A'}}</li>
+                  <li><label>Mobile Number:</label>  {{DetailEmployee.MobileNumber ? DetailEmployee.MobileNumber : 'N/A'}}</li>
+                  <li><label>CUG Number:</label>  {{DetailEmployee.COGNumber ? DetailEmployee.COGNumber : 'N/A' }}</li>
+                  <li><label>Status:</label>  {{DetailEmployee.EmployeeStatus ? DetailEmployee.EmployeeStatus.Status: 'N/A' }}</li>
+                  <li><label>Report To:</label>  {{ReportToEmployeeName.employeeNameJoint ? ReportToEmployeeName.employeeNameJoint: 'N/A' }}</li>
+                </ul>
+                <div>
+                  <button type="button" class="btn btn-primary pull-right" *ngIf="selectedId!=null" (click)="openEditProfile()">Edit Profile</button>
+                </div>
+              </div>
+            </div>
+            <hr style="border:1px solid #5cb85c;" *ngIf="employeeHolidayList.length>0" />
+            <div class="row" *ngIf="employeeHolidayList.length>0">
+              <h5><strong>Holiday Group Information</strong></h5>
+              <div class="col-md-12 scrollit">
+                <table class="table table-bordered table-condensed">
+                  <thead>
+                    <tr>
+                      <th>Holiday List Name</th>
+                      <th>Effective From</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let data of employeeHolidayList" [ngClass]="{'blue-color':data.Status == true}">
+                      <td>
+                        {{data.HolidayList.ListName}}
+                      </td>
+                      <td>
+                        <span *ngIf="data.EffectiveFrom">
+                          <date-view [inputDate]="data.EffectiveFrom"></date-view>
+                        </span>
+                        <span *ngIf="!data.EffectiveFrom">
+                          -
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button type="button" class="btn btn-xs pull-right" (click)="viewHistoryEH(DetailEmployee.EmployeeId)">View History</button>
+              </div>
+            </div>
+            <hr style="border:1px solid #5cb85c;" *ngIf="EmployeeShiftList.length>0" />
+            <!--<!--Employee Shift-->
+            <div class="row" *ngIf="EmployeeShiftList.length>0">
+              <h5><strong>Employee Shift Information</strong></h5>
+              <div class="col-md-12 scrollit">
+                <table class="table table-bordered table-condensed">
+                  <thead>
+                    <tr>
+                      <th>Shift Name</th>
+                      <th>Effective From</th>
+                      <th>Auto Login</th>
+                      <th>Is One Time Login</th>
+                      <th>Login Device Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let data of EmployeeShiftList" [ngClass]="{'blue-color':data.Status == true}">
+                      <td>
+                        {{data.LoginGroup.GroupName}}
+                      </td>
+                      <td>
+                        <span *ngIf="data.FromDate">
+                          <date-view [inputDate]="data.FromDate"></date-view>
+                        </span>
+                        <span *ngIf="!data.FromDate">
+                          -
+                        </span>
+                      </td>
+                      <td>
+                        {{data.AutoLogin}}
+                      </td>
+                      <td>
+                        {{data.IsOneTimeLogin}}
+                      </td>
+                      <td>
+                        {{data.LoginDeviceType.LoginDeviceName}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button type="button" class="btn btn-xs pull-right" (click)="viewHistoryES(DetailEmployee.EmployeeId)">View History</button>
+              </div>
+            </div>
+            <hr style="border:1px solid #5cb85c;" />
+            <!--Employee Position-->
+            <div class="row" *ngIf="EmployeePositionListView.length>0">
+              <h5><strong>Employee Position Information</strong></h5>
+              <div class="col-md-12 scrollit">
+                <table class="table table-bordered table-condensed positionTable">
+                  <thead>
+                    <tr>
+                      <th>Effective From Date</th>
+                      <th>Decision Date</th>
+                      <th>Posted Date</th>
+                      <th>Company</th>
+                      <th *ngIf="divisionRequired==true">Division</th>
+                      <th>Department</th>
+                      <th>Designation</th>
+                      <th *ngIf="costCenterRequired==true">Cost Center</th>
+                      <th>Category</th>
+                      <th *ngIf="workAreaRequired==true">Work Area</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let data of EmployeePositionListView; let i=index" [ngClass]="{'blue-color':data.CurrentFlag == true}">
+                      <td>
+                        <span *ngIf="data.EffectiveFrom">
+                          <date-view [inputDate]="data.EffectiveFrom"></date-view>
+                        </span>
+                        <span *ngIf="!data.EffectiveFrom">
+                          -
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="data.Date">
+                          <date-view [inputDate]="data.Date"></date-view>
+                        </span>
+                        <span *ngIf="!data.Date">
+                          -
+                        </span>
+                      </td>
+                      <td>
+                        <span *ngIf="data.PostedOn">
+                          <date-view [inputDate]="data.PostedOn"></date-view>
+                        </span>
+                        <span *ngIf="!data.PostedOn">
+                          -
+                        </span>
+                      </td>
+                      <td>
+                        {{data.Company ? data.Company.CompanyName : '-' }}
+                      </td>
+                      <td *ngIf="divisionRequired==true">
+                        {{data.Division ? data.Division.DivisionName : '-'}}
+                      </td>
+                      <td>
+                        {{data.Department ? data.Department.DepartmentName : '-'}}
+                      </td>
+                      <td>
+                        {{data.Designation ? data.Designation.DesignationName : '-'}}
+                      </td>
+                      <td *ngIf="costCenterRequired==true">
+                        {{data.CostCenter ? data.CostCenter.CostCenterName : '-'}}
+                      </td>
+                      <td>
+                        {{data.Category ? data.Category.CategoryName : '-'}}
+                      </td>
+                      <td *ngIf="workAreaRequired==true">
+                        <span *ngIf="data.CurrentFlag == true">{{workName}}</span>
+                        <span *ngIf="data.CurrentFlag != true">{{data.WorkArea ? data.WorkArea.WorkAreaName : '-' }}</span>
+                      </td>
+
+                    </tr>
+                  </tbody>
+                </table>
+                <button type="button" class="btn btn-xs pull-right" (click)="viewHistoryEP(DetailEmployee.EmployeeId)">View History</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button *ngIf="selectedId==null" type="button" class="btn btn-danger" (click)="hideDetailDiv()">Close</button>
+          <button *ngIf="selectedId!=null" type="button" class="btn btn-danger" (click)="close()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="col-md-8" *ngIf="showAttendance==true">
+  <ol class="breadcrumb">
+    <li class="active"><i class="fa fa-list-ul"></i> Attendance Detail</li>
+  </ol>
+  <button class="close" (click)="hideAttendanceDetail()"><i class="fa fa-times"></i></button>
+  <chaCalendar id="dailyCalendar" [requiredEmployeeId]="attendanceId" [refresh]="isRefreshCalendar" (selectedDate)='getLoginDetails($event)'></chaCalendar>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>
+<!--<layout *ngIf="backToLayout==true"></layout>-->
+<br /><br /><br /><br /><br />

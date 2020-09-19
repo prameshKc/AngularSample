@@ -1,0 +1,573 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><a href="#/layout/holidayList"><i class="fa fa-picture-o"></i> Holiday Setup</a></li>
+</ol>
+<div class="row">
+    <div class="container">
+        <div class="col-md-12">
+            <button class="btn btn-sm btn-success" (click)="openAddHolidayListModal()" tooltip="Add Holiday List" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add List</button>
+            <button class="btn btn-sm btn-primary" (click)="openHolidayListDetailsModal()" tooltip="Add List Details" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Holiday</button>
+            <hr />
+        </div>
+    </div>
+</div>
+<!--&nbsp;
+&nbsp;-->
+<div class="row">
+    <div class="container">
+        <div class="col-md-12">
+            <div class="note">
+                <h6><i>Following are the existing holiday lists</i></h6>
+            </div>
+            &nbsp;
+            <div class="col-md-5">
+                <label class="col-sm-4">Calendar Year</label>
+                <div class="col-sm-8">
+                    <select id="CalendarYearId2" class="form-control" [(ngModel)]="SelectedCalendarYear" (ngModelChange)="getHolidayList(SelectedCalendarYear)" name="CalendarYearId2" #CalendarYearId2="ngModel">
+                        <option value="{{item.NYear}}" *ngFor="let item of NepaliFiscalYearList">{{item.NYear}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="col-md-12">
+        <div class="col-sm-6" *ngFor="let list of displayHolidayListAndDetail">
+            <div class="panel">
+                <div class="box-heading">
+                    <h5>
+                        <i class="glyphicon glyphicon-list-alt"></i> <strong>{{list.ListName}}</strong>
+                        <span class="dropdown pull-right">
+                            <i class="glyphicon glyphicon-cog dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="cursor:pointer;"></i>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="font-size:11px;">
+                                <li><a (click)="openEditHolidayListModal(list.HolidaylistId)" style="cursor:pointer;">Edit holiday List</a></li>
+                                <li><a (click)="openEditHolidayListDetailsModal(list.HolidaylistId,list.Yr)" style="cursor:pointer;">Edit holiday details</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a style="cursor:pointer;" (click)="openCopyHolidayModal(list.HolidaylistId,list.Yr)">Copy to holiday</a></li>
+                                <li><a style="cursor:pointer;" (click)="openCopyFromHolidayModal(list.HolidaylistId)">Copy from holiday</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a (click)="openDeleteHolidayListDetailsModal(list.HolidaylistId,list.Yr)" style="cursor:pointer;">Delete holiday</a></li>
+                                <!--<li role="separator" class="divider"></li>-->
+                                <li><a (click)="openDeleteHolidayListConfirmationModal(list.HolidaylistId)" style="cursor:pointer;">Delete holiday list</a></li>
+                            </ul>
+                        </span>
+                    </h5>
+                    <hr style="border:1px solid #5cb85c;margin-bottom:0px;" />
+                </div>
+                <div class="panel-body" style="height:360px;overflow:auto;">
+                    <div class="list-group">
+                        <!--{{getHolidayDetailById(list.HolidaylistId)|json}}-->
+                        <a class="list-group-item" *ngFor="let item of list.HolidayDetail" tooltip="{{item.HolidayDescription}}" placement="top">
+                            <span *ngIf="item.HolidayDate">
+                                <date-view [inputDate]="item.HolidayDate"></date-view>
+                            </span>
+                            <span *ngIf="!item.HolidayDate">
+                                -
+                            </span>
+                            <!--{{item.HolidayDate}}-->
+                            <span class="pull-right">{{item.HolidayName}}</span>
+                        </a>
+                        <div *ngIf="displayHolidayListAndDetail.length<=0" style="margin:0 0 auto;text-align:center;font-size:14px;">
+                            <a class="list-group-item-warning">There is no holidays in this list !!</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #childModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideChildModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Add Holiday List</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="holidayList">Holiday List Name:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="holidayListName" placeholder="Enter holiday list name" required minlength="3" maxlength="30" [(ngModel)]="InputHolidayList.ListName" name="holidayListName" #holidayListName="ngModel" />
+                                <div *ngIf="holidayListName.errors && (holidayListName.dirty || holidayListName.touched)" class="alert alert-danger">
+                                    <div [hidden]="!holidayListName.errors.required">
+                                        Holiday list name is required !
+                                    </div>
+                                    <div [hidden]="!holidayListName.errors.minlength">
+                                        Holiday list name must be at least 3 characters long. !
+                                    </div>
+                                    <div [hidden]="!holidayListName.errors.maxlength">
+                                        Holiday list cannot be more than 30 characters long. !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" *ngIf="isAddHolidayList==true" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="saveHolidayList()">Save</button>
+                <button type="submit" *ngIf="isEditHolidayList==true" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="editHolidayList()">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideChildModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #detailModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedDetailModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideListDetailsModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong>Add Holiday List Details</strong>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="holidayName">Select List:</label>
+                            <div class="col-sm-8">
+                                <div class="row">
+                                    <div class="col-sm-6" *ngFor="let list of holidayListCheckBox">
+                                        <label><input type="checkbox" name="{{list.Item.ListName}}" [(ngModel)]="list.Selected"> {{list.Item.ListName}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="holidayName">Holiday Name:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="holidayName" required minlength="3" maxlength="30" placeholder="Enter holiday name" name="HolidayName" [(ngModel)]="InputHolidayListDetails.HolidayName" #HolidayName="ngModel" />
+
+                                <div *ngIf="HolidayName.errors && (HolidayName.dirty || HolidayName.touched)" class="alert alert-danger">
+                                    <div [hidden]="!HolidayName.errors.required">
+                                        Holiday name is required !
+                                    </div>
+                                    <div [hidden]="!HolidayName.errors.minlength">
+                                        Holiday name must be at least 3 characters long. !
+                                    </div>
+                                    <div [hidden]="!HolidayName.errors.maxlength">
+                                        Holiday name cannot be more than 30 characters long. !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="HolidayDescription">Description:</label>
+                            <div class="col-sm-9">
+                                <textarea rows="4" cols="60" class="form-control" name="HolidayDescription" required minlength="3" maxlength="30" [(ngModel)]="InputHolidayListDetails.HolidayDescription" #HolidayDescription="ngModel">Enter description...</textarea>
+
+                                <div *ngIf="HolidayDescription.errors && (HolidayDescription.dirty || HolidayDescription.touched)" class="alert alert-danger">
+                                    <div [hidden]="!HolidayDescription.errors.required">
+                                        Holiday description is required !
+                                    </div>
+                                    <div [hidden]="!HolidayDescription.errors.minlength">
+                                        Holiday description must be at least 3 characters long. !
+                                    </div>
+                                    <div [hidden]="!HolidayDescription.errors.maxlength">
+                                        Holiday description cannot be more than 30 characters long. !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="IsFullDay">Is Full Day:</label>
+                            <div class="col-sm-3">
+                                <input type="checkbox" name="IsFullDay" [(ngModel)]="InputHolidayListDetails.IsFullDay">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="HolidayDate">Holiday Date:</label>
+                            <div class="col-sm-7">
+                                <chaNepaliDatePicker id="HolidayDate" [inputDate]="inputHolidayDate" [inputDatePickerOptions]="inputHolidayDateOptions" (selectedDate)='onHolidayDateSelect($event)' *ngIf="inputHolidayDate && inputHolidayDateOptions"></chaNepaliDatePicker>
+                            </div>
+                        </div>                      
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="saveListDetails()">Save</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideListDetailsModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #editDetailModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="selectedDetailModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideEditListDetailsModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong>Edit Holiday List Details</strong>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+
+                <div class="panel-body" style="padding-top:0;font-size:12px;">
+                    <!--<label>List A</label>-->
+                    <table class="table table-bordered table-condensed table-responsive table-striped">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Month</th>
+                                <th>Day</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Full Day</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let details of listDetails">
+                                <td>
+                                    <select name="years" id="Year" class="dropdown form-control" required [(ngModel)]="details.Year" #year="ngModel">
+                                        <option value="">Select</option>
+                                        <option *ngFor="let year of years" [ngValue]="year.year" name="year">{{year.year}}</option>
+                                    </select>
+                                    <div *ngIf="year.errors && (year.dirty || year.touched)" class="alert alert-danger">
+                                        <div [hidden]="!year.errors.required">
+                                            Select year !
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <select name="monthList" id="Month" class="dropdown form-control" required [(ngModel)]="details.Month" #month="ngModel">
+                                        <option value="">Select</option>
+                                        <option *ngFor="let month of monthList" [ngValue]="month.month" name="month">{{month.month}}</option>
+                                    </select>
+                                    <div *ngIf="month.errors && (month.dirty || month.touched)" class="alert alert-danger">
+                                        <div [hidden]="!month.errors.required">
+                                            Select month !
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <select name="dayList" id="Day" class="dropdown form-control" required [(ngModel)]="details.Day" #day="ngModel">
+                                        <option value="">Select</option>
+                                        <option *ngFor="let day of dayList" [ngValue]="day.day" name="day">{{day.day}}</option>
+                                    </select>
+                                    <div *ngIf="day.errors && (day.dirty || day.touched)" class="alert alert-danger">
+                                        <div [hidden]="!day.errors.required">
+                                            Select day !
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control input-sm" required minlength="3" maxlength="30" name="HolidayName" [(ngModel)]="details.HolidayName" #HolidayName="ngModel" />
+                                    <div *ngIf="HolidayName.errors && (HolidayName.dirty || HolidayName.touched)" class="alert alert-danger">
+                                        <div [hidden]="!HolidayName.errors.required">
+                                            Holiday name is required !
+                                        </div>
+                                        <div [hidden]="!HolidayName.errors.minlength">
+                                            Holiday name must be at least 3 characters long. !
+                                        </div>
+                                        <div [hidden]="!HolidayName.errors.maxlength">
+                                            Holiday name cannot be more than 30 characters long. !
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control input-sm" name="HolidayDesc" required minlength="3" maxlength="30" [(ngModel)]="details.HolidayDescription" #HolidayDesc="ngModel" />
+                                    <div *ngIf="HolidayDesc.errors && (HolidayDesc.dirty || HolidayDesc.touched)" class="alert alert-danger">
+                                        <div [hidden]="!HolidayDesc.errors.required">
+                                            Holiday description is required !
+                                        </div>
+                                        <div [hidden]="!HolidayDesc.errors.minlength">
+                                            Holiday description must be at least 3 characters long. !
+                                        </div>
+                                        <div [hidden]="!HolidayDesc.errors.maxlength">
+                                            Holiday description cannot be more than 30 characters long. !
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="text-align:center;"><input type="checkbox" class="input-sm" name="FullDay" [(ngModel)]="details.IsFullDay" /></td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="listDetails.length == 0">
+                            <tr>
+                                <td colspan="7">
+                                    <div class="text-warning">No items available</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="editHolidayDetails(listDetails)">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideEditListDetailsModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteDetailModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="deleteEnable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteListDetailsModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong>Delete Holiday</strong>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body" style="padding-top:0;font-size:12px;">
+                    <table class="table table-bordered table-condensed table-responsive table-striped">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Month</th>
+                                <th>Day</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Full Day</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let details of listDetails" [ngClass]="{'disableddiv': details.Deleted == true}">
+                                <td>
+                                    {{details.Year}}
+                                </td>
+                                <td>
+                                    {{details.Month}}
+                                </td>
+                                <td>
+                                    {{details.Day}}
+                                </td>
+                                <td>{{details.HolidayName}}</td>
+                                <td>{{details.HolidayDescription}}</td>
+                                <td style="text-align:center;"><input type="checkbox" class="input-sm" name="FullDay" disabled [(ngModel)]="details.IsFullDay" /></td>
+                                <td>
+                                    <button class="btn btn-danger btn-xs" tooltip="Delete holiday" (click)="openDeleteHolidayConfirmationModal(details.HolidayListDetailId)"><i class="glyphicon glyphicon-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="listDetails.length == 0">
+                            <tr>
+                                <td colspan="8">
+                                    <div class="text-warning">No items available</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteHoliday(listDetails)">Save</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteListDetailsModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteHolidayConfirmationModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteConfirmationModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteConfirmationModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Holiday</strong></h5>
+            </div>
+            <div class="modal-body">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this holiday?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="disableDeletedHolidayDiv()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteConfirmationModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteHolidayListConfirmationModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteListConfirmationModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteListConfirmationModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Holiday List</strong></h5>
+            </div>
+            <div class="modal-body">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this holiday list ?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteList()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteListConfirmationModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #copyDetailModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="copyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideOpenCopyModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong>Copy Holiday</strong>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+
+                <div class="panel-body" style="padding-top:0;font-size:12px;">
+                    <!--<label>List A</label>-->
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <label>Select holiday list:</label>
+                        </div>
+                        <div class="col-sm-10">
+                            <div class="col-sm-2" *ngFor="let list of holidayListCheckBoxCopy">
+                                <label><input type="checkbox" name="{{list.Item.ListName}}" [(ngModel)]="list.Selected"> {{list.Item.ListName}}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning" *ngIf="this.emptyListSelected == true"><i class="glyphicon glyphicon-exclamation-sign"></i> Please select atleast one list</div>
+
+                    &nbsp;
+                    <table class="table table-bordered table-condensed table-responsive table-striped">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Month</th>
+                                <th>Day</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Full Day</th>
+                                <th>Select Holiday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let details of listDetails">
+                                <td>
+                                    {{details.Year}}
+                                </td>
+                                <td>
+                                    {{details.Month}}
+                                </td>
+                                <td>
+                                    {{details.Day}}
+                                </td>
+                                <td>{{details.HolidayName}}</td>
+                                <td>{{details.HolidayDescription}}</td>
+                                <td style="text-align:center;"><input type="checkbox" class="input-sm" name="FullDay" disabled [(ngModel)]="details.IsFullDay" /></td>
+                                <td style="text-align:center;"><input type="checkbox" class="input-sm" name="Selected" [(ngModel)]="details.Selected" /></td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="listDetails.length == 0">
+                            <tr>
+                                <td colspan="7">
+                                    <div class="text-warning">No items available</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="alert alert-danger" *ngIf="error == true">The selected holiday already exists in the list</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="copyHoliday(listDetails)">Save</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideOpenCopyModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div bsModal #copyFromDetailModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="copyFromModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideOpenCopyFromModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong>Copy From Holiday List</strong>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+
+                <div class="panel-body" style="padding-top:0;font-size:12px;">
+                    <div class="row">
+                        <div class="note">
+                            <h6><i class="text-warning">Please Select Holiday List before Calendar Year</i></h6>
+                        </div>
+                        <div class="form-group">
+                            <label for="Year" class="control-label col-sm-2">Select list</label>
+                            <div class="col-sm-5">
+                                <label>Holiday List</label>
+                                <select name="list" id="list" class="dropdown control-label" [(ngModel)]="SelectedHolidayListId" (ngModelChange)="getListDetails(SelectedHolidayListId,CalendarYear)">
+                                    <option *ngFor="let list of hList" [ngValue]="list.HolidayListId" name="list.ListName">{{list.ListName}}</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-5">
+                                <label>Calendar Year</label>
+                                <select id="CalendarYearId" class="dropdown control-label" [(ngModel)]="CalendarYear" (ngModelChange)="getListDetails(SelectedHolidayListId,CalendarYear)" [disabled]="!SelectedHolidayListId" name="CalendarYearId" #CalendarYearId="ngModel">
+                                    <option value="{{item.NYear}}" *ngFor="let item of NepaliFiscalYearList">{{item.NYear}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!--<div class="alert alert-warning" *ngIf="this.emptyListSelected == true"><i class="glyphicon glyphicon-exclamation-sign"></i> Please select atleast one list</div>-->
+                    &nbsp;
+                    <table class="table table-bordered table-condensed table-responsive table-striped">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Month</th>
+                                <th>Day</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Full Day</th>
+                                <th>Select Holiday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let details of listDetails">
+                                <td>
+                                    {{details.Year}}
+                                </td>
+                                <td>
+                                    {{details.Month}}
+                                </td>
+                                <td>
+                                    {{details.Day}}
+                                </td>
+                                <td>{{details.HolidayName}}</td>
+                                <td>{{details.HolidayDescription}}</td>
+                                <td style="text-align:center;"><input type="checkbox" class="input-sm" name="FullDay" disabled [(ngModel)]="details.IsFullDay" /></td>
+                                <td style="text-align:center;"><input type="checkbox" class="input-sm" name="Selected" [(ngModel)]="details.Selected" /></td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="listDetails.length == 0">
+                            <tr>
+                                <td colspan="7">
+                                    <div class="text-warning">No items available</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="alert alert-danger" *ngIf="error == true">The selected holiday already exists in the list</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="copyFromHoliday(listDetails)">Save</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideOpenCopyFromModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

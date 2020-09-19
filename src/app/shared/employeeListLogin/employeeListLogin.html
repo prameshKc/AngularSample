@@ -1,0 +1,161 @@
+﻿<!-- 
+<div class="panel panel-default"  style="font-size: smaller;">
+    <div class="panel-heading">
+        <h5>
+            <b>Employee List</b>
+            <button class="btn btn-sm btn-default" (click)="reset()">
+                <i class="fa fa-refresh"></i>
+            </button>
+        </h5>
+    </div>
+    <div class="panel-body" style="font-size:12px;">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="input-group">
+                    <input class="form-control input-sm" [(ngModel)]="searchText" (ngModelChange)="filter($event);" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default btn-sm" type="button" (click)="searchText = '';filter($event);"><i class="fa fa-close"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <hr />
+    </div>
+    <div class="panel-body" style="max-height: 70vh; overflow: auto;">
+        <table class="table table-condensed table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th (click)="sort('EmployeeName')">
+                        Employee Name
+                        <span class="pull-right">
+                            <i class="fa" [ngClass]="{ 'fa-sort-up': sortToggle == true,  'fa-sort-down': sortToggle == false}" *ngIf="sortAttribute == 'EmployeeName'"></i>
+                            <i class="fa fa-sort" *ngIf="sortAttribute != 'EmployeeName'"></i>
+                        </span>
+                    </th>
+                    <th (click)="sort('DepartmentName')">
+                        Department Name
+                        <span class="pull-right">
+                            <i class="fa" [ngClass]="{ 'fa-sort-up': sortToggle == true,  'fa-sort-down': sortToggle == false}" *ngIf="sortAttribute == 'DepartmentName'"></i>
+                            <i class="fa fa-sort" *ngIf="sortAttribute != 'DepartmentName'"></i>
+                        </span>
+                    </th>
+                    <th (click)="sort('Email')">
+                        Email
+                        <span class="pull-right">
+                            <i class="fa" [ngClass]="{ 'fa-sort-up': sortToggle == true,  'fa-sort-down': sortToggle == false}" *ngIf="sortAttribute == 'Email'"></i>
+                            <i class="fa fa-sort" *ngIf="sortAttribute != 'Email'"></i>
+                        </span>
+                    </th>
+                    <th (click)="sort('CugNo')">
+                        CUG Number
+                        <span class="pull-right">
+                            <i class="fa" [ngClass]="{ 'fa-sort-up': sortToggle == true,  'fa-sort-down': sortToggle == false}"  *ngIf="sortAttribute == 'CugNo'"></i>
+                            <i class="fa fa-sort" *ngIf="sortAttribute != 'CugNo'"></i>
+                        </span>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody *ngIf="svEmployeeList.length > 0">
+                <tr *ngFor="let item of svEmployeeList">
+                    <td>{{item.EmployeeName}}</td>
+                    <td>{{item.DepartmentName ? item.DepartmentName : '-'}}</td>
+                    <td>
+                        {{item.Email ? item.Email : '-'}}
+                    </td>
+                    <td>
+                        {{item.CugNo ? item.CugNo : '-'}}
+                    </td>
+                </tr>
+            </tbody>
+
+            <tbody *ngIf="svEmployeeList.length == 0">
+                <tr>
+                    <td colspan="4">
+                        <div class="text-warning">
+                            No data available.
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel-footer">
+        <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+    </div>
+</div> -->
+<div class="list_container p_relative">
+    <div class="col-md-12 title" #header>
+        <h4>Employee List</h4>
+        <div class="search">
+            <input class="form-control input-sm" placeholder="Search By Name or CUG" [(ngModel)]="searchText" (ngModelChange)="filter($event);" />
+            <fa name="chevron-left" class="f_right" (click)="close.emit(null);" title="Close Employee List View"></fa>
+        </div>
+    </div>
+    <div class="col-md-12" style="max-height: 79vh; overflow: auto;" #body>
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th (click)="sort('EmployeeName')">
+                        Employee Name
+                        <span class="pull-right">
+                            <i class="fa" [ngClass]="{ 'fa-sort-up': sortToggle == true,  'fa-sort-down': sortToggle == false}"
+                                *ngIf="sortAttribute == 'EmployeeName'"></i>
+                            <i class="fa fa-sort" *ngIf="sortAttribute != 'EmployeeName'"></i>
+                        </span>
+                    </th>
+                    <th (click)="sort('DepartmentName')">
+                        Department Name
+                        <span class="pull-right">
+                            <i class="fa" [ngClass]="{ 'fa-sort-up': sortToggle == true,  'fa-sort-down': sortToggle == false}"
+                                *ngIf="sortAttribute == 'DepartmentName'"></i>
+                            <i class="fa fa-sort" *ngIf="sortAttribute != 'DepartmentName'"></i>
+                        </span>
+                    </th>
+                    <th (click)="sort('Email')">
+                        Email
+                        <span class="pull-right">
+                            <i class="fa" [ngClass]="{ 'fa-sort-up': sortToggle == true,  'fa-sort-down': sortToggle == false}"
+                                *ngIf="sortAttribute == 'Email'"></i>
+                            <i class="fa fa-sort" *ngIf="sortAttribute != 'Email'"></i>
+                        </span>
+                    </th>
+                    <th (click)="sort('CugNo')">
+                        CUG Number
+                        <span class="pull-right">
+                            <i class="fa" [ngClass]="{ 'fa-sort-up': sortToggle == true,  'fa-sort-down': sortToggle == false}"
+                                *ngIf="sortAttribute == 'CugNo'"></i>
+                            <i class="fa fa-sort" *ngIf="sortAttribute != 'CugNo'"></i>
+                        </span>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody *ngIf="svEmployeeList.length > 0" [@fadeIn_left-sequence]="svEmployeeList.length">
+                <tr *ngFor="let item of svEmployeeList">
+                    <td>{{item.EmployeeName}}</td>
+                    <td>{{item.DepartmentName ? item.DepartmentName : '-'}}</td>
+                    <td>
+                        {{item.Email ? item.Email : '-'}}
+                    </td>
+                    <td>
+                        {{item.CugNo ? item.CugNo : '-'}}
+                    </td>
+                </tr>
+            </tbody>
+
+            <tbody *ngIf="svEmployeeList.length == 0">
+                <tr>
+                    <td colspan="4">
+                        <div class="text-warning">
+                            No data available.
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="p_absolute bottom_0 bottom_pagination" #footer>
+        <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+    </div>
+</div>

@@ -1,0 +1,120 @@
+<div *ngIf="isAutoResign==false">
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+        <li class="active"><i class="fa fa-list-ul"></i> Employee Resign</li>
+    </ol>
+</div>
+<form #bookForm="ngForm" class="form-horizontal">
+    <div class="container-fluid row">
+        <div class="col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h5><strong>Employee Resignation</strong></h5>
+                    <hr style="border:1px solid #5cb85c;" />
+
+                    <div *ngIf="isAutoResign==false && duplicateEntry==true" class="col-md-12 alert alert-danger">
+                        <h5><strong><i>You have already submitted your resignation.</i></strong></h5>
+                    </div>
+                    <div *ngIf="!(isAutoResign==false && duplicateEntry==true)">
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label class="control-label col-sm-4" for="EmployeeId">Employee:</label>
+                                <div class="col-sm-8" *ngIf="isAutoResign==false">
+                                    <span class="form-control" id="EmployeeName">{{employeeName}} </span>
+                                </div>
+                                <div class="col-sm-8" *ngIf="isAutoResign==true">
+                                    <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="control-label col-sm-4" for="EffectiveFrom">Effective From:</label>
+                                <div class="col-sm-8">
+                                    <chaNepaliDatePicker id="EffectiveFrom" [inputDate]="inputEffectiveFromDate" [inputDatePickerOptions]="inputDateOptions" (selectedDate)='onEffectiveFromSelect($event)' *ngIf="inputEffectiveFromDate && inputDateOptions"></chaNepaliDatePicker>
+                                    <div [hidden]="requiredED==false" class="alert alert-danger">
+                                        Select Effective From Date.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label class="control-label col-sm-4" for="Remarks">Remarks:</label>
+                                <div class="col-sm-8">
+                                    <textarea id="Remarks" name="Remarks" class="form-control" placeholder="Enter Remarks" [(ngModel)]="InputEmployeeResign.Remarks" rows="4" cols="42"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <button type="button" class="btn btn-xs btn-danger pull-right" (click)="cancel()">Cancel</button>
+                    <button type="submit" (click)="save()" [disabled]="!bookForm.form.valid || duplicateEntry==true" class="btn btn-xs btn-success pull-right">Save</button>
+                    <!--<button type="submit" *ngIf="isAutoResign==true" (click)="saveAutoEmployeeResign()" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success pull-right">Save</button>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<div *ngIf="isAutoResign==true">
+    <button class="btn btn-sm btn-default" (click)="openAddModal()">Resign Subordinate</button>
+</div>
+<div bsModal #resignModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Resign Subordinate</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="col-md-12">
+                            <div *ngIf="duplicateEntry==true" class="col-md-12 alert alert-danger">
+                                <h5><strong><i>Employee has already submitted resignation.</i></strong></h5>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4" for="EmployeeId">Employee:</label>
+                                    <div class="col-sm-8" *ngIf="isAutoResign==false">
+                                        <span class="form-control" id="EmployeeName">{{employeeName}} </span>
+                                    </div>
+                                    <div class="col-sm-8" *ngIf="isAutoResign==true">
+                                        <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4" for="EffectiveFrom">Effective From:</label>
+                                    <div class="col-sm-8">
+                                        <chaNepaliDatePicker id="EffectiveFrom" [inputDate]="inputEffectiveFromDate" [inputDatePickerOptions]="inputDateOptions" (selectedDate)='onEffectiveFromSelect($event)' *ngIf="inputEffectiveFromDate && inputDateOptions"></chaNepaliDatePicker>
+                                        <div [hidden]="requiredED==false" class="alert alert-danger">
+                                            Select Effective From Date.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4" for="Remarks">Remarks:</label>
+                                    <div class="col-sm-8">
+                                        <textarea id="Remarks" name="Remarks" class="form-control" placeholder="Enter Remarks" [(ngModel)]="InputEmployeeResign.Remarks" rows="4" cols="42"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-xs btn-danger pull-right" (click)="hideModal()">Cancel</button>
+                <button type="submit" (click)="save()" [disabled]="!bookForm.form.valid || isEmpRequired==false ||duplicateEntry==true" class="btn btn-xs btn-success pull-right">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

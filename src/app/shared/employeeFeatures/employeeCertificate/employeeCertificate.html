@@ -1,0 +1,56 @@
+﻿<div class="panel panel-default" *ngIf="isAccess == true">
+    <div class="panel-heading" (click)="formToggleFunc()">
+        <strong>Employee Certificate</strong>
+        <i class="fa pull-right" [ngClass]="{'fa-chevron-down': formToggle != true,'fa-chevron-up': formToggle == true}"></i>
+    </div>
+    <div class="panel-body" *ngIf="formToggle == true">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Certificate Type</th>
+                        <th>Certificate No.</th>
+                        <th>Expiration Date</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="displayECList.length > 0">
+                    <!--Certificate List-->
+                    <tr *ngFor="let item of displayECList; let i = index">
+                        <td>
+                            <div class="form-control input-sm">
+                                {{getCertificateName(item.CertificateId)}}
+                            </div>
+                        </td>
+                        <td>
+                            <input *ngIf="isEditAccess" type="text" class="form-control input-sm" id="CertificateNo-{{i}}" placeholder="Enter Certificate Number" [(ngModel)]="item.CertificateNo" name="CertificateNo-{{i}}" (ngModelChange)="editCertificate(item)" />
+                            <div *ngIf="!isEditAccess" class="form-control input-sm" id="CertificateNo-{{i}}">
+                                {{item.CertificateNo}}
+                            </div>
+                        </td>
+                        <td>
+                            <div *ngIf="isEditAccess">
+                                <div *ngIf="item.ExpiredDate != null" class="input-group-sm">
+                                    <chaNepaliDatePicker id="Date" [inputDate]="item.ExpiredDateVM" [inputDatePickerOptions]="dateOptions" (selectedDate)='dateSelect($event, item)' *ngIf="dateOptions"></chaNepaliDatePicker>
+                                </div>
+                                <div *ngIf="item.ExpiredDate == null">
+                                    <div class="form-control input-sm">-</div>
+                                </div>
+                            </div>
+                            <div *ngIf="!isEditAccess">
+                                <date-view *ngIf="item.ExpiredDate != null" class="form-control input-sm"  [inputDate]="item.ExpiredDate"></date-view>
+                                <div *ngIf="item.ExpiredDate == null">
+                                    <div class="form-control input-sm">-</div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel-footer" *ngIf="formToggle == true">
+        <button class="btn btn-danger btn-xs pull-right" (click)="reset()">Reset</button> &nbsp;
+        <button class="btn btn-success btn-xs pull-right" (click)="addCertificate()"  *ngIf="isEditAccess">Submit</button>
+    </div>
+</div>

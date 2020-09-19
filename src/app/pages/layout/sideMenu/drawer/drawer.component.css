@@ -1,0 +1,11 @@
+﻿:host {
+     /*background: rgba(150, 160, 138, 0.2) !important;*/ 
+    /* background-color: #eee; */
+    /*background-color: #ffffff;*/
+    display: block;
+}
+
+.child-menu {
+    border-left: 1px solid white;
+    margin-left: 15px;
+}

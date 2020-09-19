@@ -1,0 +1,193 @@
+<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Ledger Setup </li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" (click)="openModal()" tooltip="Add Ledger " placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Ledger </button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Ledger Name" [(ngModel)]="filterObj.Name" (ngModelChange)="filterLedgerInfo()">
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterLedgerInfo()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="ledgerInfoAndFilter()"><i class="fa fa-times"></i></button>
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                            <b>Sorted By:</b>
+                            {{filterObj.SortingAttribute == 'ALDesc' ? 'Ledger Name' : ''}}
+                            {{filterObj.SortingAttribute == 'Enable' ? 'Enable' : ''}}
+                            {{filterObj.SortingAttribute == 'AM' ? 'AM' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-bordered table-hover table-striped table-condensed">
+                            <thead>
+                              <tr>
+                                <th>S.No</th>
+                                <th><span (click)="sortBy('ALDesc')">Ledger Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('ALDesc')"></span></th>
+                                <th><span (click)="sortBy('Enable')">Enable</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Enable')"></span></th>
+                                <th><span (click)="sortBy('AM')">AM</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('AM')"></span></th>
+                                <th><span (click)="sortBy('OneTimeTax')">One Time Tax</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('OneTimeTax')"></span></th>
+                                <th><span (click)="sortBy('MultipleNav')">Multiple Nav Code</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('MultipleNav')"></span></th>
+                                <th class="text-center">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let item of ledgerInfoList;let in=index">
+                                <td>
+                                  {{in+1}}
+                                </td>
+                                <td>
+                                  {{item.ALDesc}}
+                                </td>
+                                <td class="readonly">
+                                  <input type="checkbox" [(ngModel)]="item.Enable" [disabled]="true" name="Enable">
+                                </td>
+                                <td>
+                                  {{item.HRAM.AMdesc}}
+                                </td>
+                                <td class="readonly">
+                                  <input type="checkbox" [(ngModel)]="item.OneTimeTax" [disabled]="true" name="OneTimeTax">
+                                </td>
+                                <td class="readonly">
+                                  <input type="checkbox" [(ngModel)]="item.MultipleNav" [disabled]="true" name="MultipleNav">
+                                </td>
+                                <td class="text-center">
+                                  <button class="btn btn-xs btn-info" (click)="getLedgerInfo(item.ALId)" tooltip="Edit Ledger" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                  <button class="btn btn-xs btn-danger" (click)="openDeleteModal(item.ALId)" tooltip="Delete Ledger" placement="top"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                              </tr>
+                            </tbody>
+                            <tbody *ngIf="ledgerInfoList.length == 0">
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #ledgerInfoModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddLedgerInfo == true;"><strong>Add Ledger </strong></h5>
+                <h5 *ngIf="isEditLedgerInfo == true;"><strong>Edit Ledger </strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                  <form #bookForm="ngForm" class="form-horizontal">
+                    <div class="form-group">
+                      <label class="control-label col-sm-4" for="ALDesc">Ledger Name:</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="ALDesc" placeholder="Enter Ledger Name" required [(ngModel)]="InputLedgerInfo.ALDesc" (ngModelChange)="checkDuplicate($event)" name="ALDesc" #ALDesc="ngModel" />
+                        <div *ngIf="ALDesc.errors && (ALDesc.dirty || ALDesc.touched)" class="alert alert-danger">
+                          <div [hidden]="!ALDesc.errors.required">
+                            Ledger Name is required !
+                          </div>
+                        </div>
+                        <div [hidden]="!duplicateName" class="alert alert-danger">
+                          Ledger Name already exist!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label col-sm-4" for="Enable">Enable:</label>
+                      <div class="col-sm-8">
+                        <input type="checkbox" id="Enable" [(ngModel)]="InputLedgerInfo.Enable" name="Enable" #Enable="ngModel" />
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label col-sm-4" for="MultipleNav">Multiple Nav:</label>
+                      <div class="col-sm-8">
+                        <input type="checkbox" id="MultipleNav" [(ngModel)]="InputLedgerInfo.MultipleNav" name="MultipleNav" #MultipleNav="ngModel" />
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label col-sm-4" for="AM">AM:</label>
+                      <div class="col-sm-8">
+                        <select id="AM" required class="form-control" [(ngModel)]="InputLedgerInfo.AM" name="AM" #AM="ngModel">
+                          <option value="{{item.AMId}}" *ngFor="let item of hRAMList">{{item.AMdesc}}</option>
+                        </select>
+                        <div *ngIf="AM.errors && (AM.dirty || AM.touched)" class="alert alert-danger">
+                          <div [hidden]="!AM.errors.required">
+                            AM is required !
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label col-sm-4" for="OneTimeTax">One Time Tax:</label>
+                      <div class="col-sm-8">
+                        <input type="checkbox" id="OneTimeTax" [(ngModel)]="InputLedgerInfo.OneTimeTax" name="OneTimeTax" #OneTimeTax="ngModel" />
+                      </div>
+                    </div>
+                  </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" (click)="saveLedgerInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit" (click)="editLedgerInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Ledger </strong></h5>
+                <h5 class="text-warning" *ngIf="disableDelete==true">Ledger is already in use, cannot be deleted!</h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Ledger ?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteLedgerInfo()" [disabled]="disableDelete">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

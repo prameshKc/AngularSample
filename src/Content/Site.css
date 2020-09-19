@@ -1,0 +1,363 @@
+/*.........................Table Css Section*............................*/
+
+
+/*.........................Zebra striping............................*/
+/*tr:nth-of-type(odd) {
+    background: #f3f3f3;
+}
+    */
+/*th {
+    color: #2e7a6c !important;
+    font-weight: bold;
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+}*/
+
+/*.....................................end..............................*/
+table > tbody > tr > td, .td div, td button {
+    vertical-align: middle;
+    white-space: nowrap;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+th{
+    text-align: center;
+    white-space: nowrap;
+}
+
+.td * {
+    display: inline-block;
+}
+
+.td br {
+    display: none;
+}
+
+body {
+    font-size: 12px;
+}
+
+.panel-body .table-responsive,
+.modal-body .table-responsive {
+    max-height: 50vh;
+    overflow: auto;
+}
+
+.col-lg-12 a {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/*....................Layout Menu css................................*/
+a:hover {
+    text-decoration: none;
+}
+
+/*............................error validation message................................................*/
+.error {
+    padding: 12px;
+    background-color: rgba(255, 0, 0, 0.2);
+    color: red;
+}
+
+.sub-menu {
+    list-style: none;
+    background: rgba(0, 0, 0, 0.3);
+    margin: 0;
+}
+
+    .sub-menu li ul {
+        list-style: none;
+        padding: 0;
+    }
+
+.sub-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.inner-submenu {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.button-color {
+    background-color: #009688;
+}
+
+.buttton-text-color {
+    color: white;
+}
+
+.tree-style {
+    color: black;
+}
+
+#loading {
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    line-height: 100vh;
+    color: white;
+    text-align: center;
+    z-index: 9999;
+    font-size: xx-large;
+    background: #020126;
+}
+
+    #loading img {
+        width: 140px;
+    }
+
+.user {
+    float: left;
+    width: 15px;
+    height: 15px;
+    border-color: black;
+    border-radius: 50%;
+    margin-right: 15px;
+    margin-top: -2px;
+}
+
+.userinfoImg {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border-color: black;
+    border-radius: 50%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    text-align: center;
+}
+
+/*.one {
+    background-image: url('http://placehold.it/100x90');
+}
+
+.two {
+    background-image: url('http://placehold.it/190x150');
+}
+
+.three {
+    background-image: url('http://placehold.it/350x750');
+}*/
+
+.userinfo {
+    /* display: inline-block;
+    margin: 10px;
+    padding: 8px;
+    margin-left: 20px;
+    background-color: white;
+    border: 2px solid grey;
+    border-top-left-radius: 20%;
+    border-top-right-radius: 20%;
+    border-bottom-left-radius: 20%;
+    border-bottom-right-radius: 20%; */
+}
+
+.userdetails {
+    display: inline-block;
+    margin: 10px;
+    padding: 20px;
+    background-color: white;
+    border: 2px solid grey;
+    border-top-left-radius: 20%;
+    border-top-right-radius: 20%;
+    border-bottom-left-radius: 20%;
+    border-bottom-right-radius: 20%;
+}
+
+.notificationbadge {
+    font-size: 10px;
+    font-weight: normal;
+    line-height: 13px;
+    padding: 2px 6px;
+    position: absolute;
+    right: 2px;
+    top: 8px;
+}
+
+.bg-green {
+    background: #1ABB9C !important;
+    border: 1px solid #1ABB9C !important;
+    color: #fff;
+}
+
+.filterTag {
+    padding: 5px 20px;
+    font-size: 10px;
+    text-wrap: normal;
+    background-color: #f8f8ca;
+    border-radius: 3px;
+    border: 1px solid #e9dbc3;
+    margin-bottom: 15px;
+}
+
+.navbar {
+    border: 0px !important;
+}
+
+
+#paginationFont {
+    font-size: 12px;
+}
+
+.note.note-warning {
+    background-color: #fae67e;
+}
+
+.note {
+    margin: 0 0 20px 0;
+    padding: 5px 30px 5px 15px;
+    border-left: 5px solid #eee;
+    border-color: rgba(0, 0, 0, 0.3);
+    background-color: #eee;
+    color: black;
+    -webkit-border-radius: 0 4px 4px 0;
+    -moz-border-radius: 0 4px 4px 0;
+    -ms-border-radius: 0 4px 4px 0;
+    -o-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.loading-modal {
+    z-index: 9999999999999999;
+    position: fixed;
+    background: rgba(0, 0, 0, 0.5);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+    .loading-modal p {
+        font-size: x-large;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: rgba(250, 250, 240, 0.8);
+    }
+
+.center {
+    margin: auto;
+    width: 50%;
+    padding: 25px;
+}
+
+.detailsImg {
+    margin: auto;
+    width: 50%;
+    border: 3px solid lightgrey;
+    border-radius: 15px 15px 15px 15px;
+    padding: 5px 5px 5px 5px;
+}
+
+.full button span {
+    background-color: limegreen;
+    border-radius: 32px;
+    color: black;
+}
+
+.partially button span {
+    background-color: orange;
+    border-radius: 32px;
+    color: black;
+}
+
+.caption {
+    width: 100% !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+}
+
+    .caption:hover,
+    .caption:focus {
+        border-radius: 15px;
+    }
+
+    .caption a:hover,
+    .caption a:focus {
+        background: #36446d;
+    }
+
+.spncolor {
+    float: right;
+    text-align: center;
+    width: 20px;
+    display: block;
+    line-height: 20px;
+    margin-right: -10px;
+    height: 20px;
+    border-radius: 50%;
+    vertical-align: middle;
+    font-family: Arial;
+    color: white;
+}
+
+.hidden-sm {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+
+/* new css */
+nav.nav-top {
+    top: 0;
+    position: sticky;
+    z-index: 1000;
+    background: #fff;
+}
+
+.breadcrumb {
+    background-color: #fff;
+    border-radius: 50px;
+    box-shadow: 0 7px 8px -8px black;
+}
+
+.panel{
+    margin-bottom: 5px;
+}
+.panel-body {
+    padding: 10px;
+}
+div::before {
+  content: '';
+  display: block;
+}
+div::after {
+  clear: both;
+  content: '';
+  display: block;
+  width: 0%;
+}
+
+.user-info {
+    background: #fff;
+    margin: 10px 0 20px 0;
+    border-left: 5px solid #5cb85c;
+}
+
+.form-control {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.remarks .tooltip-inner {
+    display: block;
+    max-width: 60vw !important;
+    max-height: 150px !important;
+    overflow: auto;
+    font-size: 12px;
+    padding: 10px 15px 10px 20px;
+    background: #FFFFFF;
+    color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #737373;
+    text-align: left;
+}

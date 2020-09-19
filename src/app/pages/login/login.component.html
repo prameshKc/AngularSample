@@ -1,0 +1,72 @@
+﻿<!--
+  <div id="background" style="position: fixed; top: 0; right: 0; bottom: 0; left: 0;"></div>
+  <div class="form-group"></div>
+  <div class="container">
+      <div class="col-md-4">
+          <div class="panel text-center" style="opacity:0.9;max-width:426.33px;margin:auto;">
+              <div class="panel-heading" style="font-family:Arial;color:grey;"><h4>Log In</h4></div>
+              <form class="form form-horizontal login-form" method="post">
+                  <div class="center">
+                      <img class="img-responsive" src="../../../assets/Images/User.png" />
+                  </div>
+                  <div class="panel-body" style="width:280px;margin:auto;">
+                      <div class="alert alert-danger" *ngIf="ErrorMessage != null">
+                          {{ErrorMessage}}
+                      </div>
+                      <br />
+                      <input type="text" name="username" class="form-control col-sm-12" id="UserName" [(ngModel)]="User.UserName" placeholder="Username">
+                      &nbsp;
+                      <input type="password" name="password" class="form-control col-sm-12" id="PasswordHash" [(ngModel)]="User.PasswordHash" placeholder="Password">
+                  </div>
+                  <button class="btn btn-success" type="submit" (click)="login(User)" *ngIf="loading == false">Login</button>
+                  <button class="btn btn-success disabled" type="button" *ngIf="loading == true">Loading...</button>
+                  <br />
+              </form>
+          </div>
+      </div>
+      <div class="col-md-8">
+          <employee-list-login></employee-list-login>
+      </div>
+  </div>
+-->
+<img class="logo" src="../../../assets/HRMS logo-sh-02.png" alt="" />
+<div class="container-fluid">
+  <div class="row" [@listShowTransition]="showList ? 'showList' : 'hideList'">
+    <div class="emp_list col-sm-8 hidden-xs" *ngIf="showList">
+      <employee-list-login (close)="showList = false"></employee-list-login>
+    </div>
+    <!-- col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4 -->
+    <div class="login" [ngClass]="{
+        ' col-sm-4': showList,
+        'col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4': !showList
+      }">
+      <div class="login_container">
+        <h4 class="title" [ngStyle]="{'margin-bottom': ErrorMessage? '1em':'2em'}">
+          LOGIN&nbsp;<small *ngIf="!showList && isAccess == true" (click)="showList = true">|&nbsp;&nbsp;View Employee List</small>
+          <!-- <small class="text_error" *ngIf="ErrorMessage">*Invaild Username or Password</small> -->
+        </h4>
+        <div class="alert alert-danger" *ngIf="ErrorMessage != null">
+          {{ErrorMessage}}
+        </div>
+        <form>
+          <input type="text" name="username" [ngClass]="{ 'input-error': ErrorMessage }" class="form-control" id="UserName"
+            [(ngModel)]="User.UserName" placeholder="Username" />
+          <br />
+          <input type="password" name="password" [ngClass]="{ 'input-error': ErrorMessage }" class="form-control" id="PasswordHash"
+            [(ngModel)]="User.PasswordHash" placeholder="Password" />
+          <br />
+          <button class="btn btn-primary" type="submit" (click)="login(User)" *ngIf="!loading else loadingBtn">
+            Login
+          </button>
+        </form>
+        <br />
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingBtn>
+  <button class="btn btn-primary disabled" type="button" *ngIf="loading">
+    Loading...
+  </button>
+</ng-template>

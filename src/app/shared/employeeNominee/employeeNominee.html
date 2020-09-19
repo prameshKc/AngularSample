@@ -1,0 +1,82 @@
+﻿
+<div class="container-fluid row">
+    <h5><strong>Employee Nomineee</strong></h5>
+    <div class="col-lg-12">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>S.N</th>
+                    <th>Nominee Name</th>
+                    <th>Nominee Address</th>
+                    <th>Nominee Contact</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody *ngIf="displayENList.length > 0">
+                <!--Nominee List-->
+                <tr *ngFor="let item of displayENList; let i = index">
+                    <td>{{i+1}}</td>
+                    <td>
+                        <div *ngIf="item.isEdit != true">
+                            {{item.NomineeName}}
+                        </div>
+                        <input *ngIf="item.isEdit == true" type="text" class="form-control input-sm" id="NomineeName-{{i}}" placeholder="Enter Nominee Name" [(ngModel)]="item.NomineeName" name="NomineeName-{{i}}" />
+                    </td>
+                    <td>
+                        <div *ngIf="item.isEdit != true">
+                            {{item.NomineeAddress}}
+                        </div>
+                        <input *ngIf="item.isEdit == true" type="text" class="form-control input-sm" id="NomineeName-{{i}}" placeholder="Enter Nominee Name" [(ngModel)]="item.NomineeAddress" name="NomineeName-{{i}}" />
+                    </td>
+                    <td>
+                        <div *ngIf="item.isEdit != true">
+                            {{item.NomineeContact}}
+                        </div>
+                        <input *ngIf="item.isEdit == true" type="text" class="form-control input-sm" id="NomineeContact-{{i}}" placeholder="Enter Nominee Contact" [(ngModel)]="item.NomineeContact" name="NomineeContact-{{i}}" />
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-xs" [ngClass]="{' btn-primary': item.isEdit != true, 'btn-success': item.isEdit == true}" (click)="editNominee(item)" tooltip="Edit" container="body">
+                            <i class="fa" [ngClass]="{'fa-edit': item.isEdit != true, 'fa-save': item.isEdit == true}"></i>
+                        </button>
+                        <button *ngIf="item.isEdit != true" class="btn btn-danger btn-xs" (click)="deleteNominee(item, i)" tooltip="Delete" container="body">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody *ngIf="displayENList.length < 3">
+                <!--Nominee form-->
+                <tr>
+                    <td>#</td>
+                    <td>
+                        <input type="text" class="form-control input-sm" id="NomineeName" placeholder="Enter Nominee Name" [(ngModel)]="InputEN.NomineeName" name="NomineeName" />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control input-sm" id="NomineeAddress" placeholder="Enter Nominee Address" [(ngModel)]="InputEN.NomineeAddress" name="NomineeAddress" />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control input-sm" id="NomineeContact" placeholder="Enter Nominee Contact" [(ngModel)]="InputEN.NomineeContact" name="NomineeContact" />
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-success btn-xs" (click)="addNominee()" *ngIf="InputEN.NomineeName && InputEN.NomineeAddress && InputEN.NomineeContact" tooltip="Save" container="body">
+                            <i class="fa fa-save"></i>
+                        </button>
+                        <button class="btn btn-success btn-xs disabled" *ngIf="!(InputEN.NomineeName && InputEN.NomineeAddress && InputEN.NomineeContact)" tooltip="Save" container="body">
+                            <i class="fa fa-save"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody *ngIf="displayENList.length >= 3">
+                <tr>
+                    <td colspan="5">
+                        <div class="text-warning">
+                            Limit reached (3 nominees per employee.)
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

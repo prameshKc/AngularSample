@@ -1,0 +1,143 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Cost Center</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" (click)="openCostCenterModal()" tooltip="Add Cost Center" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Cost Center</button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <!--<form class="form-inline pull">
+                            <label for="search" class="text-left">Search By:</label>
+                            <select name="search" id="search" class="form-control input-sm btn-default" [(ngModel)]="filterObj.SearchBy ">
+                                <option value="">Select...</option>
+                                <option value="CostCenterName">Cost Center Name</option>                               
+                            </select>
+                        </form>-->
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Cost Center" [(ngModel)]="filterObj.Name" (ngModelChange)="filterCostCenter()">
+                            <input class="input-sm" type="submit" (click)="filterCostCenter()" hidden />
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterCostCenter()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="costCenterAndFilter()"><i class="fa fa-times"></i></button>
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                            <b>Sorted By:</b>
+                            {{filterObj.SortingAttribute == 'CostCenterName' ? 'Cost Center Name' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-bordered table-hover table-striped table-condensed">
+                            <thead>
+                                <tr>
+                                    <th><span (click)="sortBy('CostCenterName')">Cost Center Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('CostCenterName')"></span></th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of costCenterList">
+                                    <td>
+                                        {{item.CostCenterName}}
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-xs btn-info" (click)="getCostCenter(item.CostCenterId)" tooltip="Edit Cost Center" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                        <button class="btn btn-xs btn-danger" (click)="openDeleteModal(item.CostCenterId)" tooltip="Delete Cost Center" placement="top"><span class="glyphicon glyphicon-trash"></span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="costCenterList.length == 0">
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div> 
+        </div>
+    </div>
+</div>
+
+<div bsModal #costCenterModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideCostCenterModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddCostCenter == true;"><strong>Add Cost Center</strong></h5>
+                <h5 *ngIf="isEditCostCenter == true;"><strong>Edit Cost Center</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="CostCenterName">Cost Center Name:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="CostCenterName" placeholder="Enter Cost Center Name" required [(ngModel)]="InputCostCenter.CostCenterName" name="CostCenterName" #CostCenterName="ngModel" />
+                                <div *ngIf="CostCenterName.errors && (CostCenterName.dirty || CostCenterName.touched)" class="alert alert-danger">
+                                    <div [hidden]="!CostCenterName.errors.required">
+                                        Cost Center Name is required !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" (click)="saveCostCenter()" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit" (click)="editCostCenter()" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideCostCenterModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Cost Center</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Cost Center?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteCostCenter()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

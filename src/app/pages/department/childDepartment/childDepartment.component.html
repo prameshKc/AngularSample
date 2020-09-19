@@ -1,0 +1,11 @@
+﻿<ul style="list-style:none;white-space:nowrap; padding: 0px 0px 0px 6px; border-left: 1px solid #333;">
+    <li *ngFor="let departmentListItem of departmentListObj" style="margin: 5px 3px;">
+        <a style="color:#333; background: none;" *ngIf="departmentListItem.isGroup == true" (click)="departmentListItem.isOpen = !departmentListItem.isOpen" [ngClass]="{'fa-caret-right': !departmentListItem.isOpen, 'fa-caret-down':departmentListItem.isOpen}" class="fa"></a>
+        <a style="color:#333; background: none;" *ngIf="departmentListItem.isGroup != true" class="fa fa-minus-circle"></a>
+        <a style="padding: 5px; border-radius: 2px;  text-overflow: ellipsis;" [ngClass]="{ 'bg-primary': departmentListItem.isSelected == true, 'text-muted': departmentListItem.isSelected != true}" (click)='filterSelected(departmentListItem);'>
+            <i class="fa fa-folder" [ngClass]="{ 'fa-folder':departmentListItem.isGroup == true, 'fa-file':departmentListItem.isGroup != true }"></i>
+            {{departmentListItem.DepartmentName}}
+        </a>
+        <childDepartment [departmentListObj]='departmentListItem.ChildDepartment' *ngIf="departmentListItem.isOpen == true" (returnDepartmentList)="filterSelected($event);"></childDepartment>
+    </li>
+</ul>

@@ -1,0 +1,442 @@
+<ol class="breadcrumb">
+  <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+  <li class="active"><i class="fa fa-list-ul"></i> HR Staff Information</li>
+</ol>
+<div class="container-fluid row">
+  <div class="col-xs-12">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-sm-3">
+            <label for="Department" class="text-left">Department:</label>
+            <select name="Department" id="Department" class="form-control" [(ngModel)]="filterByDepartment" (ngModelChange)="changedDept()">
+              <option value="-1">All</option>
+              <option value="{{item.DepartmentName}}" *ngFor="let item of departmentList">{{item.DepartmentName}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="Designation" class="text-left">Designation:</label>
+            <select name="Designation" id="Designation" class="form-control" [(ngModel)]="filterByDesignation" (ngModelChange)="changedDesignation()">
+              <option value="-1">All</option>
+              <option value="{{item.DesignationName}}" *ngFor="let item of designationList">{{item.DesignationName}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="user" class="control-label">Employee:</label>
+            <!--<employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>-->
+            <input type="text" class="form-control" [(ngModel)]="filterByName" (ngModelChange)="selectedEmployee()" />
+
+          </div>
+          <div class="col-sm-3">
+            <button class="btn btn-xs btn-default" (click)="reset()">Reset</button>
+          </div>
+        </div>
+        <br />
+        <div class="row">
+          <div class="col-lg-12">
+            <input type="checkbox" [(ngModel)]="filterNoSalDetail" (ngModelChange)="getEmployeeDetails(filterObjForEmpList)" /> Filter employee without salary detail.
+          </div>
+        </div>
+        <hr style="border:1px solid #5cb85c;" />
+        <div class="col-lg-12">
+          <div class="row alert alert-info" *ngIf="(filterObjForEmpList.Sort != null && filterObjForEmpList.Sort != '')">
+            <button class="close" (click)="staffInfoAndFilter()"><i class="fa fa-times"></i></button>
+            <p *ngIf="(filterObjForEmpList.Sort != null && filterObjForEmpList.Sort != '')">
+              <b>Sorted By:</b>
+              {{filterObjForEmpList.SortingAttribute == 'EmployeeNo' ? 'Employee No' : ''}}
+              {{filterObjForEmpList.SortingAttribute == 'FirstName' ? 'Employee Name' : ''}}
+              {{filterObjForEmpList.SortingAttribute == 'Designation' ? 'Designation' : ''}}
+              {{filterObjForEmpList.SortingAttribute == 'Department' ? 'Department' : ''}}
+              {{filterObjForEmpList.Sort == 'true' ? 'Ascending' : 'Descending'}}
+            </p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <table class="table table-bordered table-hover table-striped table-condensed">
+              <thead>
+                <tr>
+                  <th><span (click)="sortBy('EmployeeNo')">Employee No</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('EmployeeNo')"></span></th>
+                  <th><span (click)="sortBy('FirstName')">Employee Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('FirstName')"></span></th>
+                  <th><span (click)="sortBy('Designation')">Designation</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Designation')"></span></th>
+                  <th><span (click)="sortBy('Department')">Department</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Department')"></span></th>
+                  <th class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of employeeList;let in=index">
+                  <td>{{item.EmployeeNo}}</td>
+                  <td>{{item.EmployeeName}}</td>
+                  <td>{{item.Designationname ? item.Designationname : '-'}}</td>
+                  <td> {{item.DepartmentName ? item.DepartmentName : '-'}}</td>
+                  <td class="text-center">
+                    <button class="btn btn-xs btn-link" (click)="openSalaryModal(item.EmployeeId,item.EmployeeName)" tooltip="Salary Details" placement="top">Salary Details</button>|
+                    <button class="btn btn-xs btn-link" (click)="openInsuranceModal(item.EmployeeId,item.EmployeeName)" tooltip="Insurance Details" placement="top">Insurance Details</button>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody *ngIf="employeeList.length == 0">
+                <tr>
+                  <td colspan="5">
+                    <div class="text-warning">No items available</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!--pagination-->
+      <div class="panel-footer">
+        <app-pagination [PaginationSetting]="empPagination" (setPagination)="onEmpPageSelect($event)" *ngIf="empPagination"></app-pagination>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Salary Modal -->
+<div bsModal #staffInfoModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" *ngIf="selectedModalLoaded">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" (click)="hideSalaryModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5><strong>Employee Salary Setup: {{staffName}} </strong></h5>
+      </div>
+      <div class="modal-body" style="font-size:12px;">
+        <div class="panel-body">
+          <form #bookForm="ngForm" class="form-horizontal">
+            <div class="form-group col-md-12">
+              <div class="col-md-6">
+                <label class="control-label col-sm-4" for="ExtraGrade">Extra Grade:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="ExtraGrade" placeholder="Enter Extra Grade" [(ngModel)]="InputStaffInfo.ExtGrade" (ngModelChange)="checkMoney(InputStaffInfo.ExtGrade,1)" name="ExtraGrade" #ExtraGrade="ngModel" />
+                  <div [hidden]="validExtGrade" class="alert alert-danger">
+                    Insert Money Value Eg:475.50!
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="control-label col-sm-4" for="Grade">Grade:</label>
+                <div class="col-sm-8">
+                  <select name="Grade" id="Grade" class="form-control" required [(ngModel)]="InputStaffInfo.GrdId" #Grade="ngModel">
+                    <option value="">--Select--</option>
+                    <option value="{{item.GdId}}" *ngFor="let item of gradeList">{{item.GdDesc}}</option>
+                  </select>
+                  <div *ngIf="Grade.errors && (Grade.dirty || Grade.touched)" class="alert alert-danger">
+                    <div [hidden]="!Grade.errors.required">
+                      Please Select Grade!
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-12">
+              <div class="col-md-6">
+                <label class="control-label col-sm-4" for="Level">Level:</label>
+                <div class="col-sm-8">
+                  <select name="Level" id="Level" class="form-control" required [(ngModel)]="InputStaffInfo.LvlId" (ngModelChange)="onLevelChange($event,staffId)" #Level="ngModel">
+                    <option value="">--Select--</option>
+                    <option value="{{item.LvlId}}" *ngFor="let item of levelList">{{item.LvlDesc}}</option>
+                  </select>
+                  <div *ngIf="Level.errors && (Level.dirty || Level.touched)" class="alert alert-danger">
+                    <div [hidden]="!Level.errors.required">
+                      Please Select Level!
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6" *ngIf="paramFoodAllowanceEnabled == true">
+                <label class="control-label col-sm-4" for="Wages">Food Allowance:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="ProvidentFund" placeholder="Enter Food Allowance" [(ngModel)]="InputStaffInfo.Wages" (ngModelChange)="checkMoney(InputStaffInfo.Wages,5)" name="Wages" #Wages="ngModel" />
+                  <div [hidden]="validFA" class="alert alert-danger">
+                    Insert Money Value Eg:475.50!
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-12">
+              <div class="col-md-6">
+                <label class="control-label col-sm-4" for="PanNumber">Pan Number:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="PanNumber" placeholder="Enter Pan Number" [(ngModel)]="InputStaffInfo.PanNo" name="PanNumber" #PanNumber="ngModel" />
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="control-label col-sm-4" for="MaritalStatus">Marital Status:</label>
+                <div class="col-sm-8">
+                  <input type="radio" required name="MaritalStatus" [value]="true" [(ngModel)]="InputStaffInfo.MaritalStatus" />  Married
+                  &nbsp;&nbsp;
+                  <input type="radio" required name="MaritalStatus" [value]="false" [(ngModel)]="InputStaffInfo.MaritalStatus" checked />  Unmarried
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-12">
+              <div class="col-md-6">
+                <label class="control-label col-sm-4" for="ProvidentFundNumber">Provident Fund Number:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="ProvidentFundNumber" placeholder="Enter Provident Fund Number" [(ngModel)]="InputStaffInfo.PFNo" name="ProvidentFundNumber" #ProvidentFundNumber="ngModel" />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="control-label col-sm-4" for="ProvidentFund">Provident Fund:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="ProvidentFund" placeholder="Enter Provident Fund" [(ngModel)]="InputStaffInfo.PF" (ngModelChange)="checkMoney(InputStaffInfo.PF,2)" name="ProvidentFund" #ProvidentFund="ngModel" />
+                  <div [hidden]="validPF" class="alert alert-danger">
+                    Insert Money Value Eg:475.50!
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-12">
+              <div class="col-md-6">
+                <label class="control-label col-sm-4" for="CITNumber">CIT Number:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="CITNumber" placeholder="Enter CIT Number" [(ngModel)]="InputStaffInfo.CITNo" name="CITNumber" #CITNumber="ngModel" />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="control-label col-sm-4" for="MonthlyCIT">Monthly CIT:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="MonthlyCIT" placeholder="Enter Monthly CIT" [(ngModel)]="InputStaffInfo.MonthlyCIT" (ngModelChange)="checkMoney(InputStaffInfo.MonthlyCIT,3)" name="MonthlyCIT" #MonthlyCIT="ngModel" />
+                  <div [hidden]="validCIT" class="alert alert-danger">
+                    Insert Money Value Eg:475.50!
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-12">
+              <div class="col-md-6">
+                <label class="control-label col-sm-4" for="BankGrp">Bank Group:</label>
+                <div class="col-sm-8">
+                  <select name="BankGrp" id="BankGrp" class="form-control" [(ngModel)]="InputStaffInfo.BankGrp" #BankGrp="ngModel">
+                    <option value="">--Select--</option>
+                    <option value="{{item.Bid}}" *ngFor="let item of bankList">{{item.BName}}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="control-label col-sm-4" for="BankAccNo">Account No:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="BankAccNo" placeholder="Enter Account No" [(ngModel)]="InputStaffInfo.BankAccNo" name="BankAccNo" #BankAccNo="ngModel" />
+                </div>
+              </div>
+            </div>
+            <div>
+
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="control-label col-sm-8" for="WithDashainBonus">With Dashain Bonus:</label>
+                  <div class="col-sm-4">
+                    <input type="checkbox" id="WithDashainBonus" [(ngModel)]="InputStaffInfo.WithDashainBonus" name="WithDashainBonus" #WithDashainBonus="ngModel" value="true" checked />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="control-label col-sm-8" for="IsGratuity">With Gratuity:</label>
+                  <div class="col-sm-4">
+                    <input type="checkbox" id="IsGratuity" [(ngModel)]="InputStaffInfo.IsGratuity" name="IsGratuity" #IsGratuity="ngModel" value="true" checked />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="control-label col-sm-8" for="IsSSFInsurance">With SSF Insurance:</label>
+                  <div class="col-sm-4">
+                    <input type="checkbox" id="IsSSFInsurance" [(ngModel)]="InputStaffInfo.IsSSFInsurance" name="IsSSFInsurance" #IsSSFInsurance="ngModel" value="true" checked />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row" *ngIf="navLedgerEnabled == true">
+              <div class="col-lg-12">
+                <hr style="border:1px solid #5cb85c;" />
+                <div><h5><strong>Nav Ledger Mapping</strong></h5></div>
+
+                <div class="table-responsive">
+                  <table class="table table-condensed table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Ledger Name</th>
+                        <th>Nav Ledger Type</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of ledgerList">
+                        <td>{{item.ALDesc}}</td>
+                        <td>
+                          <select name="NavLedgerId-{{item.ALId}}" id="NavLedgerId-{{item.ALId}}" class="form-control" [(ngModel)]="item.NavLedgerId" #NavLedgerId="ngModel" (change)="selectNavLedger(item)" required>
+                            <!--<option value="">--Select--</option>-->
+                            <option value="{{itemNav.Id}}" *ngFor="let itemNav of item.NavLedger">{{itemNav.LedgerName}}</option>
+                          </select>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-12" *ngIf="ledgerAllowanceAmountList.length>0">
+              <hr style="border:1px solid #5cb85c;" />
+              <div><h5><strong>Allowances</strong></h5></div>
+              <div class="col-md-6" *ngFor="let data of ledgerAllowanceAmountList;let in=index">
+                <label class="control-label col-sm-4" for="Amount">{{data.ALDesc}}:</label>
+                <div class="col-sm-8">
+                  <input type="text" required class="form-control" id="Amount" [(ngModel)]="data.Amount" name="Amount{{in}}" #Amount="ngModel" />
+                  <div *ngIf="Amount.errors && (Amount.dirty || Amount.touched)" class="alert alert-danger">
+                    <div [hidden]="!Amount.errors.required">
+                      Allowance is required!
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button *ngIf="isAddEditToggle==false" type="submit" (click)="saveStaffInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Save</button>
+        <button *ngIf="isAddEditToggle==true" type="submit" (click)="editStaffInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Edit</button>
+        <button type="button" class="btn btn-xs btn-danger" (click)="hideSalaryModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Insurance Modal -->
+<div bsModal #insuranceModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" *ngIf="insuranceModalLoaded">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" (click)="hideInsuranceModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5><strong>Insurance Setup: {{staffName}} </strong></h5>
+      </div>
+      <div class="modal-body" style="font-size:12px;">
+        <div class="panel-body">
+          <form #bookForm="ngForm" class="form-horizontal">
+            <div class="form-group col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Insurance Company</th>
+                    <th>Premium</th>
+                    <th>Fiscal Year</th>
+                    <th>
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of InsuranceList;let in=index">
+                    <td>
+                      <div>
+                        <input type="text" class="form-control" id="InsuranceCompany" required placeholder="Enter Insurance Company" [(ngModel)]="item.InsuranceCompany" name="InsuranceCompany{{in}}" #InsuranceCompany="ngModel" />
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <input type="text" class="form-control" id="Premium" required placeholder="Enter Premium" [(ngModel)]="item.Premium" (ngModelChange)="checkMoney(item.Premium,4)" name="Premium{{in}}" #Premium="ngModel" />
+                        <div [hidden]="validPremium" class="alert alert-danger">
+                          Insert Money Value Eg:475.50!
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <select class="form-control" id="FYID" required [(ngModel)]="item.TillFYId" name="FYID{{in}}" #FYID="ngModel">
+                          <option value="">--Select--</option>
+                          <option *ngFor="let item of fiscalYearList" value="{{item.FYID}}">
+                            {{item.FyName}}
+                          </option>
+                        </select>
+                      </div>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-danger" (click)="deleteFieldValue(in,item.Id)">Remove</button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!addNewFieldValue">
+                    <td>
+                      <div>
+                        <input type="text" class="form-control" id="newInsuranceCompany" required placeholder="Enter Insurance Company" [(ngModel)]="InputInsurance.InsuranceCompany" name="newInsuranceCompany" #newInsuranceCompany="ngModel" />
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <input type="text" class="form-control" id="newPremium" required placeholder="Enter Premium" [(ngModel)]="InputInsurance.Premium" (ngModelChange)="checkMoney(InputInsurance.Premium,4)" name="newPremium" #newPremium="ngModel" />
+                        <div [hidden]="validPremium" class="alert alert-danger">
+                          Insert Money Value Eg:475.50!
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <select class="form-control" id="newFYID" required [(ngModel)]="InputInsurance.TillFYId" name="newFYID" #newFYID="ngModel">
+                          <option *ngFor="let item of fiscalYearList" value="{{item.FYID}}">
+                            {{item.FyName}}
+                          </option>
+                        </select>
+                      </div>
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-sm btn-default" (click)="addFieldValue()" [disabled]="disableAdd()"><i class="glyphicon glyphicon-plus-sign"></i>Add</button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4">
+                      <button type="button" class="btn btn-sm btn-success pull-right" (click)="toggle()">{{ addNewFieldValue ? 'Add New Item' : 'Cancel' }}</button>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button *ngIf="isInsuranceAddEditToggle==false" type="submit" (click)="saveInsurance()" [disabled]="!isInsuranceFormValid(bookForm)" class="btn btn-xs btn-success">Save</button>
+        <button *ngIf="isInsuranceAddEditToggle==true" type="submit" (click)="editInsurance()" [disabled]="!isInsuranceFormValid(bookForm)" class="btn btn-xs btn-success">Edit</button>
+        <button type="button" class="btn btn-xs btn-danger" (click)="hideInsuranceModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5><strong>Delete StaffInfo </strong></h5>
+      </div>
+      <div class="modal-body" style="font-size:12px;">
+        <div class="panel-body">
+          <form class="form-horizontal">
+            Are you sure to delete this StaffInfo ?
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-xs btn-success" (click)="deleteStaffInfo()">Yes</button>
+        <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+      </div>
+    </div>
+
+
+  </div>
+</div>-->
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

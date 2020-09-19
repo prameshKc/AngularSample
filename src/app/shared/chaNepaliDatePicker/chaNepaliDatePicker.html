@@ -1,0 +1,69 @@
+
+<div class="btn-group open" dropdown>
+    <div class="input-group input-group-sm">
+        <input class="form-control" type="text" [(ngModel)]="dateText" (ngModelChange)="callCheckFormat();showCheck = true;" />
+        <span class="input-group-addon btn-success" (click)="checkFormat();showCheck = false;" *ngIf="showCheck == true"><i class="fa fa-arrow-right"></i></span>
+        <span class="input-group-addon btn-default" (click)="dateTypeToggle()">{{ dateType == 1 ? "AD" : "BS" }}</span>
+        <span class="input-group-addon btn-default" (click)="openModal()"><i class="fa fa-calendar"></i></span>
+    </div>
+    <div *ngIf="messageErr != null" class="alert alert-danger">
+        {{messageErr}}
+    </div>
+</div>
+<div class="modal fade" bsModal #dateModal="bs-modal" tabindex="-1" role="dialog" aria-labelledby="dialog-nested-name2">
+    <div style="position: fixed; top: 0; left: 0; margin: -50vh -50vw;  height: 200vh; width: 200vw;" [hidden]="showModal != true" (click)="closeModal()">
+    </div>
+    <div class="modal-dialog modal-md" *ngIf="showModal == true">
+        <div class="modal-content">
+            <div class="cha-datepicker-container" style="padding: 0;">
+                <div class="modal-header cha-datepicker-head bg-primary">
+                    <button type="button" class="previous" (click)="getPrevMonthCalendarData(tempDate.Month)">
+                        <i class="fa fa-chevron-left"></i>
+                    </button>
+                    <select [(ngModel)]="tempDate.Month" class="btn bg-primary current" style="color: white !important;" (ngModelChange)="getCalendarWithoutEmit(tempDate.Year, tempDate.Month)">
+                        <option *ngFor="let item of months" value="{{item.Id}}">
+                            {{dateType == 1 ? item.EngName : item.NepName }}
+                        </option>
+                    </select>
+                    <select [(ngModel)]="tempDate.Year" class="btn bg-primary current" style="color: white !important;" (ngModelChange)="getCalendarWithoutEmit(tempDate.Year, tempDate.Month)">
+                        <option *ngFor="let item of years" value="{{item}}">
+                            {{item}}
+                        </option>
+                    </select>
+                    <button type="button" class="current" (click)="dateTypeToggle()">
+                        {{ dateType == 1 ? "AD" : "BS" }}
+                    </button>
+                    <button type="button" class="next" (click)="getNextMonthCalendarData(tempDate.Month)">
+                        <i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="modal-body cha-datepicker-body">
+                    <table class="days weeks">
+                        <tr>
+                            <th class="text-center weekday">Sun</th>
+                            <th class="text-center weekday">Mon</th>
+                            <th class="text-center weekday">Tue</th>
+                            <th class="text-center weekday">Wed</th>
+                            <th class="text-center weekday">Thu</th>
+                            <th class="text-center weekday">Fri</th>
+                            <th class="text-center weekday">Sat</th>
+                        </tr>
+                        <tr *ngFor="let week of calendar.MonthWeeks">
+                            <td *ngFor="let item of week.Days" class="is-other-month">
+                                <span *ngIf="item != null && item.State != 'disabled'" class="{{item.Selected ? 'bg-primary ': '' }}{{item.State}}" (click)="selectDate(tempDate.Year,tempDate.Month,item.Value)">
+                                    {{ item.Value }}
+                                </span>
+                                <span *ngIf="item != null && item.State == 'disabled'" class="{{item.Selected ? 'bg-primary ': '' }}{{item.State}} ">
+                                    {{ item.Value }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <!--<div class="modal-footer text-center">
+                    <button class="btn btn-default" type="button" (click)="closeModal()">Done</button>
+                </div>-->
+            </div>
+        </div>
+    </div>
+</div>

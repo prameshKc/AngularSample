@@ -1,0 +1,139 @@
+﻿<div class="panel panel-default" *ngIf="isAccess == true">
+    <div class="panel-heading" (click)="formToggleFunc()">
+        <strong>Employee SWMC</strong>
+        <i class="fa pull-right" [ngClass]="{'fa-chevron-down': formToggle != true,'fa-chevron-up': formToggle == true}"></i>
+    </div>
+    <div class="panel-body" *ngIf="formToggle == true">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>SWMC</th>
+                        <th>Venue</th>
+                        <th>From Date</th>
+                        <th>To Date</th>
+                        <th>Sponsored By</th>
+                        <th *ngIf="isEditAccess">Action</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="displayECList.length == 0">
+                    <!--Certificate List-->
+                    <tr>
+                        <td [colSpan]="isEditAccess ? 6 : 5" class="text-danger">
+                            No data available.
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="displayECList.length > 0">
+                    <!--Certificate List-->
+                    <tr *ngFor="let item of displayECList; let i = index">
+                        <td>
+                            <div class="form-control input-sm" *ngIf="infoSWMCList.length > 0">
+                                {{getSWMC(item.SWMCId)}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.Venue}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                <date-view [inputDate]="item.FromDate"></date-view>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                <date-view [inputDate]="item.ToDate"></date-view>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.SponsoredBy}}
+                            </div>
+                        </td>
+                        <td class="text-center" *ngIf="isEditAccess">
+                            <button class="btn btn-primary btn-xs" (click)="editSWMC(item)" tooltip="Edit" container="body">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-xs" (click)="openDeleteModal(item.RowId)" tooltip="Delete" container="body">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="isEditAccess">
+                    <tr>
+                        <td>
+                            <select required class="form-control input-sm" [(ngModel)]="InputESWMC.SWMCId" *ngIf="infoSWMCList.length > 0">
+                                <option value="-1">---Select One---</option>
+                                <option *ngFor="let swmcItem of infoSWMCList" value="{{swmcItem.SWMCId}}">{{swmcItem.Description}}</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputESWMC.Venue" type="text" />
+                        </td>
+                        <td>
+                            <div class="input-group-sm">
+                                <chaNepaliDatePicker id="Date" [inputDate]="FromDateVM" [inputDatePickerOptions]="dateOptions" (selectedDate)='dateSelect($event,"FromDate")' *ngIf="FromDateVM && dateOptions"></chaNepaliDatePicker>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group-sm">
+                                <chaNepaliDatePicker id="Date" [inputDate]="ToDateVM" [inputDatePickerOptions]="dateOptions" (selectedDate)='dateSelect($event,"ToDate")' *ngIf="ToDateVM && dateOptions"></chaNepaliDatePicker>
+                            </div>
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputESWMC.SponsoredBy" type="text" />
+                        </td>
+                        <td class="text-center">
+                            <div *ngIf="isUploading">
+                                <button class="btn btn-default btn-xs">
+                                    <i class="fa fa-spin fa-spinner"></i>
+                                </button>
+                            </div>
+                            <div *ngIf="isUploading == false">
+                                <div *ngIf="InputESWMC.SWMCId != -1 && InputESWMC.Venue && InputESWMC.FromDate && InputESWMC.ToDate && InputESWMC.SponsoredBy">
+                                    <button class="btn btn-success btn-xs" (click)="addSWMC()" tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                                <div *ngIf="!(InputESWMC.SWMCId != -1 && InputESWMC.Venue && InputESWMC.FromDate && InputESWMC.ToDate && InputESWMC.SponsoredBy)">
+                                    <button class="btn btn-success btn-xs" disabled tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel-footer" *ngIf="formToggle == true">
+        <button class="btn btn-danger btn-xs pull-right" (click)="initialize()">Reset</button>
+    </div>
+</div>
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteChildModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete SWMC</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this SWMC?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-sm btn-success" (click)="delete()">Yes</button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="hideDeleteChildModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>

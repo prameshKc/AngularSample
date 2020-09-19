@@ -1,0 +1,116 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+  <li class="active"><i class="fa fa-list-ul"></i> Outside Movement Approval</li>
+</ol>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="panel panel-default">
+      <div class="panel-body">
+
+        <div class="row">
+          <div class="col-md-12">
+            <h4>
+              Outside Movement
+              <outside-movement-form [FormType]='1' (Refresh)="refreshList($event)"></outside-movement-form>
+            </h4>
+          </div>
+          <!--<div class="col-md-3">
+              <label class="control-label" for="EmployeeName"> Employee Name:</label>
+              <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+          </div>-->
+        </div>
+
+        <div>
+          <ul class="nav nav-pills">
+            <li role="presentation" [ngClass]="{'activeStatus' : item.isChecked}" *ngFor="let item of omStatus">
+              <a class="nav-link" [ngStyle]="{'color' : item.isChecked ? 'white' : 'black' }" (click)="selectStatus(item.Id)">{{item.MovementStatus}}</a>
+            </li>
+          </ul>
+        </div>
+        <br />
+        <div class="table-responsive">
+          <table class="table table-bordered table-condensed">
+            <thead>
+              <tr>
+                <th>Employee Name</th>
+                <th>Movement Period</th>
+                <th>Days</th>
+                <th>Movement Type</th>
+                <th>Transport Type</th>
+                <th>Place</th>
+                <th>Remarks</th>
+                <th>Request Advance</th>
+                <th *ngIf="statusId == 2">Approved Advance</th>
+                <th *ngIf="statusId != 1">{{statusId == 2 ? 'Approved' : 'Rejected'}} By</th>
+                <th *ngIf="statusId == 1">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of empOMList">
+                <td>
+                  <employee-name [employeeId]="item.EmployeeId"></employee-name>
+                </td>
+                <td class="text-center">
+                  <date-view [inputDate]="item.From"></date-view>
+                  <br> -to- <br>
+                  <date-view [inputDate]="item.To"></date-view>
+                </td>
+                <td>{{item.NoOfDays}}</td>
+                <td>{{item.InfoOutSideMovement.OutSideMovementType}}</td>
+                <td>{{item.InfoOutSideTrnsportationType.TransportationType}}</td>
+                <td>{{item.Place}}</td>
+                <td>{{item.Remarks}}</td>
+                <td class="text-right">{{item.RequestAdvance | NPRCurrency }}</td>
+                <td *ngIf="statusId == 2">
+                  <div *ngIf="item.ApprovedBy != null">
+                    <div class="text-right">
+                      {{item.ApprovedAdvance | NPRCurrency }} <br>
+                    </div>
+                  </div>
+                  <div *ngIf="item.ApprovedBy == null" class="text-center">
+                    <span class="badge badge-warning">
+                      Pending
+                    </span>
+                  </div>
+                </td>
+                <td class="text-center" *ngIf="statusId != 1">
+                  <div *ngIf="item.ApprovedBy != null">
+                    <employee-name [userId]="item.ApprovedBy"></employee-name><br>
+                    [<date-view [inputDate]="item.ApprovedOn"></date-view>]
+                  </div>
+                  <div *ngIf="item.ApprovedBy == null">
+                    <span class="badge badge-warning">
+                      Pending
+                    </span>
+                  </div>
+                </td>
+                <td *ngIf="statusId == 1">
+                  <div *ngIf="item.ApprovedBy != null">
+                    -
+                  </div>
+                  <div *ngIf="item.ApprovedBy == null">
+                    <outside-movement-form [FormType]="2" [EditId]="item.Id" (Refresh)="refreshList($event)"></outside-movement-form>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="empOMList.length == 0">
+                <td [attr.colspan]="(statusId == 2) ? '10' : '9'">
+                  <span class="text-warning">No data available</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <br />
+          <div *ngIf="reportTo != null">
+            Note: Please contact <b><employee-name [employeeId]="reportTo"></employee-name></b> for more details.
+          </div>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+      </div>
+    </div>
+  </div>
+</div>

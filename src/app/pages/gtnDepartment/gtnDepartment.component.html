@@ -1,0 +1,105 @@
+﻿
+<div *ngIf="showDeptDetail" class="col-md-6">
+    <button class="btn btn-sm btn-default" (click)="openDepartmentModal()" tooltip="Add Department" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Department</button>
+    <!--<table class="table table-bordered table-hover table-striped table-condensed">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th><span (click)="sortBy('DepartmentName')">Department Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('DepartmentName')"></span></th>
+                <th><span (click)="sortBy('DepartmentCode')">Department Code</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('DepartmentCode')"></span></th>
+                <th class="text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of departmentList;let in = index">
+                <td>{{in+1}}</td>
+                <td>
+                    {{item.DepartmentName}}
+                </td>
+                <td>
+                    {{item.DepartmentCode}}
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-xs btn-info" (click)="getDepartment(item.DepartmentID)" tooltip="Edit Department" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                </td>
+            </tr>
+        </tbody>
+        <tbody *ngIf="departmentList.length == 0">
+            <tr>
+                <td colspan="4">
+                    <div class="text-warning">No items available</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="col-md-12">
+        <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+    </div>-->
+</div>
+
+<button class="btn btn-xs btn-info" *ngIf="showDeptDetail==false" (click)="getDepartment(deptId)" tooltip="Edit Department" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+
+<div bsModal #departmentModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDepartmentModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddDepartment == true;"><strong>Add Department</strong></h5>
+                <h5 *ngIf="isEditDepartment == true;"><strong>Edit Department</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="DepartmentName">Department Name:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="DepartmentName" placeholder="Enter Department Name" required [(ngModel)]="InputDepartment.DepartmentName" (ngModelChange)="onDeptNameChange(InputDepartment.DepartmentName)" name="DepartmentName" #DepartmentName="ngModel" />
+                                <div *ngIf="DepartmentName.errors && (DepartmentName.dirty || DepartmentName.touched)" class="alert alert-danger">
+                                    <div [hidden]="!DepartmentName.errors.required">
+                                        Department Name is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="!duplicateName" class="alert alert-danger">
+                                    Department already exist!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="DepartmentCode">Department Code:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="DepartmentCode" placeholder="Enter Department Code" required maxlength="1" [(ngModel)]="InputDepartment.DepartmentCode" (ngModelChange)="onDeptCodeChange(InputDepartment.DepartmentCode)" [disabled]="isAddEditToggle" name="DepartmentCode" #DepartmentCode="ngModel" />
+                                <div *ngIf="DepartmentCode.errors && (DepartmentCode.dirty || DepartmentCode.touched)" class="alert alert-danger">
+                                    <div [hidden]="!DepartmentCode.errors.required">
+                                        Department Code is required!
+                                    </div>
+                                </div>
+                                <div [hidden]="!duplicateCode" class="alert alert-danger">
+                                    Department Code already exist!
+                                </div>
+                                <div [hidden]="!validDigit" class="alert alert-danger">
+                                    Please Enter Single Digit Number!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="Visibility">Visibility:</label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" id="Visibility" [(ngModel)]="InputDepartment.Visibility" name="Visibility" #Visibility="ngModel" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" (click)="saveDepartment()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit" (click)="editDepartment()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDepartmentModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>
+
+

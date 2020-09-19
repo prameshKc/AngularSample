@@ -1,0 +1,323 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Leave Report</li>
+</ol>
+<div class="row">
+    <div class="col-xs-12">
+        <div class="panel panel-default ">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5><strong>Employee Leave Requests</strong></h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <Leave [isAutoLeave]="isAutoLeave"></Leave>
+                    </div>
+                </div>
+            </div>
+            <hr style="border:1px solid #5cb85c; margin: 10px 15px 5px;" />
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label" for="EmployeeName"> Employee Name:</label>
+                        <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="well well-sm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="control-label" for="FromDate"> From Date:</label>
+                                    <chaNepaliDatePicker id="fromDate" [inputDate]="inputFromDate" [inputDatePickerOptions]="inputFromDateOptions" (selectedDate)='onFromDateSelect($event)' *ngIf="inputFromDate && inputFromDateOptions"></chaNepaliDatePicker>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="control-label" for="ToDate"> To Date:</label>
+                                    <chaNepaliDatePicker id="toDate" [inputDate]="inputToDate" [inputDatePickerOptions]="inputToDateOptions" (selectedDate)='onToDateSelect($event)' *ngIf="inputToDate && inputToDateOptions"></chaNepaliDatePicker>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    <button class="btn btn-xs btn-default" (click)="submitDateRange()">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <button class="btn btn-xs btn-default" (click)="reset()">Reset</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div>
+                    <ul class="nav nav-pills">
+                        <li role="presentation" [ngClass]="{'activeStatus' : pending == true}">
+                            <a class="nav-link" [ngStyle]="{'color' : pending == true?'white':'black'}" (click)="getLeaveChild(1)">Pending Leave</a>
+                        </li>
+                        <li role="presentation" [ngClass]="{'activeStatus' : approved == true}">
+                            <a class="nav-link" [ngStyle]="{'color' : approved == true?'white':'black'}" (click)="getLeaveChild(2)">Approved Leave</a>
+                        </li>
+                        <li role="presentation" [ngClass]="{'activeStatus' : rejected == true}">
+                            <a class="nav-link" [ngStyle]="{'color' : rejected == true?'white':'black'}" (click)="getLeaveChild(3)">Rejected Leave</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="panel-body" style="overflow-x: auto;">
+                <div class="col-lg-12" *ngIf="isLeaveToggle==false">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th><span (click)="sortBy('Employee/EmployeeNo')">Employee No</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/EmployeeNo')"></span></th>
+                                    <th><span (click)="sortBy('Employee/FirstName')">Employee Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/FirstName')"></span></th>
+                                    <th><span (click)="sortBy('LeaveDate')">Leave Date</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('LeaveDate')"></span></th>
+                                    <th>Leave Type</th>
+                                    <th>Till Date</th>
+                                    <th>Number of Days</th>
+                                    <th>Personal Remarks</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="leaveList.length > 0">
+                                <tr *ngFor="let treeDiv of leaveList | searchfilter: 'Name' : filterObj.Name">
+                                    <td>{{treeDiv.EmployeeNo}}</td>
+                                    <td>{{treeDiv.EmployeeName}}</td>
+                                    <td>
+                                        <span *ngIf="treeDiv.LeaveDate">
+                                            <date-view [inputDate]="treeDiv.LeaveDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!treeDiv.LeaveDate">
+                                            -
+                                        </span>
+                                    </td>
+                                    <td>{{treeDiv.RequestedLeaveType}}</td>
+                                    <td *ngIf="pending==true">
+                                        <span *ngIf="treeDiv.tillDate">
+                                            <date-view [inputDate]="treeDiv.tillDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!treeDiv.tillDate">
+                                            -
+                                        </span>
+                                    </td>
+                                    <td *ngIf="pending==true">
+                                        {{treeDiv.NumOfDays}}
+                                    </td>
+                                    <td>{{treeDiv.Remarks == null ? '-' : treeDiv.Remarks}}</td>
+
+                                    <td *ngIf="pending!=true">{{treeDiv.Remarks == null ? '-' : treeDiv.Remarks}}</td>
+                                    <td *ngIf="pending==true">
+                                        <div *ngIf="treeDiv.EmployeeId != userDetails.EmployeeId">
+                                            <button type="button" class="btn btn-xs btn-default" (click)="openAddModal(treeDiv.LeaveId)">View</button>
+                                        </div>
+                                        <div *ngIf="treeDiv.EmployeeId == userDetails.EmployeeId">
+                                            -
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="leaveList.length == 0">
+                                <tr>
+                                    <td colspan="8" class="text-warning">No Items Available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-12" *ngIf="isLeaveToggle==true">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th><span (click)="sortBy('Employee/EmployeeNo')">Employee No</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/EmployeeNo')"></span></th>
+                                    <th><span (click)="sortBy('Employee/FirstName')">Employee Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/FirstName')"></span></th>
+                                    <th><span (click)="sortBy('LeaveDate')">Leave Date</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('LeaveDate')"></span></th>
+                                    <th>Requested Leave Type</th>
+                                    <th *ngIf="approved">Approved Leave Type</th>
+                                    <th>Approval Status</th>
+                                    <th>Personal Remarks</th>
+                                    <th><span (click)="sortBy('LeaveStatusUpdateOn')">Leave Status Updated Date</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('LeaveStatusUpdateOn')"></span></th>
+                                    <th>Leave Status Updated By</th>
+                                    <th>Approver's Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="leaveChildList.length > 0">
+                                <tr *ngFor="let treeDiv of leaveChildList | searchfilter: 'Name' : filterObj.Name">
+                                    <td>{{treeDiv.EmployeeNo}}</td>
+                                    <td>{{treeDiv.EmployeeName}}</td>
+                                    <td>
+                                        <span *ngIf="treeDiv.LeaveDate">
+                                            <date-view [inputDate]="treeDiv.LeaveDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!treeDiv.LeaveDate">
+                                            -
+                                        </span>
+                                    </td>
+                                    <td>{{treeDiv.leavestatus}}</td>
+                                    <td *ngIf="approved">{{treeDiv.RequestedLeaveType}}</td>
+
+                                    <td class="text-center">
+                                        <span class="label" [ngClass]="{'label-primary': treeDiv.LeaveStatusId == 1, 'label-success': treeDiv.LeaveStatusId == 2, 'label-danger':treeDiv.LeaveStatusId == 3}">
+                                            {{treeDiv.ApprovedLeavetype}}
+                                        </span>
+                                    </td>
+                                    <td>{{treeDiv.PersonalRemarks == null ? '-' : treeDiv.PersonalRemarks}}</td>
+                                    <td>
+                                        <span *ngIf="treeDiv.LeaveStatusUpdateOn">
+                                            <date-view [inputDate]="treeDiv.LeaveStatusUpdateOn"></date-view>
+                                        </span>
+                                        <span *ngIf="!treeDiv.LeaveStatusUpdateOn">
+                                            -
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span *ngIf="treeDiv.LeaveStatusUpdatedBy != null">
+                                            {{treeDiv.LeaveStatusUpdatedBy}}
+                                        </span>
+                                        <span *ngIf="treeDiv.LeaveStatusUpdatedBy == null">
+                                            -
+                                        </span>
+                                    </td>
+                                    <td>{{treeDiv.ApproverRemarks == null ? '-' : treeDiv.ApproverRemarks}}</td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="leaveChildList.length == 0">
+                                <tr>
+                                    <td colspan="10" class="text-warning">No Items Available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-xs btn-primary" (click)="exportToCSV()">Export to CSV</button>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+        <!--pagination-->
+    </div>
+</div>
+
+<div bsModal #childModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <form #bookForm="ngForm" class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" aria-label="Close" (click)="hideChildModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h5 *ngIf="isAddLeave == true;"><strong>Leave Request</strong></h5>
+                    <h5 *ngIf="isEditLeave == true;"><strong>Approve Leave Request</strong></h5>
+                </div>
+                <div class="modal-body" style="font-size:12px;">
+                    <div class="panel-body" *ngIf="InputLeave.RequestedDate">
+                        <table class="table table-bordered table-condensed">
+                            <tbody>
+                                <tr>
+                                    <th colspan="2">Employee Name: {{InputLeave.Employee.FirstName}} {{InputLeave.Employee.MiddleName}} {{InputLeave.Employee.LastName}} ({{InputLeave.Employee.EmployeeNo}})</th>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        Effective Date:
+                                        <span *ngIf="InputLeave.LeaveDate">
+                                            <date-view [inputDate]="InputLeave.LeaveDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!InputLeave.LeaveDate">
+                                            -
+                                        </span>
+                                    </th>
+                                    <th>
+                                        Till Date:
+                                        <span *ngIf="TillDate">
+                                            <date-view [inputDate]="TillDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!TillDate">
+                                            -
+                                        </span>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        Leave Type:
+                                        <!--<select id="leaveType" required class="form-control" [(ngModel)]="InputLeave.LeaveTypeId" name="LeaveTypeId" #LeaveTypeId="ngModel" (ngModelChange)="compLogSelected($event)">
+                                            <option value="{{item.LoginStatusId}}" *ngFor="let item of leaveTypeorStatusList">{{item.StatusName}}</option>
+                                        </select>-->
+                                        {{InputLeave.LoginStatus.StatusName}}
+                                    </th>
+                                    <th>Number of Days:  {{InputLeave.NumOfDays}}</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="2">Remarks:  {{InputLeave.Remarks}}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="table table-bordered table-condensed table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>S/No</th>
+                                    <th>Requested Leave Date</th>
+                                    <th *ngIf="InputLeave.LeaveTypeId==compareLoginStatusId">Compensable Leave Date</th>
+                                    <th>Approve/Approve All <input type="checkbox" class="input-sm" name="approveAll" [(ngModel)]="SelectAll" (ngModelChange)="selectAll($event,2)" [checked]="checkAllApprovedSelected()" #approveAll="ngModel" /></th><!--[disabled]="RejectAll"-->
+                                    <th>Reject/Reject All <input type="checkbox" class="input-sm" name="rejectAll" [(ngModel)]="RejectAll" (ngModelChange)="selectAll($event,3)" [checked]="checkAllRejectedSelected()" #rejectAll="ngModel" /></th><!--[disabled]="SelectAll"-->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of InputLeave.LeaveChild;let i=index">
+                                    <td>{{i+1}}</td>
+                                    <td>
+                                        <span *ngIf="item.LeaveDate">
+                                            <date-view [inputDate]="item.LeaveDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!item.LeaveDate">
+                                            -
+                                        </span>
+                                    </td>
+                                    <td *ngIf="InputLeave.LeaveTypeId==compareLoginStatusId">
+                                        <span *ngIf="item.CompensableLeaveDate">
+                                            <date-view [inputDate]="item.CompensableLeaveDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!item.CompensableLeaveDate">
+                                            -
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <input type="radio" required name="Approval{{i}}" [value]="2" [(ngModel)]="item.LeaveStatusId" (ngModelChange)="radioBttn(2,item.Id)" [checked]="item.LeaveStatusId == 2?true:false" />
+                                    </td>
+                                    <td>
+                                        <input type="radio" required name="Approval{{i}}" [value]="3" [(ngModel)]="item.LeaveStatusId" (ngModelChange)="radioBttn(3,item.Id)" [checked]="item.LeaveStatusId == 3?true:false" />
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="table table-bordered table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Approver's Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <textarea class="form-control" id="Remarks" placeholder="Enter Remarks" rows="5" style="resize: none;" required minlength="3" [(ngModel)]="InputLeave.ApproverRemarks" name="ApproverRemarks" #ApproverRemarks="ngModel"></textarea>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="alert alert-danger text-center" *ngIf="!bookForm.form.valid">
+                        Some of the fields are invalid. Please check the form and try again.
+                    </div>
+                    <button type="submit" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success" (click)="saveLeaveRequest()">Submit</button>
+                    <button type="button" class="btn btn-xs btn-danger" (click)="hideChildModal()">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

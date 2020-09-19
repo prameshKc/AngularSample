@@ -1,0 +1,358 @@
+<ol class="breadcrumb">
+  <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+  <li class="active"><i class="fa fa-user-o"></i> User</li>
+</ol>
+
+<div class="container-fluid row">
+  <div class="col-xs-12">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-sm-6">
+            <button class="btn btn-sm btn-default" tooltip="Add User" placement="top" *ngIf="isAdmin==true" (click)="addForm()"><i class="glyphicon glyphicon-plus-sign"></i> Add User</button>
+          </div>
+          <div class="col-sm-3 text-right">
+          </div>
+          <div class="col-sm-3 text-right">
+            <input type="text" class="form-control input-sm" placeholder="Enter Employee Name" [(ngModel)]="filterObj.Name" (ngModelChange)="filterUser()" />
+          </div>
+        </div>
+        <hr style="border:1px solid #5cb85c;" />
+        <div class="col-lg-12">
+          <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.SortingAttribute != 'PostedOn' && filterObj.SortingAttribute != 'ModifiedOn') ">
+            <button class="close" (click)="userAndFilter()"><i class="fa fa-times"></i></button>
+
+            <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+            <p *ngIf="(filterObj.SortingAttribute != 'PostedOn' && filterObj.SortingAttribute != 'ModifiedOn')">
+              <b>Sorted By:</b>
+              {{filterObj.SortingAttribute == 'UserName' ? 'User Name' : ''}}
+              {{filterObj.SortingAttribute == 'Employee/EmployeeNo' ? 'Employee No' : ''}}
+              {{filterObj.SortingAttribute == 'Employee/FirstName' ? 'Employee Name' : ''}}
+              {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+            </p>
+          </div>
+        </div>
+
+
+        <div class="panel panel-default" *ngIf="titleToggle !=null">
+          <div class="panel-body">
+            <h4>
+              {{titleToggle == true?'Add User':'Edit User'}}
+              <button type="button" class="close" aria-label="Close" (click)="clearForm()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </h4>
+            <hr />
+            <form class="form-horizontal col-md-6" #bookForm="ngForm" style="font-size:12px;">
+              <div class="form-group" *ngIf="titleToggle == true">
+                <label for="employee" class="control-label col-sm-4">Select employee:</label>
+                <div class="col-sm-8">
+                  <!--<select name="employeeList" id="employeeList" class="dropdown form-control" required [(ngModel)]="InputDetails.EmployeeId" #employee="ngModel">
+                      <option *ngFor="let employee of employeeList" [ngValue]="employee.EmployeeId" name="employeeList">{{employee.FirstName}} {{employee.MiddleName == null?'':employee.MiddleName}} {{employee.LastName}}</option>
+                  </select>-->
+                  <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+
+                  <!--<div *ngIf="employee.errors && (employee.dirty || employee.touched)" class="alert alert-danger">
+                      <div [hidden]="!employee.errors.required">
+                          Select an employee !
+                      </div>
+                  </div>-->
+                </div>
+              </div>
+              <div class="form-group" *ngIf="titleToggle == false">
+                <label for="employee" class="control-label col-sm-4">Employee name:</label>
+                <div class="col-sm-8">
+                  <span class="form-control">{{EmployeeObj.FirstName}} {{EmployeeObj.MiddleName == null?'':EmployeeObj.MiddleName}} {{EmployeeObj.LastName}}</span>
+                  <!--<select name="employeeList" id="employeeList" class="dropdown form-control" [disabled]="titleToggle == false" [(ngModel)]="InputDetails.EmployeeId" #employee="ngModel">
+                      <option *ngFor="let employee of employeeList" [ngValue]="employee.EmployeeId" name="employeeList">{{employee.FirstName}} {{employee.MiddleName == null?'':employee.MiddleName}} {{employee.LastName}}</option>
+                  </select>-->
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="menuTemplate" class="control-label col-sm-4">Select template:</label>
+                <div class="col-sm-8">
+                  <select name="menuTemplateList" id="menuTemplateList" class="dropdown form-control" required [(ngModel)]="InputDetails.MenuTemplateId" #template="ngModel">
+                    <option *ngFor="let menuTemplate of menuTemplateList" [ngValue]="menuTemplate.MenuTemplateId" name="menuTemplateList">{{menuTemplate.MenuTemplateName}}</option>
+                  </select>
+                  <div *ngIf="template.errors && (template.dirty || template.touched)" class="alert alert-danger">
+                    <div [hidden]="!template.errors.required">
+                      Select a template !
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group" *ngIf="titleToggle == true">
+                <label for="username" class="control-label col-sm-4">Username:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="username" placeholder="enter username" name="username" minlength="6" maxlength="30" required [(ngModel)]="InputDetails.UserName" (ngModelChange)="duplicateUserName($event)" #username="ngModel" [disabled]="titleToggle != true" />
+                  <div *ngIf="username.errors && (username.dirty || username.touched)" class="alert alert-danger">
+                    <div [hidden]="!username.errors.required">
+                      Username is required !
+                    </div>
+                    <div [hidden]="!username.errors.minlength">
+                      Username must be at least 6 characters long. !
+                    </div>
+                  </div>
+                  <div [hidden]="isDuplicateUserName==false" class="alert alert-danger">
+                    Username already exist!
+                  </div>
+                </div>
+              </div>
+              <div class="form-group" *ngIf="titleToggle == false">
+                <label for="username" class="control-label col-sm-4">Username:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="username" placeholder="enter username" name="username" [disabled]="titleToggle == false" [(ngModel)]="InputDetails.UserName" #username="ngModel" />
+                </div>
+              </div>
+              <div class="form-group" *ngIf="titleToggle == true">
+                <label for="password" class="control-label col-sm-4">Password:</label>
+                <div class="col-sm-8">
+                  <input type="password" class="form-control" id="password" placeholder="enter password" name="password" minlength="6" maxlength="30" required [(ngModel)]="InputDetails.PasswordHash" #password="ngModel" />
+                  <div *ngIf="password.errors && (password.dirty || password.touched)" class="alert alert-danger">
+                    <div [hidden]="!password.errors.required">
+                      Password is required !
+                    </div>
+                    <div [hidden]="!password.errors.minlength">
+                      Password must be at least 6 characters long. !
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group" *ngIf="titleToggle == true">
+                <label for="confirmpwd" class="control-label col-sm-4">Confirm Password:</label>
+                <div class="col-sm-8">
+                  <input type="password" class="form-control" id="confirmpwd" placeholder="confirm password" name="confirmpwd" minlength="6" maxlength="30" required [(ngModel)]="confirmpwd" #pwd="ngModel" />
+                  <div *ngIf="pwd.errors && (pwd.dirty || pwd.touched)" class="alert alert-danger">
+                    <div [hidden]="!pwd.errors.required">
+                      Confirm Password is required !
+                    </div>
+                    <div [hidden]="!pwd.errors.minlength">
+                      Confirm Password must be at least 6 characters long. !
+                    </div>
+                    <div [hidden]="InputDetails.Password != confirmpwd">
+                      Password and confirm password must match. !
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="unlimited" class="control-label col-sm-4">Is Unlimited:</label>
+                <div class="col-sm-8">
+                  <input type="checkbox" id="unlimited" name="unlimited" [(ngModel)]="InputDetails.IsUnlimited">
+                </div>
+              </div>
+              <div class="form-group" *ngIf="InputDetails.IsUnlimited !=true">
+                <label for="fromDate" class="control-label col-sm-4">From date:</label>
+                <div class="col-sm-8">
+                  <chaNepaliDatePicker id="FromDate" [inputDate]="FromDate" [inputDatePickerOptions]="fromDateOptions" (selectedDate)='onFromDateSelect($event)' required *ngIf="FromDate && fromDateOptions"></chaNepaliDatePicker>
+                  <!--<input type="date" class="form-control" id="fromDate" name="fromDate" required [(ngModel)]="InputDetails.FromDate" #fromDate="ngModel">-->
+                  <!--<div *ngIf="fromDate.errors && (fromDate.dirty || fromDate.touched)" class="alert alert-danger">
+                      <div [hidden]="!fromDate.errors.required">
+                          Select from date !
+                      </div>
+                  </div>-->
+                </div>
+              </div>
+              <div class="form-group" *ngIf="InputDetails.IsUnlimited !=true">
+                <label for="toDate" class="control-label col-sm-4">To date:</label>
+                <div class="col-sm-8">
+                  <chaNepaliDatePicker id="ToDate" [inputDate]="ToDate" [inputDatePickerOptions]="toDateOptions" (selectedDate)='onToDateSelect($event)' required *ngIf="ToDate && toDateOptions"></chaNepaliDatePicker>
+                  <!--<input type="date" class="form-control" id="toDate" name="toDate" required [(ngModel)]="InputDetails.ToDate" #toDate="ngModel">-->
+                  <!--<div *ngIf="toDate.errors && (toDate.dirty || toDate.touched)" class="alert alert-danger">
+                      <div [hidden]="!toDate.errors.required">
+                          Select to date !
+                      </div>
+                  </div>-->
+                </div>
+              </div>
+              <div class="form-group" *ngIf="titleToggle == false">
+                <label for="status" class="control-label col-sm-4">Status:</label>
+                <div class="col-sm-8">
+                  <input type="checkbox" id="status" name="status" [(ngModel)]="InputDetails.IsActive">
+                </div>
+              </div>
+
+
+              <button class="btn btn-xs btn-danger pull-right" style="margin-left:5px;" (click)="clearForm()">Cancel</button>
+              <button class="btn btn-xs btn-success pull-right" *ngIf="titleToggle == true" [disabled]="!bookForm.form.valid || isDuplicateUserName" (click)="saveUser(InputDetails)">Save</button>
+              <button class="btn btn-xs btn-info pull-right" *ngIf="titleToggle == false" [disabled]="!bookForm.form.valid" (click)="editUser(InputDetails)">Edit</button>
+            </form>
+          </div>
+        </div>
+
+
+        <div class="panel panel-default" *ngIf="openResetPassword">
+          <div class="panel-body">
+            <h4>
+              Reset Password
+              <button type="button" class="close" aria-label="Close" (click)="hideResetPassword()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </h4>
+            <hr />
+            <form class="form-horizontal col-md-6" #bookform="ngForm">
+              <div class="form-group">
+                <label for="username" class="control-label col-sm-4">Username:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="username" placeholder="enter username" name="username" disabled [(ngModel)]="ResetPasswordDetails.UserName" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="password" class="control-label col-sm-4">New Password:</label>
+                <div class="col-sm-8">
+                  <input type="password" class="form-control" id="password" placeholder="enter password" name="password" required minlength="6" maxlength="30" [(ngModel)]="ResetPasswordDetails.PasswordHash" #password="ngModel" />
+                  <div *ngIf="password.errors && (password.dirty || password.touched)" class="alert alert-danger">
+                    <div [hidden]="!password.errors.required">
+                      Password is required !
+                    </div>
+                    <div [hidden]="!password.errors.minlength">
+                      Password must be at least 6 characters long. !
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="password" class="control-label col-sm-4">Confirm Password:</label>
+                <div class="col-sm-8">
+                  <input type="password" class="form-control" id="confirmPassword" placeholder="confirm password" name="confirmPassword" required minlength="6" maxlength="30" [(ngModel)]="confirmPassword" #pwd="ngModel" />
+                  <div *ngIf="pwd.errors && (pwd.dirty || pwd.touched)" class="alert alert-danger">
+                    <div [hidden]="!pwd.errors.required">
+                      Confirm password is required !
+                    </div>
+                    <div [hidden]="!pwd.errors.minlength">
+                      Confirm password must be at least 6 characters long. !
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-xs btn-danger pull-right" style="margin-left:5px;" (click)="hideResetPassword()">Cancel</button>
+              <button class="btn btn-xs btn-success pull-right" [disabled]="ResetPasswordDetails.PasswordHash != confirmPassword || !bookform.form.valid" (click)="resetPassword(ResetPasswordDetails)">Save</button>
+            </form>
+          </div>
+        </div>
+        <div class="row" *ngIf="titleToggle == null;">
+          <div class="col-lg-12">
+            <ul class="nav nav-pills">
+              <li role="presentation" [ngClass]="{'activeStatus' : active == true}">
+                <a class="nav-link" [ngStyle]="{'color' : active == true?'white':'black'}" (click)="getActiveEmployee()">Active Users</a>
+              </li>
+              <li role="presentation" [ngClass]="{'activeStatus' : inactive == true}">
+                <a class="nav-link" [ngStyle]="{'color' : inactive == true?'white':'black'}" (click)="getInactiveEmployee()">Inactive Users</a>
+              </li>
+            </ul>
+          </div>
+          <div class="col-lg-12">
+            <table class="table table-bordered table-hover table-striped table-condensed">
+              <thead>
+                <tr>
+                  <th><span (click)="sortBy('Employee/EmployeeNo')">Employee No</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/EmployeeNo')"></span></th>
+                  <th><span (click)="sortBy('Employee/FirstName')">Employee Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/FirstName')"></span></th>
+                  <th><span (click)="sortBy('UserName')">Username</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('UserName')"></span></th>
+                  <th>Role Assigned</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of userList">
+                  <td>{{user.Employee.EmployeeNo != null?user.Employee.EmployeeNo:''}}</td>
+                  <td>{{user.Employee.FirstName != null?user.Employee.FirstName:''}} {{user.Employee.MiddleName != null?user.Employee.MiddleName:''}} {{user.Employee.LastName != null?user.Employee.LastName:''}}</td>
+                  <td>{{user.UserName}}</td>
+                  <td>{{user.MenuTemplate.MenuTemplateName}}</td>
+                  <td class="text-center"><span class="label" [ngClass]="{'label-success':user.IsActive == true, 'label-danger':user.IsActive == false}">{{user.IsActive == true?'Active':'InActive'}}</span></td>
+                  <td class="text-center">
+                    <button class="btn btn-xs btn-info glyphicon glyphicon-edit" tooltip="Edit" placement="top" *ngIf="isAdmin==true" (click)="titleToggle = false;getUser(user.Id)"></button>
+                    <button class="btn btn-xs btn-warning glyphicon glyphicon-list" tooltip="Details" placement="top" (click)="openUserDetailsModal();getUser(user.Id)"></button>
+                    <button class="btn btn-xs btn-success glyphicon glyphicon-refresh" tooltip="Reset password" placement="top" *ngIf="isAdmin==true" (click)="openResetPassword=true;getUser(user.Id)"></button>
+                  </td>
+                </tr>
+                <tr *ngIf="userList.length == 0">
+                  <td colspan="7" class="text-warning">No items available</td>
+                </tr>
+              </tbody>
+
+            </table>
+
+          </div>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div bsModal #viewModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md" *ngIf="openViewDetails">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6>
+          <strong>
+            User Details
+            <button type="button" class="close" aria-label="Close" (click)="hideUserDetailsModal()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </strong>
+        </h6>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="col-sm-8" style="line-height:1.75em;font-size:11px;">
+              <div class="row">
+                <div class="col-sm-5">Employee no:</div>
+                <div class="col-sm-7">{{EmployeeObj.EmployeeNo}}</div>
+              </div>
+              <div class="row">
+                <div class="col-sm-5">Name:</div>
+                <div class="col-sm-7">{{EmployeeObj.FirstName}} {{EmployeeObj.MiddleName}} {{EmployeeObj.LastName}}</div>
+              </div>
+              <div class="row">
+                <div class="col-sm-5">Gender:</div>
+                <div class="col-sm-7">{{EmployeeObj.Gender}}</div>
+              </div>
+              <div class="row">
+                <div class="col-sm-5">Date of Birth:</div>
+                <div class="col-sm-7">{{EmployeeObj.DateOfBirth | date:"yyyy/MM/dd"}}</div>
+              </div>
+              <div class="row">
+                <div class="col-sm-5">Username:</div>
+                <div class="col-sm-7">{{InputDetails.UserName}}</div>
+              </div>
+              <div class="row">
+                <div class="col-sm-5">Email:</div>
+                <div class="col-sm-7">{{EmployeeObj.Email}}</div>
+              </div>
+              <!--<div class="row">
+                  <div class="col-sm-5">Mobile no:</div>
+                  <div class="col-sm-7">{{EmployeeObj.MobileNumber}}</div>
+              </div>
+              <div class="row">
+                  <div class="col-sm-5">Shift:</div>
+                  <div class="col-sm-7"><span class="label label-success">{{ShiftObj.ShiftName}}</span></div>
+              </div>
+              <div class="row">
+                  <div class="col-sm-5">Working hour:</div>
+                  <div class="col-sm-7">{{GroupObj.DefaultOfficeHourFrom }} - {{GroupObj.DefaultOfficeHourTill}}</div>
+              </div>-->
+            </div>
+            <div class="col-sm-4">
+              <div class="detailsImg">
+                <img *ngIf="EmployeeObj.Photo !=null" class="img-responsive" src="{{EmployeeObj.Photo}}" />
+                <img *ngIf="EmployeeObj.Photo == null || EmployeeObj.Photo == ''" class="img-responsive" src="../Images/User.png" />
+              </div>
+              <br />
+              <div class="row" style="font-size:12px;">
+                <div class="col-xs-offset-2" *ngIf="InputDetails.IsUnlimited == null || InputDetails.IsUnlimited == false"><span class="label label-primary">{{InputDetails.FromDate| date:"MMM d, y"}} - {{InputDetails.ToDate| date:"MMM d, y"}}</span></div>
+                <div class="col-xs-offset-4" *ngIf="InputDetails.IsUnlimited == true"><span class="label label-primary">Unlimited</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

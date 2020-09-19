@@ -1,0 +1,158 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Level Setup</li>
+</ol>
+<div class="col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h5>
+                        Employee Opening Balance
+                        <button class="btn btn-default btn-sm" (click)="openModal()"> <i class="fa fa-plus"></i> Add</button>
+                    </h5>
+                </div>
+                <div class="col-lg-">
+
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Employee Name</th>
+                            <th>Fiscal Year</th>
+                            <th>Total Salary</th>
+                            <th>Income Tax</th>
+                            <th>SSTax</th>
+                            <th>PF</th>
+                            <th>CIT</th>
+                            <th>CIT (to be paid)</th>
+                            <th>CIT (paid)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of hrSalOpSalList">
+                            <td>{{getEmployeeName(item.Employee)}}</td>
+                            <td>{{getFiscalYear(item.FiscalYear)}}</td>
+                            <td class="text-right">{{item.TotalSal | NPRCurrency}}</td>
+                            <td class="text-right">{{item.IncomeTax | NPRCurrency}}</td>
+                            <td class="text-right">{{item.SSTax | NPRCurrency}}</td>
+                            <td class="text-right">{{item.PF | NPRCurrency}}</td>
+                            <td class="text-right">{{item.CIT | NPRCurrency}}</td>
+                            <td class="text-right">{{item.CITToBePaid | NPRCurrency}}</td>
+                            <td class="text-right">{{item.CITPaid | NPRCurrency}}</td>
+                            <td><button class="btn btn-default btn-xs" (click)="openModal(item)">Edit</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+        </div>
+    </div>
+</div>
+
+<div bsModal #childModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="isAdd != null">
+        <div class="modal-content">
+            <form #bookForm="ngForm" class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h5 *ngIf="isAdd == true;"><strong>Add Salary Opening Balance</strong></h5>
+                    <h5 *ngIf="isAdd != true;"><strong>Edit Salary Opening Balance</strong></h5>
+                </div>
+                <div class="modal-body" style="font-size:12px;">
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="StaffId">Select Employee:</label>
+                        <div class="col-sm-9">
+                            <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                            <div *ngIf="!InputHRSalOpBal.StaffId" class="alert alert-danger">
+                                Staff Name is required !
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="FiscalYear">Select Fiscal Year:</label>
+                        <div class="col-sm-9">
+                            <select required class="form-control" name="FYId" id="FYId" [(ngModel)]="InputHRSalOpBal.FYId" #FYId="ngModel" (ngModelChange)="getAllfiscalYear(InputHRSalOpBal.FYId)">
+                                <option *ngFor="let fyItem of fyList" value="{{fyItem.FYID}}">{{getFiscalYear(fyItem)}}</option>
+                            </select>
+                            <div *ngIf="FYId.errors && (FYId.dirty || FYId.touched)" class="alert alert-danger">
+                                <div [hidden]="!FYId.errors.required">
+                                    Fiscal Year is required!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="TotalSal">Total Salary:</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" name="TotalSal" id="TotalSal" #TotalSal="ngModel" [(ngModel)]="InputHRSalOpBal.TotalSal" />
+                            <div *ngIf="TotalSal.errors && (TotalSal.dirty || TotalSal.touched)" class="alert alert-danger">
+                                <div [hidden]="!TotalSal.errors.required">
+                                    Fiscal Year is required!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="SSTax">SSTax:</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" name="SSTax" id="SSTax" #SSTax="ngModel" [(ngModel)]="InputHRSalOpBal.SSTax" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="IncomeTax">Income Tax:</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" name="IncomeTax" id="IncomeTax" #IncomeTax="ngModel" [(ngModel)]="InputHRSalOpBal.IncomeTax" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="PF">Provident Fund:</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" name="PF" id="PF" #PF="ngModel" [(ngModel)]="InputHRSalOpBal.PF" />
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="CIT">CIT:</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" name="CIT" id="CIT" #CIT="ngModel" [(ngModel)]="InputHRSalOpBal.CIT" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="CITToBePaid">CIT (to be paid):</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" name="CITToBePaid" id="CITToBePaid" #CITToBePaid="ngModel" [(ngModel)]="InputHRSalOpBal.CITToBePaid" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="CITPaid">CIT (paid):</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" name="CITPaid" id="CITPaid" #CITPaid="ngModel" [(ngModel)]="InputHRSalOpBal.CITPaid" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" [disabled]="!bookForm.form.valid && InputHRSalOpBal.StaffId == null" class="btn btn-xs btn-success" (click)="submit()">{{isAdd == true ? 'Save' : 'Edit' }}</button>
+                    <button type="button" class="btn btn-xs btn-danger" (click)="hideModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

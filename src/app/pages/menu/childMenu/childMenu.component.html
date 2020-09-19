@@ -1,0 +1,11 @@
+﻿<ul style="list-style:none;white-space:nowrap; padding: 0px 0px 0px 6px; border-left: 1px solid #333;">
+    <li *ngFor="let menuListItem of menuListObj" style="margin: 5px 3px;">
+        <a style="color:#333; background: none;" *ngIf="menuListItem.IsGroup == true" (click)="menuListItem.isOpen = !menuListItem.isOpen" [ngClass]="{'fa-caret-right': !menuListItem.isOpen, 'fa-caret-down':menuListItem.isOpen}" class="fa"></a>
+        <a style="color:#333; background: none;" *ngIf="menuListItem.IsGroup != true"   class="fa fa-minus-circle"></a>
+        <a style="padding: 5px; border-radius: 2px;  text-overflow: ellipsis;" [ngClass]="{ 'bg-primary': menuListItem.isSelected == true, 'text-muted': menuListItem.isSelected != true}" (click)='filterSelected(menuListItem);'>
+            <i class="fa fa-folder" [ngClass]="{ 'fa-folder':menuListItem.IsGroup == true, 'fa-file':menuListItem.IsGroup != true }"></i>
+            {{menuListItem.MenuCaption}}
+        </a>
+        <childMenu [menuListObj]='menuListItem.ChildMenu' *ngIf="menuListItem.isOpen == true" (returnMenuList)="filterSelected($event);"></childMenu>
+    </li>
+</ul>

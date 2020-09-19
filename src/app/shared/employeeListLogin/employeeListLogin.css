@@ -1,0 +1,61 @@
+:host ::ng-deep {
+    background-color: rgba(255, 255, 255, 0.93);
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+.list_container {
+    border-right: 1px solid #ddd;
+    height: 100%;
+    width: 100%;
+}
+
+.list_container .title {
+    background-color: #fff;
+    box-shadow: 0 6px 6px -6px #777;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.list_container .title::after {
+    content: none;
+}
+
+.list_container .title .search {
+    flex-grow: 0.1;
+    flex-basis: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.list_container .title h4 {
+    /* border-bottom: 1px solid #ddd; */
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 1em 0;
+}
+
+.list_container .title .search fa {
+    padding: 6px;
+    cursor: pointer;
+    margin-left: 16px;
+}
+
+.list_container .bottom_pagination {
+    background-color: #fff;
+    padding: 2em 1em;
+    box-shadow: 0 -5px 6px -6px #333;
+}
+
+.list_container .table th {
+    color: rgba(0, 0, 0, .54) !important;
+}
+
+.list_container .table th,
+.list_container .table td {
+    padding: 8px;
+}

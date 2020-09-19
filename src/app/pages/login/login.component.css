@@ -1,0 +1,68 @@
+﻿:host ::ng-deep {
+    background-image: url("../../../assets/hrms-login-bg_large-02.png");
+    display: block;
+    height: 100vh;
+    background-size: cover;
+    overflow: hidden;
+}
+
+img.logo {
+    position: absolute;
+    width: 7em;
+    bottom: 1em;
+    left: 1em;
+    opacity: 0.8;
+}
+
+.login,
+.emp_list {
+    height: 100vh;
+}
+
+.login {
+    display: flex;
+    flex-base: 100%;
+}
+
+.login .login_container {
+    margin: auto;
+    width: 100%;
+    max-width: 300px;
+}
+
+.login .login_container .title {
+    margin-bottom: 2em;
+}
+
+.login .login_container .title small {
+    cursor: pointer;
+}
+
+.login .login_container form .input-error{
+    border-color: #F44336;
+}
+.login .login_container form .input-error::placeholder{
+    color:#F44336;
+    opacity:0.6;   
+}
+
+.emp_list {
+    background-size: cover;
+    padding-left: 0;
+    padding-right: 0;
+}
+@media screen and (max-width:450px) {
+    :host ::ng-deep {
+        background-image: url(../../../assets/login_container-bg.png);
+    }
+    img.logo{
+        left: unset;
+        right: 1em;
+    }
+}
+
+@media screen and (max-width:767px) {
+    .title small {
+        display: none;
+    }
+}

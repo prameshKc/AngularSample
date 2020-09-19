@@ -1,0 +1,20 @@
+<app-header [employeeDetails]="employeeDetails" [collapseClass]="collapseClass" [isAdmin]="isAdmin" (toggleDrawer)="toggleSideBar()"></app-header>
+<div id="wrapper" [ngClass]="collapseClass">
+  <div id="sidebar-wrapper">
+    <ul class="sidebar-nav nav-pills nav-stacked" id="menu" style="list-style: none; padding: 0px; margin: 0; top:auto;">
+      <li style="margin:0; padding: 0px;">
+        <app-drawer [menuListObj]="qaMenuList" (returnMenuList)="getMenuFrmChild($event);"></app-drawer>
+      </li>
+    </ul>
+  </div>
+  <div id="page-content-wrapper" style="min-height: 100vh;">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+<ng2-toasty [position]="'top-center'" ></ng2-toasty>
+<div *ngIf="loading == true" class="text-center loading-modal">
+  <p class="text-center modal-dialog modal-sm">
+    <i class="fa fa-spinner fa-circle-o-notch fa-spin"></i>
+    Loading
+  </p>
+</div>

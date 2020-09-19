@@ -1,0 +1,133 @@
+<button type="button" class="btn btn-default btn-sm" (click)="openModal(template)" *ngIf="FormType <= 1">
+    <i class="fa fa-plus"></i> Add New
+</button>
+<button type="button" class="btn btn-default btn-xs" (click)="openModal(template)" *ngIf="FormType > 1">
+    {{ FormType == 2 ? 'Update' : FormType == 3 ? 'Approve' : 'Reject' }}
+</button>
+
+
+<ng-template #template>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left">
+            {{FormType <= 1 ? 'Add New' : FormType == 2 ? 'Edit' : 'Approve'}} Outside Movement
+        </h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="hideModal()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+      <form class="form form-horizontal" #OMForm="ngForm">
+        <div class="form-group" *ngIf="(IsAdmin == true || FormType < 3) && InputForm.EmployeeId != 0">
+          <label class="control-label col-lg-3" for="EmployeeId">Employee Name</label>
+          <div class="col-lg-9">
+            <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)" *ngIf="FormType == 0"></employee-search>
+            <div class="form-control" *ngIf="FormType != 0">
+              <employee-name [employeeId]="InputForm.EmployeeId" *ngIf="InputForm.EmployeeId"></employee-name>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" *ngIf="InputForm.EmployeeId != null">
+          <label class="control-label col-lg-3" for="ReportTo">Report To</label>
+          <div class="col-lg-9">
+            <div class="form-control">
+              <employee-name [employeeId]="reportTo" *ngIf="reportTo != null"></employee-name>
+              <employee-name [employeeId]="0" *ngIf="reportTo == null"></employee-name>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="control-label col-lg-3" for="TType">Movement Type</label>
+          <div class="col-lg-9">
+            <select class="form-control" required [(ngModel)]="InputForm.TType" name="TType" #Type="ngModel" [disabled]="FormType >= 3"
+                    id="TType">
+              <option [value]="item.Id" *ngFor="let item of infoOMTList">{{item.OutSideMovementType}}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="control-label col-lg-3" for="TransportId">Transport Type</label>
+          <div class="col-lg-9">
+            <select class="form-control" required [(ngModel)]="InputForm.TransportId" name="TransportId" [disabled]="FormType >= 3"
+                    #TransportId="ngModel" id="TransportId">
+              <option [value]="item.Id" *ngFor="let item of infoTrnsTList">
+                {{item.TransportationType}}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="control-label col-lg-3" for="fromDP">From</label>
+          <div class="col-lg-9">
+            <chaNepaliDatePicker id="fromDP" [inputDate]="fromDP" [inputDatePickerOptions]="defaultOptionsFrom"
+                                 (selectedDate)='selectedDate($event,"From")' *ngIf="fromDP && FormType < 3"></chaNepaliDatePicker>
+
+            <div class="form-control disabled" *ngIf="FormType >= 3">
+              <date-view [inputDate]="InputForm.From" *ngIf="InputForm.From"></date-view>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="control-label col-lg-3" for="toDP">To</label>
+          <div class="col-lg-9">
+            <chaNepaliDatePicker id="toDP" [inputDate]="toDP" [inputDatePickerOptions]="defaultOptionsTo"
+                                 (selectedDate)='selectedDate($event,"To")' *ngIf="toDP && FormType < 3"></chaNepaliDatePicker>
+            <div class="form-control disabled" *ngIf="FormType >= 3">
+              <date-view [inputDate]="InputForm.To" *ngIf="InputForm.To"></date-view>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="control-label col-lg-3" for="NoOfDays">Days</label>
+          <div class="col-lg-9">
+            <div class="form-control">
+              {{InputForm.NoOfDays}}
+            </div>
+            <div *ngIf="InputForm.NoOfDays <= 0" class="col-lg-12 alert alert-danger">
+              Days cannot be set to negative value or zero.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="control-label col-lg-3" for="Place">Place</label>
+          <div class="col-lg-9">
+            <input type="text" class="form-control" required [(ngModel)]="InputForm.Place" [disabled]="IsAdmin != true && FormType >= 3"
+                   name="Place" #Place="ngModel" id="Place">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="control-label col-lg-3" for="Remarks">Remarks</label>
+          <div class="col-lg-9">
+            <textarea class="form-control" required rows="4" style="resize: none; height: 80px; overflow: auto;" [disabled]="IsAdmin != true && FormType >= 3"
+                      [(ngModel)]="InputForm.Remarks" name="Remarks" #Remarks="ngModel" id="Remarks"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="FormType != 0">
+          <label class="control-label col-lg-3" for="RequestAdvance">Request Amount</label>
+          <div class="col-lg-9">
+            <input type="text" class="form-control" required [(ngModel)]="InputForm.RequestAdvance" [disabled]="FormType >= 3"
+                   name="RequestAdvance" #RequestAdvance="ngModel" id="RequestAdvance">
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="FormType != 4 && FormType != 1  && FormType != 2">
+          <label class="control-label col-lg-3" for="ApprovedAdvance">Approved Amount</label>
+          <div class="col-lg-9">
+            <input type="text" class="form-control" required [(ngModel)]="InputForm.ApprovedAdvance" name="ApprovedAdvance" #ApprovedAdvance="ngModel" id="ApprovedAdvance">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-success" disabled *ngIf="!(OMForm.form.valid || OMForm.form.status == 'DISABLED')">{{FormType <= 1 ? 'Submit' : FormType == 2 ? 'Update' : FormType == 3 ? 'Approve' : 'Reject'}}</button>
+          <button class="btn btn-success" *ngIf="OMForm.form.valid || OMForm.form.status == 'DISABLED'" (click)="submitForm()">{{FormType <= 1 ? 'Submit' : FormType == 2 ? 'Update' : FormType == 3 ? 'Approve' : 'Reject'}}</button>
+        </div>
+      </form>
+    </div>
+</ng-template>

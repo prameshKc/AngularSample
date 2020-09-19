@@ -1,0 +1,78 @@
+﻿<div class="panel panel-default" *ngIf="isAccess == true">
+    <div class="panel-heading" (click)="formToggleFunc()">
+        <strong>Employee Generic Info</strong>
+        <i class="fa pull-right" [ngClass]="{'fa-chevron-down': formToggle != true,'fa-chevron-up': formToggle == true}"></i>
+    </div>
+    <div class="panel-body" *ngIf="formToggle == true">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Spouse Name</th>
+                        <th>Father Name</th>
+                        <th>Mother Name</th>
+                        <th>Grand Father Name</th>
+                        <th>No. of Children</th>
+                        <th *ngIf="isEditAccess">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input *ngIf="isEditAccess" required class="form-control input-sm" [(ngModel)]="InputEGI.SpouseName" type="text" />
+                            <div *ngIf="!isEditAccess" class="form-control input-sm">
+                                {{InputEGI.SpouseName}}
+                            </div>
+                        </td>
+                        <td>
+                            <input *ngIf="isEditAccess" required class="form-control input-sm" [(ngModel)]="InputEGI.FatherName" type="text" />
+                            <div *ngIf="!isEditAccess" class="form-control input-sm">
+                                {{InputEGI.FatherName}}
+                            </div>
+                        </td>
+                        <td>
+                            <input *ngIf="isEditAccess" required class="form-control input-sm" [(ngModel)]="InputEGI.MotherName" type="text" />
+                            <div *ngIf="!isEditAccess" class="form-control input-sm">
+                                {{InputEGI.MotherName}}
+                            </div>
+                        </td>
+                        <td>
+                            <input *ngIf="isEditAccess" required class="form-control input-sm" [(ngModel)]="InputEGI.GrandFatherName" type="text" />
+                            <div *ngIf="!isEditAccess" class="form-control input-sm">
+                                {{InputEGI.GrandFatherName}}
+                            </div>
+                        </td>
+                        <td>
+                            <input *ngIf="isEditAccess" required class="form-control input-sm" [(ngModel)]="InputEGI.NoOfChildren" type="number" />
+                            <div *ngIf="!isEditAccess" class="form-control input-sm">
+                                {{InputEGI.NoOfChildren}}
+                            </div>
+                        </td>
+                        <td class="text-center" *ngIf="isEditAccess">
+                            <div *ngIf="isUploading">
+                                <button class="btn btn-default btn-xs">
+                                    <i class="fa fa-spin fa-spinner"></i>
+                                </button>
+                            </div>
+                            <div *ngIf="isUploading == false">
+                                <div *ngIf="InputEGI.SpouseName && InputEGI.FatherName && InputEGI.MotherName && InputEGI.GrandFatherName">
+                                    <button class="btn btn-success btn-xs" (click)="addGenericInfo()" tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                                <div *ngIf="!(InputEGI.SpouseName && InputEGI.FatherName && InputEGI.MotherName && InputEGI.GrandFatherName)">
+                                    <button class="btn btn-success btn-xs" disabled tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel-footer" *ngIf="formToggle == true">
+        <button class="btn btn-danger btn-xs pull-right" (click)="initialize()">Reset</button>
+    </div>
+</div>

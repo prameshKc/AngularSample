@@ -1,0 +1,145 @@
+<div class="panel panel-default" *ngIf="isAccess == true">
+    <div class="panel-heading" (click)="formToggleFunc()">
+        <strong>Employee Experience</strong>
+        <i class="fa pull-right" [ngClass]="{'fa-chevron-down': formToggle != true,'fa-chevron-up': formToggle == true}"></i>
+    </div>
+    <div class="panel-body" *ngIf="formToggle == true">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Previous Post</th>
+                        <th>Organization Name</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Type of Work</th>
+                        <th>PDF Document</th>
+                        <th *ngIf="isEditAccess">Action</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="displayECList.length == 0">
+                    <!--Certificate List-->
+                    <tr>
+                        <td [colSpan]="isEditAccess ? 7 : 6" class="text-danger">
+                            No data available.
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="displayECList.length > 0">
+                    <!--Certificate List-->
+                    <tr *ngFor="let item of displayECList; let i = index">
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.PPost}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.OrganizationName}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                <date-view [inputDate]="item.StartDT"></date-view>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                <date-view [inputDate]="item.EndDT"></date-view>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-control input-sm">
+                                {{item.TypeOfWork}}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <a class="btn btn-xs btn-link" href="{{item.ExpDoc}}" target="_blank" *ngIf="item.ExpDoc != null">Download</a>
+                            <a class="btn btn-xs btn-link disabled" *ngIf="item.ExpDoc == null">-</a>
+                        </td>
+                        <td class="text-center" *ngIf="isEditAccess">
+                            <button class="btn btn-primary btn-xs" (click)="editExperience(item)" tooltip="Edit" container="body">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-xs" (click)="openDeleteModal(item.Id)" tooltip="Delete" container="body">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="isEditAccess">
+                    <tr>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEExp.PPost" type="text" />
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEExp.OrganizationName" type="text" />
+                        </td>
+                        <td>
+                            <div class="input-group-sm">
+                                <chaNepaliDatePicker id="Date" [inputDate]="startDTVM" [inputDatePickerOptions]="dateOptions" (selectedDate)='dateSelect($event,"StartDT")' *ngIf="startDTVM && dateOptions"></chaNepaliDatePicker>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group-sm">
+                                <chaNepaliDatePicker id="Date" [inputDate]="endDTVM" [inputDatePickerOptions]="dateOptions" (selectedDate)='dateSelect($event,"EndDT")' *ngIf="endDTVM && dateOptions"></chaNepaliDatePicker>
+                            </div>
+                        </td>
+                        <td>
+                            <input required class="form-control input-sm" [(ngModel)]="InputEExp.TypeOfWork" type="text" />
+                        </td>
+                        <td>
+                            <input type="file" class="form-control input-sm" accept="pdf" [(ngModel)]="ExpCert" (change)="onFileChange(ExpCert)" />
+                            <div class="text-danger">{{isValidFile}}</div>
+                        </td>
+                        <td class="text-center">
+                            <div *ngIf="isUploading">
+                                <button class="btn btn-default btn-xs">
+                                    <i class="fa fa-spin fa-spinner"></i>
+                                </button>
+                            </div>
+                            <div *ngIf="isUploading == false">
+                                <div *ngIf="InputEExp.PPost && InputEExp.OrganizationName && InputEExp.StartDT && InputEExp.EndDT && InputEExp.TypeOfWork && isValidFile == null">
+                                    <button class="btn btn-success btn-xs" (click)="addExperience()" tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                                <div *ngIf="!(InputEExp.PPost && InputEExp.OrganizationName && InputEExp.StartDT && InputEExp.EndDT && InputEExp.TypeOfWork && isValidFile == null)">
+                                    <button class="btn btn-success btn-xs" disabled tooltip="Save" container="body">
+                                        <i class="fa fa-save"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel-footer" *ngIf="formToggle == true">
+        <button class="btn btn-danger btn-xs pull-right" (click)="initialize()">Reset</button>
+    </div>
+</div>
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteChildModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Experience</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Experience?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-sm btn-success" (click)="delete()">Yes</button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="hideDeleteChildModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>

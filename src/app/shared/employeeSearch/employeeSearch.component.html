@@ -1,0 +1,92 @@
+﻿
+<div class="input-group">
+    <input autofocus [(ngModel)]="selected"
+           autocomplete="off"
+           (typeaheadOnSelect)="selectEmployee($event)"
+           [typeahead]="displayEmployeeList | async"
+           typeaheadOptionField="EmployeeName"
+           class="form-control input-sm"
+           [ngClass]="{'error-input':InputEmployee == null, 'success-input':InputEmployee != null}"
+           name="EmployeeName" #Employee="ngModel"
+           (ngModelChange)="searchEmployee($event);" />
+    <span class="input-group-btn" *ngIf="employeeSearchOption.showOpenModalButton == true">
+        <button class="btn btn-default btn-sm" type="button" (click)="openModal()">
+            <i class="fa fa-window-restore"></i>
+        </button>
+    </span>
+</div>
+<div bsModal #childModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div style="position: fixed; top: 0; left: 0; margin: -50vh -50vw;  height: 200vh; width: 200vw;" (click)="hideModal()"></div>
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5>
+                    <b>Employee List</b>
+                    <button class="btn btn-sm btn-default" (click)="reset()">
+                        <i class="fa fa-refresh"></i>
+                    </button>
+                </h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label for="name">Employee Name:</label>
+                        <div class="input-group">
+                            <input class="form-control input-sm" [(ngModel)]="searchText" (ngModelChange)="selected = null;filter($event);" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-default btn-sm" type="button" (click)="searchText = '';InputEmployee = null;filter($event);"><i class="fa fa-close"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label for="department">Department:</label>
+                        <select class="form-control input-sm" [(ngModel)]="InputDepartment" (ngModelChange)="filter($event)">
+                            <option value="">All</option>
+                            <option *ngFor="let item of svDepartmentList" value="{{item.DepartmentId}}">{{item.DepartmentName}}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-4">
+                        <label for="designation">Designation</label>
+                        <select class="form-control input-sm" [(ngModel)]="InputDesignation" (ngModelChange)="filter($event)">
+                            <option value="">All</option>
+                            <option *ngFor="let item of svDesignationList" value="{{item.DesignationId}}">{{item.DesignationName}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-body" style="padding: 5px 0px;">
+                    <div class="table-responsive">
+                        <table class="table table-condensed table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Employee Name</th>
+                                    <th>Department</th>
+                                    <th>Designation</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr *ngFor="let item of displayEmployeeList | async | searchfilter: 'EmployeeName' : searchText" (click)="InputEmployee = item; selectFrmModal();">
+                                    <td>{{item.EmployeeName}}</td>
+                                    <td>
+                                        {{item.DepartmentName ? item.DepartmentName : '-'}}
+                                    </td>
+                                    <td>
+                                        {{item.Designationname ? item.Designationname : '-'}}
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,105 @@
+<ol class="breadcrumb">
+  <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+  <li class="active"><i class="fa fa-list-ul"></i> Salary Sheet</li>
+</ol>
+<div class="container-fluid row">
+  <div class="col-xs-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <div class="row">
+          <div class="col-lg-6">
+            <h4>
+              Employee Food Allowance
+
+              <button class="btn btn-default btn-sm" (click)="exporToCSV()">
+                Export
+              </button>
+            </h4>
+
+          </div>
+          <div class="col-lg-3  col-lg-offset-3">
+            <label for="empName">Employee Name:</label>
+            <input id="empName" type="text" class="form-control input-sm" [(ngModel)]="filterByName" (ngModelChange)="searchFilter()" placeholder="Enter Employee Name" />
+          </div>
+        </div>
+      </div>
+      <div class="panel-body" style="padding-bottom: 0;">
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="row">
+              <label class="control-label col-sm-12" for="CompanyId">Company:</label>
+              <div class="col-sm-12">
+                <div [ngClass]="{'open':CBSelectIsExpand == true }">
+                  <input type="button" (click)="CBSelectIsExpand = !CBSelectIsExpand" class="form-control btn-block dropdown-toggle input-sm" name="CompanyId" placeholder="Select Company" [(ngModel)]="CompanyName">
+                  <div class="dropdown-menu" role="menu" *ngIf="CBSelectIsExpand">
+                    <companySelect [CompanyListObj]="CBList" (returnCompanyList)="selectBranch($event); CBSelectIsExpand = false;"></companySelect>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <picker-year-month [(filterByYear)]="filterByYear" [(filterByMonth)]="filterByMonth" (filterByYearChange)="getFA();" (filterByMonthChange)="getFA();"></picker-year-month>
+          </div>
+        </div>
+        <!--<br />
+        <div class="row">
+          <div class="col-lg-4 text-center">
+            <button class="btn btn-sm btn-default btn-block" (click)="getFA()">
+              View
+            </button>
+          </div>
+        </div>-->
+        <br />
+
+        <div class="alert alert-info" *ngIf="(filterByYear && filterByMonth) || filterByName">
+          Food Allowance is filtered by: <br />
+          <span *ngIf="compId">
+            Company Branch Name: <b>{{ filterByBranchName() }}</b>
+          </span><br>
+          <span *ngIf="filterByName">
+            Employee Name: <b>{{ filterByName }}</b>
+          </span>
+        </div>
+      </div>
+      <div class="panel-body" style="overflow: auto; padding-top: 0; padding-bottom: 0;">
+
+        <div>
+          <div class="table-responsive" *ngIf="thList.length != 0">
+            <table class="table table-bordered" style="white-space: nowrap; overflow: auto;">
+              <thead class="text-center">
+                <tr>
+                  <th *ngFor="let head of thList" class="text-center" (click)="sortSheet(head.svtitle)" style="white-space:nowrap;">
+                    {{head.title}}
+                    <i class="fa" [ngClass]="{'fa-sort-up': filterObj.Sort == 'true' && filterObj.SortingAttribute == head.svtitle, 'fa-sort-down': filterObj.Sort != 'true' && filterObj.SortingAttribute == head.svtitle, 'fa-sort': filterObj.SortingAttribute != head.svtitle }"></i>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of tempData; let i = index">
+                  <td *ngFor="let head of thList; let in = index">
+                    <div [ngClass]="{'text-right': head.money }">
+                      <span *ngIf="head.money">
+                        {{ (data[head.svtitle] ? data[head.svtitle] : 0.00) | NPRCurrency}}
+                      </span>
+                      <span *ngIf="!head.money">
+                        {{ data[head.svtitle] }}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col-sm-12" *ngIf="thList.length == 0">
+            <div class="alert alert-warning">
+              No Data Available
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

@@ -1,0 +1,141 @@
+<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Salary Sheet</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h4>
+                            Employee Salary Sheet:
+
+                            <button class="btn btn-default btn-sm" (click)="exporToCSV()">
+                                Export
+                            </button>
+                        </h4>
+
+                    </div>
+
+                    <div class="col-lg-6 text-right" *ngIf="salShtth.length > 0 && isLoading == false && isVerified == false">
+                        <button class="btn btn-success" (click)="processSalSheet('V')">
+                            Verify Salary Sheet
+                        </button>
+
+                        <button class="btn btn-danger" (click)="processSalSheet('D')">
+                            Delete Salary Sheet
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body" style="padding-bottom: 0;">
+                <div class="row">
+
+                    <div class="col-lg-9">
+                        <div class="form-horizontal">
+
+
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <picker-year-month [(filterByYear)]="filterByYear" [(filterByMonth)]="filterByMonth"></picker-year-month>
+                                </div>
+                                <!--<div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label for="Year" class="control-label col-lg-3 text-center">Year:</label>
+                                        <div class="col-lg-8">
+                                            <select id="Year" class="form-control input-sm" [(ngModel)]="filterByYear">
+                                                <option value="{{item.NYear}}" *ngFor="let item of yearList">{{item.NYear}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label for="Month" class="control-label col-lg-3 text-center">Month:</label>
+                                        <div class="col-lg-8">
+                                            <select id="Month" class="form-control input-sm" [(ngModel)]="filterByMonth">
+                                                <option value="{{item.Id}}" *ngFor="let item of monthList">{{item.NepMonthName}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>-->
+                                <div class="col-lg-2" *ngIf="isLoading != true">
+                                    <button class="btn btn-sm btn-default" (click)="getSalSht()">
+                                        View
+                                    </button>
+                                </div>
+                                <span class="col-lg-2" *ngIf="isLoading == true">
+                                    <button class="btn btn-sm btn-default disabled">
+                                        <i class="fa fa-spin fa-circle-o-notch"></i> Loading
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <input type="text" class="form-control" [(ngModel)]="filterByName" (ngModelChange)="searchFilter()" placeholder="Enter Employee Name" />
+                    </div>
+                </div>
+
+                <div class="alert alert-info" *ngIf="(filterByYear && filterByMonth) || filterByName">
+                    Salary Sheet is filtered by: <br />
+                    <span *ngIf="filterByYear && filterByMonth">
+                        Month: <b>{{ filterByYearLabel() }}</b>
+                    </span><br />
+                    <span *ngIf="filterByName">
+                        Employee Name: <b>{{ filterByName }}</b>
+                    </span>
+                </div>
+            </div>
+            <div class="panel-body" style="overflow: auto; padding-top: 0; padding-bottom: 0;">
+                <div *ngIf="salShtth.length != 0" class="table-responsive">
+                  <table class="table table-bordered table-hover table-striped table-condensed" style="white-space: nowrap; overflow: auto;">
+                    <thead class="text-center">
+                      <tr>
+                        <th *ngFor="let tableHeadItem of tableHead" [attr.colspan]="tableHeadItem.thColspan" class="text-center">
+                          {{tableHeadItem.th}}
+                        </th>
+
+                      </tr>
+                      <tr>
+                        <th *ngFor="let head of salShtth" class="text-center" (click)="sortSheet(head.svtitle)" style="white-space:nowrap;">
+                          {{head.title}}
+
+                          <i class="fa" [ngClass]="{'fa-sort-up': filterObj.Sort == 'true' && filterObj.SortingAttribute == head.svtitle, 'fa-sort-down': filterObj.Sort != 'true' && filterObj.SortingAttribute == head.svtitle, 'fa-sort': filterObj.SortingAttribute != head.svtitle }"></i>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let data of tempSSData; let i = index">
+                        <td *ngFor="let head of salShtth; let in = index">
+                          <div *ngIf="tempSSData.length != (i+1)" [ngClass]="{'text-right': in > 3}">
+                            <span *ngIf="head.AM != 0" [title]="head.svtitle">
+                              {{(data[head.svtitle] ? data[head.svtitle] : 0.00) | NPRCurrency}}
+                            </span>
+                            <span *ngIf="head.AM == 0" [title]="head.svtitle">
+                              {{data[head.svtitle]}}
+                            </span>
+                          </div>
+                          <div *ngIf="tempSSData.length == (i+1)" [ngClass]="{'text-right': in > 3}">
+                            <b>{{(data[head.svtitle] != '' && data[head.svtitle] != 'Total' ? (data[head.svtitle]  | NPRCurrency) : '')}}</b>
+                            <b>{{data[head.svtitle] != '' && data[head.svtitle] == 'Total' ? data[head.svtitle] : ''}}</b>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div *ngIf="message">
+                    <div class="alert alert-warning">
+                        {{message}}
+                    </div>
+                </div>
+                <div *ngIf="isLoading == true" class="well well-sm text-center">
+                    <i class="fa fa-spin fa-circle-o-notch"></i> Loading
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

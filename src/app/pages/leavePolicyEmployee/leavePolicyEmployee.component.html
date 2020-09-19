@@ -1,0 +1,239 @@
+<ol class="breadcrumb">
+  <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+  <li class="active"><i class="fa fa-list-ul"></i> Leave Policy For Employee</li>
+</ol>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-sm-6">
+            <button class="btn btn-sm btn-default" (click)="openAddModal()" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Employee Leave Policy</button>
+          </div>
+          <div class="col-sm-3"></div>
+          <div class="col-sm-3 text-right">
+            <!--<picker-year-month [(filterByYear)]="filterByYear" [hideMonth]="true" (filterByYearChange)="yearSelect();"></picker-year-month>-->
+            <label class="control-label col-sm-4" for="CalendarYear">Leave Policy For Year:</label>
+            <div *ngIf="isFiscalYear==false" class="col-sm-8">
+              <select id="leaveType" class="form-control" required [(ngModel)]="filterByYear" (ngModelChange)="yearSelect()" name="CalendarYear" #CalendarYear="ngModel">
+                <option value="{{item.NYear}}" *ngFor="let item of NepaliFiscalYearList">{{item.NYear}}</option>
+              </select>
+            </div>
+            <div *ngIf="isFiscalYear==true" class="col-sm-8">
+              <select id="leaveType" class="form-control" required [(ngModel)]="filterByYear" (ngModelChange)="yearSelect()" name="CalendarYear" #CalendarYear="ngModel">
+                <option value="{{item.FyName}}" *ngFor="let item of NepaliFiscalYearList2">{{item.FyName}}</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <hr style="border:1px solid #5cb85c; margin: 10px 15px 5px;" />
+      <div class="panel-body">
+        <div class="col-lg-12 table-container">
+          <table class="table table-bordered table-hover table-striped table-condensed">
+            <thead>
+              <tr>
+                <th><span (click)="sortBy('Employee/EmployeeNo')">Employee No</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/EmployeeNo')"></span></th>
+                <th><span (click)="sortBy('Employee/FirstName')">Employee Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('Employee/FirstName')"></span></th>
+                <th><span (click)="sortBy('LoginStatus/StatusName')">Leave Type</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('LoginStatus/StatusName')"></span></th>
+                <th><span (click)="sortBy('CalendarYear')">Calendar Year</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('CalendarYear')"></span></th>
+                <th><span (click)="sortBy('PreviousBalance')">Previous Balance</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('PreviousBalance')"></span></th>
+                <th><span (click)="sortBy('EligibleLeave')">Eligible Leave</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('EligibleLeave')"></span></th>
+                <th><span (click)="sortBy('EarnLeave')">Earn Leave</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('EarnLeave')"></span></th>
+                <th><span (click)="sortBy('CosumeLeave')">Cosume Leave</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('CosumeLeave')"></span></th>
+                <!--<th class="text-center">Action</th>-->
+              </tr>
+            </thead>
+            <tbody *ngIf="leavePolicyEmployeeList.length > 0">
+              <tr *ngFor="let item of leavePolicyEmployeeList">
+                <td>
+                  {{item.Employee.EmployeeNo}}
+                </td>
+                <td>
+                  {{item.Employee.FirstName}} {{item.Employee.MiddleName}} {{item.Employee.LastName}}
+                </td>
+                <td>
+                  {{item.LoginStatus.StatusName}}
+                </td>
+                <td>
+                  {{item.CalendarYear}}
+                </td>
+                <td>
+                  {{item.PreviousBalance}}
+                </td>
+                <td>
+                  {{item.EligibleLeave}}
+                </td>
+                <td>
+                  {{item.EarnLeave}}
+                </td>
+                <td>
+                  {{item.CosumeLeave}}
+                </td>
+                <!--<td class="text-center">
+                    <button class="btn btn-xs btn-info" tooltip="Edit Leave Policy Employee" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                </td>-->
+              </tr>
+            </tbody>
+            <tbody *ngIf="leavePolicyEmployeeList.length == 0">
+              <tr>
+                <td colspan="8">
+                  <div class="text-warning">No items available</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+      </div>
+    </div>
+  </div>
+</div>
+<div bsModal #LeavePolicyEmployeeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+    <div class="modal-content">
+      <form #bookForm="ngForm" class="form-horizontal">
+        <div class="modal-header">
+          <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h5 *ngIf="isAddLeavePolicyEmployee==true"><strong>Add Employee Leave Policy</strong></h5>
+          <h5 *ngIf="isEditLeavePolicyEmployee==true"><strong>Edit Employee Leave Policy </strong></h5>
+        </div>
+        <div class="modal-body" style="font-size:12px;">
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="control-label col-sm-4" for="CalendarYear">Leave Policy For Year:</label>
+              <div *ngIf="isFiscalYear==false" class="col-sm-8">
+                <select id="leaveType" class="form-control" required [(ngModel)]="InputLeavePolicyEmployee.CalendarYear" (ngModelChange)="onCalendarYearChange()" name="CalendarYear" #CalendarYear="ngModel">
+                  <option value="{{item.NYear}}" *ngFor="let item of NepaliFiscalYearList">{{item.NYear}}</option>
+                </select>
+              </div>
+              <div *ngIf="isFiscalYear==true" class="col-sm-8">
+                <select id="leaveType" class="form-control" required [(ngModel)]="InputLeavePolicyEmployee.CalendarYear" (ngModelChange)="onCalendarYearChange()" name="CalendarYear" #CalendarYear="ngModel">
+                  <option value="{{item.FyName}}" *ngFor="let item of NepaliFiscalYearList2">{{item.FyName}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="showLeaveType==true">
+              <label class="control-label col-sm-4" for="Name">Leave Type:</label>
+              <div class="col-sm-8" *ngIf="leaveTypeList.length > 0">
+                <select id="leaveType" class="form-control" required [(ngModel)]="InputLeavePolicyEmployee.LeaveId" (ngModelChange)="onLeaveTypeChange($event)" name="LeaveTypeId" #LeaveTypeId="ngModel">
+                  <option value="{{item.LoginStatusId}}" *ngFor="let item of leaveTypeList">{{item.StatusName}}</option>
+                </select>
+                <div *ngIf="LeaveTypeId.errors && (LeaveTypeId.dirty || LeaveTypeId.touched)" class="alert alert-danger">
+                  <div [hidden]="!LeaveTypeId.errors.required">
+                    Leave Type is required !
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-8" *ngIf="leaveTypeList.length==0">
+                <span class="form-control text-warning">No Leave Policy has been Created</span>
+              </div>
+            </div>
+            <div class="form-group well" *ngIf="showLeaveTypeDetails==true">
+              <div class="col-md-5">
+                <label>Policy Created On: </label>
+                {{showLeavePolicy.CalendarYear}}
+              </div>
+              <div class="col-md-7">
+                <label>Policy Effective From: </label>
+                <span>
+                  <date-view [inputDate]="showLeavePolicy.EffectiveDate"></date-view>
+                </span>
+              </div>
+              <div class="col-md-5">
+                <label>No of Days: </label>
+                {{showLeavePolicy.NoOfDays}}
+              </div>
+              <div class="col-md-7">
+                <label>Service Type: </label>
+                {{showLeavePolicy.LeaveServiceType.ServiceName}}
+              </div>
+              <div class="col-md-4">
+                <label>Is Accumulated: </label>
+                {{showLeavePolicy.IsAccumulation}}
+              </div>
+              <div class="col-md-4">
+                <label>Need to Earn: </label>
+                {{showLeavePolicy.IsEarnleave}}
+              </div>
+              <div class="col-md-4">
+                <label>Compensable: </label>
+                {{showLeavePolicy.IsCompensationLeave}}
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-4" for="Name">Employee Name:</label>
+              <div class="col-sm-8">
+                <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                <div [hidden]="isDuplicateEntry==false" class="alert alert-danger">
+                  Employee already has the leave policy.
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-4" for="Name">Effective Date:</label>
+              <div class="col-sm-8">
+                <chaNepaliDatePicker id="leaveDate" [inputDate]="inputEffectiveDate" [inputDatePickerOptions]="inputEffectiveDateOptions" (selectedDate)='onLeaveEffectiveDateSelect($event)' *ngIf="inputEffectiveDate && inputEffectiveDateOptions"></chaNepaliDatePicker>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-4" for="PreviousBalance">Previous Balance:</label>
+              <div class="col-sm-8">
+                <input type="text" id="PreviousBalance" class="form-control" [(ngModel)]="InputLeavePolicyEmployee.PreviousBalance" (ngModelChange)="checkDecimal(InputLeavePolicyEmployee.PreviousBalance,1)" name="PreviousBalance" #PreviousBalance="ngModel" />
+                <div [hidden]="validFormatPreviousBal" class="alert alert-danger">
+                  Numerical Value is required!!
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-4" for="EligibleLeave">Eligible Leave:</label>
+              <div class="col-sm-8">
+                <input type="text" id="EligibleLeave" class="form-control" required [(ngModel)]="InputLeavePolicyEmployee.EligibleLeave" (ngModelChange)="onEligibleLeaveChange($event)" name="EligibleLeave" #EligibleLeave="ngModel" />
+                <div *ngIf="EligibleLeave.errors && (EligibleLeave.dirty || EligibleLeave.touched)" class="alert alert-danger">
+                  <div [hidden]="!EligibleLeave.errors.required">
+                    Eligible Leave is required !
+                  </div>
+                </div>
+                <div [hidden]="!invalidEligibleLeave" class="alert alert-danger">
+                  Eligible Leave should not exceed {{validEligibleLeave}}
+                </div>
+                <div [hidden]="validFormatEligibleLeave" class="alert alert-danger">
+                  Numerical Value is required!!
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-4" for="EarnLeave">Earn Leave:</label>
+              <div class="col-sm-8">
+                <input type="text" id="EarnLeave" class="form-control" [(ngModel)]="InputLeavePolicyEmployee.EarnLeave" (ngModelChange)="checkDecimal(InputLeavePolicyEmployee.EarnLeave,3)" name="EarnLeave" #EarnLeave="ngModel" />
+                <div [hidden]="validFormatEarnLeave" class="alert alert-danger">
+                  Numerical Value is required!!
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-4" for="CosumeLeave">Consume Leave:</label>
+              <div class="col-sm-8">
+                <input type="text" id="CosumeLeave" class="form-control" [(ngModel)]="InputLeavePolicyEmployee.CosumeLeave" (ngModelChange)="checkDecimal(InputLeavePolicyEmployee.CosumeLeave,4)" name="CosumeLeave" #CosumeLeave="ngModel" />
+                <div [hidden]="validFormatConsumeLeave" class="alert alert-danger">
+                  Numerical Value is required!!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button *ngIf="isAddEditToggle==false" type="submit" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success" (click)="saveLeavePolicyEmployee(InputLeavePolicyEmployee)">Save</button>
+          <!--<button *ngIf="isAddEditToggle==true" type="submit" (click)="editLeavePolicyE(InputLeavePolicyEmployee)" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success">Edit</button>-->
+          <button type="button" class="btn btn-xs btn-danger" (click)="hideModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

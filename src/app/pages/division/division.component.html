@@ -1,0 +1,271 @@
+﻿<ol class="breadcrumb" *ngIf="currentDivision == null">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><a href="#/layout/division"><i class="fa fa-list-ul"></i> Division</a></li>
+    <li class="active"><a (click)="getDisplayDivision();"><i class="fa fa-list-ul"></i> Root</a></li>
+</ol>
+<ol class="breadcrumb" *ngIf="currentDivision != null">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><a href="#/layout/divisionSetup"><i class="fa fa-list-ul"></i> Division</a></li>
+    <li class="active"><a (click)="getDisplayDivision();"><i class="fa fa-list-ul"></i> Root</a></li>
+    <li class="active" *ngFor="let items of currentDivision.fileDepthFolders"><a (click)="getDivisionFrmChild(items)"><i class="fa fa-list-ul"></i> {{items.DivisionName}}</a></li>
+</ol>
+
+<div class="panel panel-default">
+    <div class="panel-body" style="margin: 5px;">
+        <div class="row">
+            <button class="btn btn-sm btn-default" (click)="toggleListVsIcon = !toggleListVsIcon"><span class="glyphicon" [ngClass]="{'glyphicon-th':!toggleListVsIcon, 'glyphicon-th-list':toggleListVsIcon}"></span></button>
+            <div class="col-sm-5">
+                <button class="btn btn-sm btn-default" (click)="back(parentId)" *ngIf="parentId != null" tooltip="Back" placement="top"><i class="glyphicon glyphicon-backward"></i></button>
+                <button class="btn btn-sm btn-default" (click)="openAddModal()" tooltip="Add Division" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Division</button>
+            </div>
+            <div class="col-sm-3 text-right">
+                <form class="form-inline pull">
+                    <label for="sort" class="text-left">Sort </label>
+                    <select name="sort" id="sort" class="form-control input-sm btn-default" [(ngModel)]="filterObj.Sort" (ngModelChange)="filterData()">
+                        <option value="">Select...</option>
+                        <option value="true">Ascending</option>
+                        <option value="false">Decending</option>
+                    </select>
+                </form>
+            </div>
+            <div class="col-sm-3 text-right">
+                <input type="text" class="form-control input-sm" placeholder="Enter Division" [(ngModel)]="filterObj.Name" (ngModelChange)="getDisplayDivision(parentId)">
+            </div>
+        </div>
+    </div>
+    <hr style="border:1px solid #5cb85c; margin: 10px 15px 5px;" />
+    <div class="panel-body" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '')" style="padding: 0;">
+        <div class="col-lg-12">
+            <div class="alert alert-info" style="margin: 0;">
+                <div>
+                    <button class="close pull-right" (click)="filterObj = { Name: '', Sort: '' }; getDisplayDivision(parentId);"><i class="fa fa-times"></i></button>
+                    <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                    <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')"><b>Sorted By:</b> {{filterObj.Sort == 'true' ? 'Division Name ascending' : 'Division Name descending'}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body row">
+        <div class="col-lg-3 hidden-md hidden-sm hidden-xs">
+            <div class="panel panel-success">
+                <div class="panel-heading"><i class="glyphicon glyphicon-star-empty"></i><strong> Quick Access</strong></div>
+                <div class="panel-body" style="text-overflow:ellipsis; width: 100%; overflow: hidden; ">
+                    <ul style="list-style:none; padding: 0px 0px 0px 6px; border-left: 1px solid #333;" *ngIf="qaDivisionList.length > 0">
+                        <li style="margin: 5px 3px;">
+                            <a (click)="getDisplayDivision();" style="padding: 3px; border-radius: 2px;" [ngClass]="{ 'bg-primary': parentId == null, 'text-muted': parentId != null}">
+                                <i class="fa fa-folder"></i>
+                                Root
+                            </a>
+                            <childDivision [divisionListObj]="qaDivisionList" (returnDivisionList)="getDivisionFrmChild($event);"></childDivision>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9 col-md-12">
+            <div class="panel panel-success">
+                <div class="panel-heading" *ngIf="currentDivision == null">
+                    <strong>Path: </strong> <i>Root </i>
+                </div>
+                <div class="panel-heading" *ngIf="currentDivision != null">
+                    <strong>Path: </strong> <i>Root</i><i *ngFor="let item of currentDivision.fileDepthFolders"> / {{item.DivisionName}}</i>
+                </div>
+                <div class="panel-body">
+                    <div *ngIf="!toggleListVsIcon">
+                        <div *ngFor="let treeDiv of displayDivisionList | searchfilter: 'DivisionName' : filterObj.Name" class="col-lg-2 col-md-4 col-sm-6 text-center">
+                            <div class="row">
+                                <div class="text-center">
+                                    <div class="col-lg-12" *ngIf="treeDiv.isGroup == true">
+                                        <img src="/Images/folder.png" class="img-responsive" style="height:70px;width:auto; margin: auto !important;" (click)="getDisplayDivision(treeDiv.DivisionId)" />
+                                        <a (click)="getDisplayDivision(treeDiv.DivisionId)" style="color:#333;cursor:pointer;font-size:11px; text-overflow: ellipsis; max-width: 54px;">{{treeDiv.DivisionName}}</a>
+                                    </div>
+                                    <div class="col-lg-12" *ngIf="treeDiv.isGroup != true">
+                                        <img src="/Images/file.png" class="img-responsive" style="height:70px;width:auto; margin: auto !important;" (click)="getDivision(treeDiv.DivisionId)" />
+                                        <a (click)="openEditModal(treeDiv.DivisionId)" style="color:#333;cursor:pointer;font-size:11px; text-overflow: ellipsis; max-width: 54px;">{{treeDiv.DivisionName}}</a>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <button class="btn btn-xs btn-info" (click)="openEditModal(treeDiv.DivisionId)" tooltip="Edit Division" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                        <button class="btn btn-xs btn-danger" (click)="openDeleteModal(treeDiv.DivisionId)" tooltip="Delete Division" placement="top"><span class="glyphicon glyphicon-trash"></span></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" *ngIf="toggleListVsIcon">
+                        <div class="col-lg-12">
+                            <table class="table table-bordered table-hover" *ngIf="displayDivisionList.length > 0" style="margin: 0;">
+                                <thead>
+                                    <tr>
+                                        <th>Division Name</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let treeDiv of displayDivisionList | searchfilter: 'DivisionName' : filterObj.Name">
+                                        <td (click)="getDisplayDivision(treeDiv.DivisionId)" *ngIf="treeDiv.isGroup == true">
+                                            <i class="fa fa-folder"></i>
+                                            {{treeDiv.DivisionName}}
+                                        </td>
+                                        <td (click)="openEditModal(treeDiv.DivisionId)" *ngIf="treeDiv.isGroup != true">
+                                            <i class="fa fa-file"></i>
+                                            {{treeDiv.DivisionName}}
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-xs btn-info" (click)="openEditModal(treeDiv.DivisionId)" tooltip="Edit Division" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                            <button class="btn btn-xs btn-danger" (click)="openDeleteModal(treeDiv.DivisionId)" tooltip="Delete Division" placement="top"><span class="glyphicon glyphicon-trash"></span></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+
+                    <div *ngIf="(displayDivisionList | searchfilter: 'DivisionName' : filterObj.Name ).length == 0">
+                        <div class="text-warning">No items available</div>
+                    </div>
+                </div>
+                <div class="panel-footer" *ngIf="pagination.TotalPage > 0">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination" style="padding:0px; margin: 0px;">
+                            <li class="col-md-1" style="padding-right:0px;">
+                                <button class="btn btn-default" aria-label="Previous" (click)="gotoPage(pagination.CurrentPage-1)">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </button>
+                            </li>
+                            <li class="col-md-3" style="padding-left:0px;padding-right:0px;">
+                                <div class="input-group">
+                                    <input type="number" max="{{pagination.TotalPage}}" min="1" [(ngModel)]="pagination.CurrentPage" (ngModelChange)="gotoPage(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                                    <span class="input-group-addon" id="basic-addon2">of {{pagination.TotalPage}} page(s)</span>
+                                </div>
+                            </li>
+                            <li class="col-md-1">
+                                <button class="btn btn-default" aria-label="Next" (click)="gotoPage(pagination.CurrentPage+1)">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <!--pagination-->
+    </div>
+</div>
+
+<div bsModal #childModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideChildModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddDivision == true;"><strong>Add Division</strong></h5>
+                <h5 *ngIf="isEditDivision == true;"><strong>Edit Division</strong></h5>
+                <p *ngIf="isEditDivision == true && hasSubitem(InputDivision.DivisionId)" class="text-warning">Some fields have been disabled because it consists of child division.</p>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="parentId">Parent Name:</label>
+                            <div class="col-sm-8">
+                                <div class="well well-sm" *ngIf="isEditDivision == true && hasSubitem(InputDivision.DivisionId) == true">
+                                    <div *ngIf="InputDivision.ParentId != null">
+                                        <div *ngIf="selectDivisionList.length > 0">
+                                            <div *ngFor="let divisionGroupitem of selectDivisionList">
+                                                <div *ngIf="divisionGroupitem.DivisionId == InputDivision.ParentId">
+                                                    {{divisionGroupitem.DivisionName}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="InputDivision.ParentId == null">
+                                        Root
+                                    </div>
+                                </div>
+                                <div class="well well-sm" style="max-height: 150px; overflow: auto;" *ngIf="isAddDivision == true || (isEditDivision == true && hasSubitem(InputDivision.DivisionId) != true)">
+                                    <ul style="list-style:none; padding-left: 6px; border-left: 1px solid #333;" *ngIf="selectDivisionList.length > 0">
+                                        <li>
+                                            <input id="parentRoot" type="radio" [checked]="InputDivision.ParentId == null || InputDivision.ParentId == undefined" (click)="getDivisionFrmSelectChild()" />
+                                            <label for="parentRoot" (click)="InputDivision.ParentId = null;">
+                                                Root
+                                            </label>
+                                            <selectChildDivision [divisionListObj]="selectDivisionList" (returnDivisionList)="getDivisionFrmSelectChild($event);"></selectChildDivision>
+                                        </li>
+                                    </ul>
+                                    <ul *ngIf="selectDivisionList.length == 0">
+                                        <li>
+                                            Root
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="DivisionName">Division Name:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="DivisionName" placeholder="Enter division name" required minlength="3" maxlength="30" [(ngModel)]="InputDivision.DivisionName" name="DivisionName" #DivisionName="ngModel" />
+                                <div *ngIf="DivisionName.errors && (DivisionName.dirty || DivisionName.touched)" class="alert alert-danger">
+                                    <div [hidden]="!DivisionName.errors.required">
+                                        Division name is required !
+                                    </div>
+                                    <div [hidden]="!DivisionName.errors.minlength">
+                                        Division name must be at least 3 characters long!
+                                    </div>
+                                    <div [hidden]="!DivisionName.errors.maxlength">
+                                        Division name cannot be more than 30 characters long!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="isGrp">Is Group:</label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" id="isGrp" [(ngModel)]="InputDivision.isGroup" name="isGroup" #isGroup="ngModel" [disabled]="hasSubitem(InputDivision.DivisionId) && InputDivision.DivisionId != null" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddDivision===true" type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="saveDivision()">Save</button>
+                <button *ngIf="isEditDivision==true" type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-warning" (click)="updateDivision()">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideChildModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteChildModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Division</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Division?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteDivision()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteChildModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="isLoading == true" [config]="{ show: true, backdrop: true, ignoreBackdropClick: true, keyboard: false }" bsModal #loadingModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <h5><i class="fa fa-spinner fa-pulse fa-spin fa-2x"></i></h5>
+    <div class="modal-dialog modal-lg text-center">
+        <h5 style="color: white;"><i class="fa fa-spinner fa-pulse fa-spin fa-3x"></i></h5>
+    </div>
+</div>
+

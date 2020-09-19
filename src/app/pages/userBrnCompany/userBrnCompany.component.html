@@ -1,0 +1,177 @@
+<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> User Branch Setup</li>
+</ol>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="panel panel-default ">
+            <div class="panel-body">
+                <div class="row">
+                    <button class="btn btn-sm btn-default" (click)="toggleListVsIcon = !toggleListVsIcon"><span class="glyphicon" [ngClass]="{'glyphicon-th':!toggleListVsIcon, 'glyphicon-th-list':toggleListVsIcon}"></span></button>
+                    <div class="col-sm-5">
+                        <!--<button class="btn btn-sm btn-default" (click)="back(parentId)" *ngIf="parentId != null" tooltip="Back" placement="top"><i class="glyphicon glyphicon-backward"></i></button>-->
+                        <!--<button class="btn btn-sm btn-default" (click)="openAddModal()" tooltip="Add Menu Template" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Menu Template</button>-->
+                    </div>
+                    <div class="col-sm-3 text-right">
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <input type="text" class="form-control input-sm" placeholder="Enter Search Parameter" [(ngModel)]="filterObj.Name">
+                        <!--<div class="input-group input-group-sm pull-right">
+                            <input class="input-sm" type="submit" (click)="filter()" hidden />
+                            <span class="input-group-addon" tooltip="Search" placement="top" (click)="filter()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>-->
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close pull-right" (click)="filterObj = { Name: '', Sort: '' }"><i class="fa fa-times"></i></button>
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')"><b>Sorted By:</b> {{filterObj.Sort == 'true' ? 'Menu Template Name ascending' : 'Menu Template Name descending'}}</p>
+                    </div>
+                </div>
+                <div *ngIf="toggleListVsIcon == false">
+                    <div *ngFor="let item of branchMngrList | searchfilter: 'UserName' : filterObj.Name" class="col-xs-2 text-center">
+                        <div class="row text-center">
+                            <div class="col-lg-12">
+                                <img src="..//Images/User.png" class="img-responsive" style="height:70px;width:auto; margin: auto !important;" />
+                                <a (click)="openEditModal(item.CompanyId)" style="color:black;cursor:pointer;font-size:11px; text-overflow: ellipsis; max-width: 54rem;">
+                                    <b>
+                                        <employee-name [employeeId]="item.EmployeeId"></employee-name>
+                                    </b>
+                                    <br />
+                                    [ {{item.UserName}} ]
+                                </a>
+                            </div>
+                            <div class="col-lg-12">
+                                <button class="btn btn-xs btn-info" (click)="openEditModal(item.Id)" tooltip="Edit User Branches" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="toggleListVsIcon == true">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Branch Manager</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of branchMngrList | searchfilter: 'UserName' : filterObj.Name">
+                                <td>
+                                    <b>
+                                        <employee-name [employeeId]="item.EmployeeId"></employee-name>
+                                    </b>
+                                    <br />
+                                    [ {{item.UserName}} ]
+                                </td>
+                                <td>
+                                    <button class="btn btn-xs btn-info" (click)="openEditModal(item.Id)" tooltip="Edit User Branches" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div *ngIf="branchMngrList.length == 0">
+                    <div class="text-warning">No items available</div>
+                </div>
+            </div>
+            <div class="panel-footer" *ngIf="pagination.TotalPage > 0">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination" style="padding:0px; margin: 0px;">
+                        <li class="col-md-1" style="padding-right:0px;">
+                            <button class="btn btn-default" aria-label="Previous" (click)="gotoPage(pagination.CurrentPage-1)">
+                                <span aria-hidden="true">&laquo;</span>
+                            </button>
+                        </li>
+                        <li class="col-md-3" style="padding-left:0px;padding-right:0px;">
+                            <div class="input-group">
+                                <!--<input type="number" *ngIf="pagination.TotalPage == 0" max="{{pagination.TotalPage}}" min="1" value="0" (ngModelChange)="gotoPage(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">-->
+
+
+                                <input type="number" max="{{pagination.TotalPage}}" min="1" [(ngModel)]="pagination.CurrentPage" (ngModelChange)="gotoPage(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                                <span class="input-group-addon" id="basic-addon2">of {{pagination.TotalPage}} page(s)</span>
+                            </div>
+                        </li>
+                        <li class="col-md-1">
+                            <button class="btn btn-default" aria-label="Next" (click)="gotoPage(pagination.CurrentPage+1)">
+                                <span aria-hidden="true">&raquo;</span>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <!--pagination-->
+    </div>
+</div>
+<div bsModal #childModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <form #bookForm="ngForm" class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" aria-label="Close" (click)="hideChildModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h5>
+                        <strong>Edit User Branches:</strong>
+                    </h5>
+                </div>
+                <div class="modal-body" style="font-size:12px;">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="Name">Select Menu:</label>
+                            <div class="col-sm-9 well well-sm" style="max-height: 200px; overflow-y: auto;">
+                                <selectCompany [CompanyListObj]="dispCompanyList"></selectCompany>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" *ngIf="bookForm.form.valid && saving == false" class="btn btn-xs btn-warning" (click)="editCompany()">Edit</button>
+                    <button type="submit" *ngIf="!bookForm.form.valid && saving == true" class="btn btn-xs btn-warning" disabled>Edit</button>
+                    <button type="button" class="btn btn-xs btn-danger" (click)="hideChildModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!--<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteChildModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Company</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Company?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteCompany()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteChildModal()">No</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>-->
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>
+
+
+<div *ngIf="isLoading == true" [config]="{ show: true, backdrop: true, ignoreBackdropClick: true, keyboard: false }" bsModal #loadingModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <h5><i class="fa fa-spinner fa-pulse fa-spin fa-2x"></i></h5>
+    <div class="modal-dialog modal-lg text-center">
+        <h5 style="color: white;"><i class="fa fa-spinner fa-pulse fa-spin fa-3x"></i></h5>
+    </div>
+</div>
+

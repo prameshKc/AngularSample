@@ -1,0 +1,605 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Login Group</li>
+</ol>
+
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" (click)="openLoginGroupModal()" tooltip="Add Login Group" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Login Group</button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <form class="form-inline pull">
+                            <label for="search" class="text-left">Search By:</label>
+                            <select name="search" id="search" class="form-control input-sm btn-default" [(ngModel)]="filterObj.SearchBy ">
+                                <option value="">Select...</option>
+                                <option value="ShiftName">Shift Name</option>
+                                <option value="GroupName">Group Name</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Search Parameter" [(ngModel)]="filterObj.Name" (ngModelChange)="filterLoginGroup()">
+                            <input class="input-sm" type="submit" (click)="filterLoginGroup()" hidden />
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterLoginGroup()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="loginGroupAndFilter()"><i class="fa fa-times"></i></button>
+
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                            <b>Sorted By:</b>
+                            {{filterObj.SortingAttribute == 'LoginShift/ShiftName' ? 'Login Shift Name' : ''}}
+                            {{filterObj.SortingAttribute == 'GroupName' ? 'Group Name' : ''}}
+                            {{filterObj.SortingAttribute == 'WeekHoliday' ? 'Week Holiday' : ''}}
+                            {{filterObj.SortingAttribute == 'DefaultOfficeHourFrom' ? 'Default Office Hour From' : ''}}
+                            {{filterObj.SortingAttribute == 'WeeklyHalfHoliday' ? 'Half Holiday' : ''}}
+                            {{filterObj.SortingAttribute == 'HalfHolidayOfficeHourFrom' ? 'Half Holiday Office Hour From' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-bordered table-hover table-striped table-condensed">
+                            <thead>
+                                <tr>
+                                    <th><span (click)="sortBy('LoginShift/ShiftName')">Shift Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('LoginShift/ShiftName')"></span></th>
+                                    <th><span (click)="sortBy('GroupName')">Group Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('GroupName')"></span></th>
+                                    <th><span (click)="sortBy('WeekHoliday')">Week Holiday</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('WeekHoliday')"></span></th>
+                                    <th><span (click)="sortBy('DefaultOfficeHourFrom')">Default Office Time</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('DefaultOfficeHourFrom')"></span></th>
+                                    <th><span (click)="sortBy('WeeklyHalfHoliday')">Half Holiday</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('WeeklyHalfHoliday')"></span></th>
+                                    <th><span (click)="sortBy('HalfHolidayOfficeHourFrom')">Half Holiday Time</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('HalfHolidayOfficeHourFrom')"></span></th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of loginGroupList">
+                                    <td>{{item.LoginShift.ShiftName}}</td>
+                                    <td>{{item.GroupName}}</td>
+                                    <td>{{item.WeekHoliday}}</td>
+                                    <td>{{item.DefaultOfficeHourFrom}} To {{item.DefaultOfficeHourTill}}</td>
+                                    <td>{{item.WeeklyHalfHoliday ? item.WeeklyHalfHoliday : '-' }}</td>
+                                    <td>{{item.HalfHolidayOfficeHourFrom ? item.HalfHolidayOfficeHourFrom :'-' }} To {{item.HalfHolidayOfficeHourTill ? item.HalfHolidayOfficeHourTill : '-'}}</td>
+                                    <td>
+                                        <button class="btn btn-xs btn-info glyphicon glyphicon-edit" tooltip="Edit" (click)="getLoginGroup(item.GroupId)"></button>
+                                        <button class="btn btn-xs btn-danger glyphicon glyphicon-trash" tooltip="Delete" (click)="openDeleteModal(item.GroupId)"></button>
+                                        <!--<button class="btn btn-xs btn-default glyphicon glyphicon-eye-open" tooltip="Login Child Details" (click)="openLoginGroupChildDetailsModal(item.GroupId)"></button>-->
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="loginGroupList.length == 0">
+                                <tr>
+                                    <td colspan="13">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #loginGroupModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideLoginGroupModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddLoginGroup == true"><strong>Add Login Group</strong></h5>
+                <h5 *ngIf="isEditLoginGroup == true"><strong>Edit Login Group</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div *ngIf="isAddLoginGroup == true">
+                            <div class="col-md-12">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4" for="shiftName">Shift Name:</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="ShiftId" required [(ngModel)]="InputLoginGroup.ShiftId" name="ShiftId" #ShiftId="ngModel">
+                                            <option *ngFor="let item of loginShiftList" value="{{item.ShiftId}}">
+                                                {{item.ShiftName}}
+                                            </option>
+                                        </select>
+                                        <div *ngIf="ShiftId.errors && (ShiftId.dirty || ShiftId.touched)" class="alert alert-danger">
+                                            <div [hidden]="!ShiftId.errors.required">
+                                                Select Login Shift Name!
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4" for="GroupName">Group Name:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="GroupName" placeholder="Enter Group Name" required [(ngModel)]="InputLoginGroup.GroupName" name="GroupName" #GroupName="ngModel" />
+                                        <div *ngIf="GroupName.errors && (GroupName.dirty || GroupName.touched)" class="alert alert-danger">
+                                            <div [hidden]="!GroupName.errors.required">
+                                                Group Name is required !
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4">Week Holiday:</label>
+                                    <div class="col-sm-8">
+                                        <div class="row well">
+                                            <div class="col-sm-6" *ngFor="let item of dayList;">
+                                                <input id="{{item.dayId}}" type="checkbox" [(ngModel)]="item.isSelected" (ngModelChange)="dayChange($event)" name="{{item.day}}">
+                                                <label for="{{item.dayId}}">{{item.day}}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4">Weekly Half Holiday:</label>
+                                    <div class="col-sm-8">
+                                        <div class="row well">
+                                            <div class="col-sm-6" *ngFor="let item of halfHolidayList">
+                                                <input id="half-{{item.dayId}}" type="checkbox" [(ngModel)]="item.isSelected" (ngModelChange)="halfDayChange($event)" name="half-{{item.day}}" [disabled] ="item.isDisabled">
+                                                <label for="half-{{item.dayId}}">{{item.day}}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4">Default Office Time:</label>
+                                    <div class="col-sm-8">
+                                        <div class="dropdown col-sm-3 open">
+                                            <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleDOHFrom = !toggleDOHFrom">
+                                                {{defaultOfficeHourFrom?(defaultOfficeHourFrom  | date: 'hh:mm a'):'Start Time'}}
+                                            </button>
+                                            <ul class="dropdown-menu" *ngIf="toggleDOHFrom">
+                                                <li><timepicker id="DefaultOfficeHourFrom" [(ngModel)]="defaultOfficeHourFrom" (ngModelChange)="defaultOfficeHF($event)" name="DefaultOfficeHourFrom" #DefaultOfficeHourFrom="ngModel"></timepicker></li>
+                                                <li><button class="btn btn-sm btn-default" (click)="toggleDOHFrom = !toggleDOHFrom">Confirm</button></li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-sm-3"> &nbsp; </div>
+                                        <div class="dropdown col-sm-3 open">
+                                            <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleDOHTo = !toggleDOHTo">
+                                                {{defaultOfficeHourTill?(defaultOfficeHourTill  | date: 'hh:mm a'):'End Time'}}
+                                            </button>
+                                            <ul class="dropdown-menu" *ngIf="toggleDOHTo">
+                                                <li><timepicker id="DefaultOfficeHourTill" [(ngModel)]="defaultOfficeHourTill" (ngModelChange)="defaultOfficeHT($event)" name="DefaultOfficeHourTill" #DefaultOfficeHourTill="ngModel"></timepicker></li>
+                                                <li><button class="btn btn-sm btn-default" (click)="toggleDOHTo = !toggleDOHTo">Confirm</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4">Half Holiday Time:</label>
+                                    <div class="col-sm-8">
+                                        <div class="dropdown col-sm-3 open">
+                                            <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleHHFrom = !toggleHHFrom" [disabled]="buttonState()">
+                                                {{halfHolidayOfficeHourFrom?(halfHolidayOfficeHourFrom  | date: 'hh:mm a'):'Start Time'}}
+                                            </button>
+                                            <ul class="dropdown-menu" *ngIf="toggleHHFrom">
+                                                <li><timepicker id="HalfHolidayOfficeHourFrom" [(ngModel)]="halfHolidayOfficeHourFrom" (ngModelChange)="halfHolidayOfficeHF($event)" name="HalfHolidayOfficeHourFrom" #HalfHolidayOfficeHourFrom="ngModel"></timepicker></li>
+                                                <li><button class="btn btn-sm btn-default" (click)="toggleHHFrom = !toggleHHFrom">Confirm</button></li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="col-sm-3"> &nbsp; </div>
+                                        <div class="dropdown col-sm-3 open">
+                                            <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleHHTo = !toggleHHTo" [disabled]="buttonState()">
+                                                {{halfHolidayOfficeHourTill?(halfHolidayOfficeHourTill  | date: 'hh:mm a'):'End Time'}}
+                                            </button>
+                                            <ul class="dropdown-menu" *ngIf="toggleHHTo">
+                                                <li><timepicker id="HalfHolidayOfficeHourTill" [(ngModel)]="halfHolidayOfficeHourTill" (ngModelChange)="halfHolidayOfficeHT($event)" name="HalfHolidayOfficeHourTill" #HalfHolidayOfficeHourTill="ngModel"></timepicker></li>
+                                                <li><button class="btn btn-sm btn-default" (click)="toggleHHTo = !toggleHHTo">Confirm</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-default" (click)="toggleAddChild = !toggleAddChild">Add Login Child</button><h5>Purpose: Login Group with different timing in different effective period </h5>
+                            </div>
+                            <div *ngIf="toggleAddChild || isAddEditToggle==true">
+                                <hr style="border:1px solid #5cb85c;" />
+                                <h5><strong>Login Group Child</strong></h5>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4">Office Time:</label>
+                                        <div class="col-sm-8">
+                                            <div class="dropdown col-sm-3 open">
+                                                <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleOHFrom = !toggleOHFrom">
+                                                    {{officeHourFrom?(officeHourFrom  | date: 'hh:mm a'):'Start Time'}}
+                                                </button>
+                                                <ul class="dropdown-menu" *ngIf="toggleOHFrom">
+                                                    <li><timepicker id="OfficeHourFrom" [(ngModel)]="officeHourFrom" (ngModelChange)="officeHF($event)" name="OfficeHourFrom" #OfficeHourFrom="ngModel"></timepicker></li>
+                                                    <li><button class="btn btn-sm btn-default" (click)="toggleOHFrom = !toggleOHFrom">Confirm</button></li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-sm-3"> &nbsp; </div>
+                                            <div class="dropdown col-sm-3 open">
+                                                <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleOHTo = !toggleOHTo">
+                                                    {{officeHourTill?(officeHourTill  | date: 'hh:mm a'):'End Time'}}
+                                                </button>
+                                                <ul class="dropdown-menu" *ngIf="toggleOHTo">
+                                                    <li><timepicker id="OfficeHourTill" [(ngModel)]="officeHourTill" (ngModelChange)="officeHT($event)" name="OfficeHourTill" #OfficeHourTill="ngModel"></timepicker></li>
+                                                    <li><button class="btn btn-sm btn-default" (click)="toggleOHTo = !toggleOHTo">Confirm</button></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4">Half Holiday Time:</label>
+                                        <div class="col-sm-8">
+                                            <div class="dropdown col-sm-3 open">
+                                                <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleCHHFrom = !toggleCHHFrom" [disabled]="buttonState()">
+                                                    {{halfHolidayOfficeHourFromLGC?(halfHolidayOfficeHourFromLGC  | date: 'hh:mm a'):'Start Time'}}
+                                                </button>
+                                                <ul class="dropdown-menu" *ngIf="toggleCHHFrom">
+                                                    <li><timepicker id="HalfHolidayOfficeHourFrom" [(ngModel)]="halfHolidayOfficeHourFromLGC" (ngModelChange)="halfHolidayOfficeHFLGC($event)" name="HalfHolidayOfficeHourFrom" #HalfHolidayOfficeHourFrom="ngModel"></timepicker></li>
+                                                    <li><button class="btn btn-sm btn-default" (click)="toggleCHHFrom = !toggleCHHFrom">Confirm</button></li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-sm-3"> &nbsp; </div>
+                                            <div class="dropdown col-sm-3 open">
+                                                <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleCHHTo = !toggleCHHTo" [disabled]="buttonState()">
+                                                    {{halfHolidayOfficeHourTillLGC?(halfHolidayOfficeHourTillLGC  | date: 'hh:mm a'):'End Time'}}
+                                                </button>
+                                                <ul class="dropdown-menu" *ngIf="toggleCHHTo">
+                                                    <li><timepicker id="HalfHolidayOfficeHourTill" [(ngModel)]="halfHolidayOfficeHourTillLGC" (ngModelChange)="halfHolidayOfficeHTLGC($event)" name="HalfHolidayOfficeHourTill" #HalfHolidayOfficeHourTill="ngModel"></timepicker></li>
+                                                    <li><button class="btn btn-sm btn-default" (click)="toggleCHHTo = !toggleCHHTo">Confirm</button></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="EffectiveMonth">Effective Month:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" required id="EffectiveMonth" [(ngModel)]="InputLoginGroupChild.EffectiveMonth" name="EffectiveMonth" #EffectiveMonth="ngModel">
+                                                <option *ngFor="let month of MonthList" value="{{month.id}}">
+                                                    {{month.name}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="EffectiveMonth.errors && (EffectiveMonth.dirty || EffectiveMonth.touched)" class="alert alert-danger">
+                                                <div [hidden]="!EffectiveMonth.errors.required">
+                                                    Select Effective Month!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="EffectiveDay">Effective Day:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" required id="EffectiveDay" [(ngModel)]="InputLoginGroupChild.EffectiveDay" name="EffectiveDay" #EffectiveDay="ngModel">
+                                                <option *ngFor="let date of dateList" value="{{date.id}}">
+                                                    {{date.name}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="EffectiveDay.errors && (EffectiveDay.dirty || EffectiveDay.touched)" class="alert alert-danger">
+                                                <div [hidden]="!EffectiveDay.errors.required">
+                                                    Select Effective Day!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="EndMonth">End Month:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" required id="EndMonth" [(ngModel)]="InputLoginGroupChild.EndMonth" name="EndMonth" #EndMonth="ngModel">
+                                                <!--(ngModelChange)="isEffectiveMonthGreater($event)"-->
+                                                <option *ngFor="let month of MonthList" value="{{month.id}}">
+                                                    {{month.name}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="EndMonth.errors && (EndMonth.dirty || EndMonth.touched)" class="alert alert-danger">
+                                                <div [hidden]="!EndMonth.errors.required">
+                                                    Select End Month!
+                                                </div>
+                                            </div>
+                                            <div [hidden]="effectiveMonthGreater==false" class="alert alert-danger">
+                                                End Month should not be less than effecive month!
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label col-sm-4" for="EndDay">End Day:</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" required id="EndDay" [(ngModel)]="InputLoginGroupChild.EndDay" name="EndDay" #EndDay="ngModel">
+                                                <option *ngFor="let date of dateList" value="{{date.id}}">
+                                                    {{date.name}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="EndDay.errors && (EndDay.dirty || EndDay.touched)" class="alert alert-danger">
+                                                <div [hidden]="!EndDay.errors.required">
+                                                    Select End Day!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="isEditLoginGroup == true">
+                            <div class="col-md-12">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4" for="shiftName">Shift Name:</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="ShiftId" required [(ngModel)]="LoginGroupDetails.ShiftId" name="ShiftId" #ShiftId="ngModel">
+                                            <option *ngFor="let item of loginShiftList" value="{{item.ShiftId}}">
+                                                {{item.ShiftName}}
+                                            </option>
+                                        </select>
+                                        <div *ngIf="ShiftId.errors && (ShiftId.dirty || ShiftId.touched)" class="alert alert-danger">
+                                            <div [hidden]="!ShiftId.errors.required">
+                                                Select Login Shift Name!
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4" for="GroupName">Group Name:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="GroupName" placeholder="Enter Group Name" required [(ngModel)]="LoginGroupDetails.GroupName" name="GroupName" #GroupName="ngModel" />
+                                        <div *ngIf="GroupName.errors && (GroupName.dirty || GroupName.touched)" class="alert alert-danger">
+                                            <div [hidden]="!GroupName.errors.required">
+                                                Group Name is required !
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4">Week Holiday:</label>
+                                    <div class="col-sm-8">
+                                        <div class="row well">
+                                            <div class="col-sm-6" *ngFor="let item of dayList;">
+                                                <input id="{{item.dayId}}" type="checkbox" [(ngModel)]="item.isSelected" (ngModelChange)="dayChange($event)" name="{{item.day}}">
+                                                <label for="{{item.dayId}}">{{item.day}}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4">Weekly Half Holiday:</label>
+                                    <div class="col-sm-8">
+                                        <div class="row well">
+                                            <div class="col-sm-6" *ngFor="let item of halfHolidayList">
+                                                <input id="half-{{item.dayId}}" type="checkbox" [(ngModel)]="item.isSelected" (ngModelChange)="halfDayChange($event)" name="half-{{item.day}}" [disabled]="item.isDisabled">
+                                                <label for="half-{{item.dayId}}">{{item.day}}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4">Default Office Time:</label>
+                                    <div class="col-sm-8">
+                                        <div class="dropdown col-sm-3 open">
+                                            <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleDOHFrom = !toggleDOHFrom">
+                                                {{defaultOfficeHourFrom?(defaultOfficeHourFrom  | date: 'hh:mm a'):'Start Time'}}
+                                            </button>
+                                            <ul class="dropdown-menu" *ngIf="toggleDOHFrom">
+                                                <li><timepicker id="DefaultOfficeHourFrom" [(ngModel)]="defaultOfficeHourFrom" (ngModelChange)="defaultOfficeHFEdit($event)" name="DefaultOfficeHourFrom" #DefaultOfficeHourFrom="ngModel"></timepicker></li>
+                                                <li><button class="btn btn-sm btn-default" (click)="toggleDOHFrom = !toggleDOHFrom">Confirm</button></li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-sm-3"> &nbsp; </div>
+                                        <div class="dropdown col-sm-3 open">
+                                            <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleDOHTo = !toggleDOHTo">
+                                                {{defaultOfficeHourTill?(defaultOfficeHourTill  | date: 'hh:mm a'):'End Time'}}
+                                            </button>
+                                            <ul class="dropdown-menu" *ngIf="toggleDOHTo">
+                                                <li><timepicker id="DefaultOfficeHourTill" [(ngModel)]="defaultOfficeHourTill" (ngModelChange)="defaultOfficeHTEdit($event)" name="DefaultOfficeHourTill" #DefaultOfficeHourTill="ngModel"></timepicker></li>
+                                                <li><button class="btn btn-sm btn-default" (click)="toggleDOHTo = !toggleDOHTo">Confirm</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-sm-4">Half Holiday Time:</label>
+                                    <div class="col-sm-8">
+                                        <div class="dropdown col-sm-3 open">
+                                            <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleHHFrom = !toggleHHFrom" [disabled]="buttonState()">
+                                                {{halfHolidayOfficeHourFrom?(halfHolidayOfficeHourFrom  | date: 'hh:mm a'):'Start Time'}}
+                                            </button>
+                                            <ul class="dropdown-menu" *ngIf="toggleHHFrom">
+                                                <li><timepicker id="HalfHolidayOfficeHourFrom" [(ngModel)]="halfHolidayOfficeHourFrom" (ngModelChange)="halfHolidayOfficeHFEdit($event)" name="HalfHolidayOfficeHourFrom" #HalfHolidayOfficeHourFrom="ngModel"></timepicker></li>
+                                                <li><button class="btn btn-sm btn-default" (click)="toggleHHFrom = !toggleHHFrom">Confirm</button></li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="col-sm-3"> &nbsp; </div>
+                                        <div class="dropdown col-sm-3 open">
+                                            <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleHHTo = !toggleHHTo" [disabled]="buttonState()">
+                                                {{halfHolidayOfficeHourTill?(halfHolidayOfficeHourTill  | date: 'hh:mm a'):'End Time'}}
+                                            </button>
+                                            <ul class="dropdown-menu" *ngIf="toggleHHTo">
+                                                <li><timepicker id="HalfHolidayOfficeHourTill" [(ngModel)]="halfHolidayOfficeHourTill" (ngModelChange)="halfHolidayOfficeHTEdit($event)" name="HalfHolidayOfficeHourTill" #HalfHolidayOfficeHourTill="ngModel"></timepicker></li>
+                                                <li><button class="btn btn-sm btn-default" (click)="toggleHHTo = !toggleHHTo">Confirm</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-default" (click)="toggleEditChild = !toggleEditChild">Add Login Child</button><h5>Purpose: Login Group with different timing in different effective period </h5>
+                            </div>
+                            <div *ngIf="showLoginChildList==false || toggleEditChild">
+                                <hr style="border:1px solid #5cb85c;" />
+                                <h5><strong>Login Group Child</strong></h5>
+                                <div *ngFor="let data of LoginChildList">
+                                    <div class="col-md-12">
+                                        <div class="form-group col-md-6">
+                                            <label class="control-label col-sm-4">Office Time:</label>
+                                            <div class="col-sm-8">
+                                                <div class="dropdown col-sm-3 open">
+                                                    <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleOHFrom = !toggleOHFrom">
+                                                        {{officeHourFrom?(officeHourFrom  | date: 'hh:mm a'):'Start Time'}}
+                                                    </button>
+                                                    <ul class="dropdown-menu" *ngIf="toggleOHFrom">
+                                                        <li><timepicker id="OfficeHourFrom" [(ngModel)]="officeHourFrom" (ngModelChange)="officeHFEdit($event)" name="OfficeHourFrom" #OfficeHourFrom="ngModel"></timepicker></li>
+                                                        <li><button class="btn btn-sm btn-default" (click)="toggleOHFrom = !toggleOHFrom">Confirm</button></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-sm-3"> &nbsp; </div>
+                                                <div class="dropdown col-sm-3 open">
+                                                    <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleOHTo = !toggleOHTo">
+                                                        {{officeHourTill?(officeHourTill  | date: 'hh:mm a'):'End Time'}}
+                                                    </button>
+                                                    <ul class="dropdown-menu" *ngIf="toggleOHTo">
+                                                        <li><timepicker id="OfficeHourTill" [(ngModel)]="officeHourTill" (ngModelChange)="officeHTEdit($event)" name="OfficeHourTill" #OfficeHourTill="ngModel"></timepicker></li>
+                                                        <li><button class="btn btn-sm btn-default" (click)="toggleOHTo = !toggleOHTo">Confirm</button></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="control-label col-sm-4">Half Holiday Time:</label>
+                                            <div class="col-sm-8">
+                                                <div class="dropdown col-sm-3 open">
+                                                    <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleCHHFrom = !toggleCHHFrom" [disabled]="buttonState()">
+                                                        {{halfHolidayOfficeHourFromLGC?(halfHolidayOfficeHourFromLGC  | date: 'hh:mm a'):'Start Time'}}
+                                                    </button>
+                                                    <ul class="dropdown-menu" *ngIf="toggleCHHFrom">
+                                                        <li><timepicker id="HalfHolidayOfficeHourFrom" [(ngModel)]="halfHolidayOfficeHourFromLGC" (ngModelChange)="halfHolidayOfficeHourFromLGCEdit($event)" name="HalfHolidayOfficeHourFrom" #HalfHolidayOfficeHourFrom="ngModel"></timepicker></li>
+                                                        <li><button class="btn btn-sm btn-default" (click)="toggleCHHFrom = !toggleCHHFrom">Confirm</button></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-sm-3"> &nbsp; </div>
+                                                <div class="dropdown col-sm-3 open">
+                                                    <button class="btn btn-default dropdown-toggle " type="button" (click)="toggleCHHTo = !toggleCHHTo" [disabled]="buttonState()">
+                                                        {{halfHolidayOfficeHourTillLGC?(halfHolidayOfficeHourTillLGC  | date: 'hh:mm a'):'End Time'}}
+                                                    </button>
+                                                    <ul class="dropdown-menu" *ngIf="toggleCHHTo">
+                                                        <li><timepicker id="HalfHolidayOfficeHourTill" [(ngModel)]="halfHolidayOfficeHourTillLGC" (ngModelChange)="halfHolidayOfficeHourTillLGCEdit($event)" name="HalfHolidayOfficeHourTill" #HalfHolidayOfficeHourTill="ngModel"></timepicker></li>
+                                                        <li><button class="btn btn-sm btn-default" (click)="toggleCHHTo = !toggleCHHTo">Confirm</button></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group col-md-6">
+                                            <label class="control-label col-sm-4" for="EffectiveMonth">Effective Month:</label>
+                                            <div class="col-sm-8">
+                                                <select class="form-control" required id="EffectiveMonth" [(ngModel)]="data.EffectiveMonth" name="EffectiveMonth" #EffectiveMonth="ngModel">
+                                                    <option *ngFor="let month of MonthList" value="{{month.id}}">
+                                                        {{month.name}}
+                                                    </option>
+                                                </select>
+                                                <div *ngIf="EffectiveMonth.errors && (EffectiveMonth.dirty || EffectiveMonth.touched)" class="alert alert-danger">
+                                                    <div [hidden]="!EffectiveMonth.errors.required">
+                                                        Select Effective Month!
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="control-label col-sm-4" for="EffectiveDay">Effective Day:</label>
+                                            <div class="col-sm-8">
+                                                <select class="form-control" required id="EffectiveDay" [(ngModel)]="data.EffectiveDay" name="EffectiveDay" #EffectiveDay="ngModel">
+                                                    <option *ngFor="let date of dateList" value="{{date.id}}">
+                                                        {{date.name}}
+                                                    </option>
+                                                </select>
+                                                <div *ngIf="EffectiveDay.errors && (EffectiveDay.dirty || EffectiveDay.touched)" class="alert alert-danger">
+                                                    <div [hidden]="!EffectiveDay.errors.required">
+                                                        Select Effective Day!
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group col-md-6">
+                                            <label class="control-label col-sm-4" for="EndMonth">End Month:</label>
+                                            <div class="col-sm-8">
+                                                <select class="form-control" required id="EndMonth" [(ngModel)]="data.EndMonth" name="EndMonth" #EndMonth="ngModel">
+                                                    <option *ngFor="let month of MonthList" value="{{month.id}}">
+                                                        {{month.name}}
+                                                    </option>
+                                                </select>
+                                                <div *ngIf="EndMonth.errors && (EndMonth.dirty || EndMonth.touched)" class="alert alert-danger">
+                                                    <div [hidden]="!EndMonth.errors.required">
+                                                        Select End Month!
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="control-label col-sm-4" for="EndDay">End Day:</label>
+                                            <div class="col-sm-8">
+                                                <select class="form-control" required id="EndDay" [(ngModel)]="data.EndDay" name="EndDay" #EndDay="ngModel">
+                                                    <option *ngFor="let date of dateList" value="{{date.id}}">
+                                                        {{date.name}}
+                                                    </option>
+                                                </select>
+                                                <div *ngIf="EndDay.errors && (EndDay.dirty || EndDay.touched)" class="alert alert-danger">
+                                                    <div [hidden]="!EndDay.errors.required">
+                                                        Select End Day!
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="saveLoginGroup()">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="editLoginGroup()">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideLoginGroupModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded==true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Login Group</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Login Group?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteLoginGroup()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

@@ -1,0 +1,11 @@
+﻿<ul style="list-style:none;white-space:nowrap; padding-left: 6px; border-left: 1px solid #333;">
+    <li *ngFor="let designationListItem of designationListObj">
+        <div *ngIf="designationListItem.isGroup == true">
+            <input id="{{designationListItem.DesignationId}}" name="ParentId" type="radio" [checked]="designationListItem.isSelected" (click)="filterSelected(designationListItem)" />
+            <label for="{{designationListItem.DesignationId}}">
+                {{designationListItem.DesignationName}}
+            </label>
+            <selectChildDesignation [designationListObj]='designationListItem.ChildDesignation' (returnDesignationList)="filterSelected($event);"></selectChildDesignation>
+        </div>
+    </li>
+</ul>

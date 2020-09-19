@@ -1,0 +1,176 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Time Sheet</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="col-md-12">
+                    <div class="col-md-3">
+                        <h5><strong>Time Sheet For</strong></h5>
+                    </div>
+                    <div class="form-group col-md-9">
+                        <div class="col-sm-6" *ngIf="selfRequest==false">
+                            <span class="form-control" id="EmployeeName">{{employeeName}} </span>
+                        </div>
+                        <div class="col-sm-6" *ngIf="selfRequest==true">
+                            <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+            </div>            
+            <div class="panel-body">
+                <form #bookForm="ngForm" class="form-horizontal">
+                    <div class="col-md-12 table-container">
+                        <table class="table table-bordered table-hover table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Job Code</th>
+                                    <th>Hours</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <chaNepaliDatePicker id="Date" [inputDate]="inputDate" [inputDatePickerOptions]="inputDateOptions" (selectedDate)='onDateSelect($event)' *ngIf="inputDate && inputDateOptions"></chaNepaliDatePicker>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" id="JobCodeId" placeholder="Enter Job Code" required maxlength="8" [(ngModel)]="InputTimeSheetVM.JobCode" (ngModelChange)="onJobCodeChange($event)" name="JobCodeId" #JobCodeId="ngModel" />
+                                        <div *ngIf="JobCodeId.errors && (JobCodeId.dirty || JobCodeId.touched)" class="alert alert-danger">
+                                            <div [hidden]="!JobCodeId.errors.required">
+                                                Job Code is required !
+                                            </div>
+                                        </div>
+                                        <div [hidden]="!incorrectJobCode" class="alert alert-danger">
+                                            Please Enter Valid Eight(8) Digit Job Code!
+                                        </div>
+
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" id="Hours" placeholder="Example:4.00" required pattern="^[0-9.]{1,4}$" [(ngModel)]="InputTimeSheetVM.Hours" name="Hours" #Hours="ngModel" />
+                                        <div *ngIf="Hours.errors && (Hours.dirty || Hours.touched)" class="alert alert-danger">
+                                            <div [hidden]="!Hours.errors.required">
+                                                Hours is required !
+                                            </div>
+                                            <div [hidden]="!Hours.errors.pattern">
+                                                Hours must be decimal and must be within 12 hours!
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" id="Remarks" placeholder="Enter Remarks" required [(ngModel)]="InputTimeSheetVM.Remarks" name="Remarks" #Remarks="ngModel" />
+                                        <div *ngIf="Remarks.errors && (Remarks.dirty || Remarks.touched)" class="alert alert-danger">
+                                            <div [hidden]="!Remarks.errors.required">
+                                                Remarks is required !
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-12">
+                        <button type="button" *ngIf="!isEditTimeSheet" [disabled]="!bookForm.form.valid || incorrectJobCode" class="btn btn-xs btn-default pull-right" (click)="addAnotherTimeSheet(InputTimeSheetVM)">Add Time Sheet</button>
+                        <button class="btn btn-danger pull-right" *ngIf="isEditTimeSheet" (click)="cancelEdit()"><i class="glyphicon glyphicon-remove"></i></button>
+                        <button class="btn btn-success pull-right" *ngIf="isEditTimeSheet" (click)="editLeavePolicy(InputTimeSheetVM)"><i class="glyphicon glyphicon-edit"></i></button>
+                    </div>
+                </form>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-12 table-container">
+                    <table *ngIf="addTimeSheet==true" class="table table-bordered table-hover table-responsive">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Job Code</th>
+                                <th>Hours</th>
+                                <th>Remarks</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of timeSheetListVM, let i=index">
+                                <td>
+                                    <span *ngIf="item.Date">
+                                        <date-view [inputDate]="item.Date"></date-view>
+                                    </span>
+                                    <span *ngIf="!item.Date">
+                                        -
+                                    </span>
+                                </td>
+                                <td>
+                                    {{item.JobCode}}
+                                </td>
+                                <td>
+                                    {{item.Hours}}
+                                </td>
+                                <td>
+                                    {{item.Remarks}}
+                                </td>
+                                <td>
+                                    <button type="button" (click)="removeTimeSheet(i)" class="btn btn-xs btn-default">Remove</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="5">
+                                    <button type="button" (click)="cancel()" class="btn btn-xs btn-danger pull-right">Cancel</button>
+                                    <button type="button" (click)="saveTimeSheet()" class="btn btn-xs btn-success pull-right">Save</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-12 table-container">
+                    <table class="table table-bordered table-hover table-responsive">
+                        <thead>
+                            <tr>
+                                <th>S.N.</th>
+                                <th>Date</th>
+                                <th>Job Code</th>
+                                <th>Hours</th>
+                                <th>Remarks</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="displayTimeList.length>0">
+                            <tr *ngFor="let item of displayTimeList; let in=index;">
+                                <td>{{in+1}}</td>
+                                <td>
+                                    <span *ngIf="item.Date">
+                                        <date-view [inputDate]="item.Date"></date-view>
+                                    </span>
+                                    <span *ngIf="!item.Date">
+                                        -
+                                    </span>
+                                </td>
+                                <td>{{item.JobCodeGenerate.JobCode}}</td>
+                                <td>{{item.Hours}}</td>
+                                <td>{{item.Remarks}}</td>
+                                <td>
+                                    <button class="btn btn-info" (click)="getOneTimeSheet(item.Id)"><i class="glyphicon glyphicon-edit"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="displayTimeList.length == 0">
+                            <tr>
+                                <td colspan="6">
+                                    <div class="text-warning">No items available</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

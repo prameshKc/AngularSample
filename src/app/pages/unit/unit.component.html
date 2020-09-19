@@ -1,0 +1,146 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Unit</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" tooltip="Add Unit" (click)="openUnitModal()" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Unit</button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <form class="form-inline pull">
+                            <label for="search" class="text-left">Search By:</label>
+                            <select name="search" id="search" class="form-control input-sm btn-default" [(ngModel)]="filterObj.SearchBy ">
+                                <option value="">Select...</option>
+                                <option value="UnitName">Unit Name</option>
+                                <option value="UnitCode">Unit Code</option>
+                            </select>  
+                        </form>
+                    </div>                   
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Search Parameter" [(ngModel)]="filterObj.Name" (ngModelChange)="filterUnit()">
+                            <input class="input-sm" type="submit" (click)="filterUnit()" hidden />
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterUnit()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>         
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="UnitAndFilter()"><i class="fa fa-times"></i></button>
+
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                            <b>Sorted By:</b>
+                            {{filterObj.SortingAttribute == 'UnitName' ? 'Unit Name' : ''}}
+                            {{filterObj.SortingAttribute == 'UnitCode' ? 'Unit Code' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 table-container">
+                        <table class="table table-hover table-striped table-condensed table-bordered">
+                            <thead>
+                                <tr>
+                                    <th><span (click)="sortBy('UnitName')">Unit Name</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('UnitName')"></span></th>
+                                    <th><span (click)="sortBy('UnitCode')">Unit Code</span> <span class="glyphicon glyphicon-sort" (click)="sortBy('UnitCode')"></span></th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of unitList">
+                                    <td *ngIf="item.editToggle!=true">{{item.UnitName}}</td>
+                                    <td *ngIf="item.editToggle!=true">{{item.UnitCode}}</td>
+                                    <td *ngIf="item.editToggle==true">
+                                        <input class="form-control input-sm" [(ngModel)]="item.UnitName" name="item.UnitName" />
+                                    </td>
+                                    <td *ngIf="item.editToggle==true">
+                                        <input class="form-control input-sm" [(ngModel)]="item.UnitCode" name="item.UnitCode" />
+                                    </td>
+
+                                    <td class="text-center">                                       
+                                        <button *ngIf="item.editToggle != true" class="btn btn-xs btn-info" (click)="toggleEdit(item.Id)" tooltip="Edit Unit" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                        <button *ngIf="item.editToggle == true" class="btn btn-xs btn-success" (click)="editUnit(item)" tooltip="Update Unit" placement="top"><span class="glyphicon glyphicon-floppy-disk"></span></button>
+                                        <button *ngIf="item.editToggle == true" class="btn btn-xs btn-danger" (click)="cancel(item.Id)" tooltip="cancel" placement="top"><span class="glyphicon glyphicon-remove"></span></button>                                  
+                                    </td>
+                                </tr>
+                            </tbody>                           
+                            <tbody *ngIf="unitList.length == 0">                                
+                                <tr>
+                                    <td colspan="3">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+                </div> 
+            </div>           
+        </div>
+    </div>
+</div>
+
+
+<div bsModal #UnitModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideUnitModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Add Unit</strong></h5>               
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="UnitName">Unit Name:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="UnitName" placeholder="Enter Unit Name" required [(ngModel)]="InputUnit.UnitName" (ngModelChange)="onUnitNameChange($event)" name="UnitName" #UnitName="ngModel" />
+                                <div *ngIf="UnitName.errors && (UnitName.dirty || UnitName.touched)" class="alert alert-danger">
+                                    <div [hidden]="!UnitName.errors.required">
+                                        Unit Name is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="!duplicateName" class="alert alert-danger">
+                                    Duplicate Unit Name is not allowed!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="UnitCode">Unit Code:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="UnitCode" placeholder="Enter Unit Code" required maxlength="2" [(ngModel)]="InputUnit.UnitCode" (ngModelChange)="onUnitCodeChange($event)" name="UnitCode" #UnitCode="ngModel" />
+                                <div *ngIf="UnitCode.errors && (UnitCode.dirty || UnitCode.touched)" class="alert alert-danger">
+                                    <div [hidden]="!UnitCode.errors.required">
+                                        Unit Code is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="!duplicateCode" class="alert alert-danger duplicate">
+                                    Duplicate Unit Code is not allowed!
+                                </div>
+                                <div [hidden]="!twoDigit" class="alert alert-danger duplicate">
+                                    Unit Code must be of two digit!
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" [disabled]="!bookForm.form.valid || invalidForm " class="btn btn-xs btn-success" (click)="saveUnit()">Save</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideUnitModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

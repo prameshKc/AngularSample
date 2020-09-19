@@ -1,0 +1,18 @@
+﻿ul,
+.menu-item .menu-item {
+    background: rgba(150, 160, 138, 0.2) !important;
+}
+
+.menu-item {
+    /* padding: 8px 16px; */
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: white !important;
+}
+
+a {
+    color: white;
+    display: block;
+}

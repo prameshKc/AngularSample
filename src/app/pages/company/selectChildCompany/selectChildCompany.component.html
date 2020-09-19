@@ -1,0 +1,11 @@
+﻿<ul style="list-style:none;white-space:nowrap; padding-left: 6px; border-left: 1px solid #333;">
+    <li *ngFor="let CompanyListItem of CompanyListObj">
+        <div *ngIf="CompanyListItem.isGroup == true">
+            <input id="{{CompanyListItem.CompanyId}}" name="ParentId" type="radio" [checked]="CompanyListItem.isSelected" (click)="filterSelected(CompanyListItem)" />
+            <label for="{{CompanyListItem.CompanyId}}">
+                {{CompanyListItem.CompanyName}}
+            </label>
+            <selectChildCompany [CompanyListObj]='CompanyListItem.ChildCompany' (returnCompanyList)="filterSelected($event);"></selectChildCompany>
+        </div>
+    </li>
+</ul>

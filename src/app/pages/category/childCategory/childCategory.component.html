@@ -1,0 +1,11 @@
+﻿<ul style="list-style:none;white-space:nowrap; padding: 0px 0px 0px 6px; border-left: 1px solid #333;">
+    <li *ngFor="let categoryListItem of categoryListObj" style="margin: 5px 3px;">
+        <a style="color:#333; background: none;" *ngIf="categoryListItem.IsGroup == true" (click)="categoryListItem.isOpen = !categoryListItem.isOpen" [ngClass]="{'fa-caret-right': !categoryListItem.isOpen, 'fa-caret-down':categoryListItem.isOpen}" class="fa"></a>
+        <a style="color:#333; background: none;" *ngIf="categoryListItem.IsGroup != true" class="fa fa-minus-circle"></a>
+        <a style="padding: 5px; border-radius: 2px;  text-overflow: ellipsis;" [ngClass]="{ 'bg-primary': categoryListItem.isSelected == true, 'text-muted': categoryListItem.isSelected != true}" (click)='filterSelected(categoryListItem);'>
+            <i class="fa fa-folder" [ngClass]="{ 'fa-folder':categoryListItem.IsGroup == true, 'fa-file':categoryListItem.IsGroup != true }"></i>
+            {{categoryListItem.CategoryName}}
+        </a>
+        <childCategory [categoryListObj]='categoryListItem.ChildCategory' *ngIf="categoryListItem.isOpen == true" (returnCategoryList)="filterSelected($event);"></childCategory>
+    </li>
+</ul>

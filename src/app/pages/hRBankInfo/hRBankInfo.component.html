@@ -1,0 +1,159 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Bank Information</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" (click)="openModal()" tooltip="Add Bank Information" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Bank Information</button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Bank Name" [(ngModel)]="filterObj.Name" (ngModelChange)="filterBankInfo()">
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterBankInfo()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="bankInfoAndFilter()"><i class="fa fa-times"></i></button>
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')">
+                            <b>Sorted By:</b>
+                            {{filterObj.SortingAttribute == 'BName' ? 'Bank Name' : ''}}
+                            {{filterObj.SortingAttribute == 'BAdd' ? 'Bank Address' : ''}}
+                            {{filterObj.Sort == 'true' ? 'Ascending' : 'Descending'}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-bordered table-hover table-striped table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th><span (click)="sortBy('BName')">Bank Name</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('BName')"></span></th>
+                                    <th><span (click)="sortBy('BAdd')">Bank Address</span>  <span class="glyphicon glyphicon-sort" (click)="sortBy('BAdd')"></span></th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of bankInfoList;let in=index">
+                                    <td>
+                                        {{in+1}}
+                                    </td>
+                                    <td>
+                                        {{item.BName}}
+                                    </td>
+                                    <td>
+                                        {{item.BAdd}}
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-xs btn-info" (click)="getBankInfo(item.Bid)" tooltip="Edit Bank Info" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                        <button class="btn btn-xs btn-danger" (click)="openDeleteModal(item.Bid)" tooltip="Delete Bank Info" placement="top"><span class="glyphicon glyphicon-trash"></span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="bankInfoList.length == 0">
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #bankInfoModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddBankInfo == true;"><strong>Add Bank Information</strong></h5>
+                <h5 *ngIf="isEditBankInfo == true;"><strong>Edit Bank Information</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="BName">Bank Name:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="BName" placeholder="Enter Bank Name" required [(ngModel)]="InputBankInfo.BName" (ngModelChange)="checkDuplicate($event)" name="BName" #BName="ngModel" />
+                                <div *ngIf="BName.errors && (BName.dirty || BName.touched)" class="alert alert-danger">
+                                    <div [hidden]="!BName.errors.required">
+                                        Bank Name is required !
+                                    </div>
+                                </div>
+                                <div [hidden]="!duplicateName" class="alert alert-danger">
+                                    Bank Name already exist!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="BAdd">Bank Address:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="BAdd" placeholder="Enter Bank Address" required [(ngModel)]="InputBankInfo.BAdd" name="BAdd" #BAdd="ngModel" />
+                                <div *ngIf="BAdd.errors && (BAdd.dirty || BAdd.touched)" class="alert alert-danger">
+                                    <div [hidden]="!BAdd.errors.required">
+                                        Bank Address is required !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" (click)="saveBankInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit" (click)="editBankInfo()" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Bank Information</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Bank Information?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteBankInfo()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

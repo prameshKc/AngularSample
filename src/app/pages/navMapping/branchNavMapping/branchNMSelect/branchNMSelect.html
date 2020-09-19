@@ -1,0 +1,17 @@
+        <select [(ngModel)]="selectedNavOption" (change)="selectedNavOptionChange()" class="form-control input-sm">
+            <option value="-1">None</option>
+            <option *ngFor="let item of navOptions" [value]="item.Value">{{item.Value}} [ {{item.Text}} ]</option>
+        </select>
+        <!--<span class="input-group-addon" (click)="openSearch = !openSearch"><i class="fa fa-search"></i></span>-->
+    <!--<div class="dropdown-menu table-responsive" *ngIf="openSearch == true">
+        <table class="table table-condensed table-bordered">
+            <tr>
+                <th>Nav Code</th>
+                <th>Particulars Name</th>
+            </tr>
+            <tr *ngFor="let item of navOptions" (click)="selectedNavOption = item.Value">
+                <td>{{item.Value}}</td>
+                <td>{{item.Text}}</td>
+            </tr>
+        </table>
+    </div>-->

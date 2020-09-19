@@ -1,0 +1,234 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Time Sheet Report</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div>
+                    <h5><strong>Time Sheet Report</strong></h5>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-md-12">
+                    <div class="col-md-12"><h5> Search By Parameters</h5></div>
+                    <div class="col-md-5">
+                        <div class="col-md-10">
+                            <label for="user" class="control-label col-sm-4">Employee:</label>
+                            <div class="col-sm-8">
+                                <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                            </div>
+                        </div>
+                        <div class="col-md-2"><h5>AND</h5></div>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" id="JobCodeId" placeholder="Enter Job Code" maxlength="9" [(ngModel)]="JobCodeSearch" (ngModelChange)="onJobCodeChange($event)" name="JobCodeId" #JobCodeId="ngModel" />
+                            <div [hidden]="!incorrectJobCode" class="alert alert-danger">
+                                Please Enter Valid Nine(9) Digit Job Code!
+                            </div>
+                        </div>
+                        <div class="col-md-2"><h5>AND</h5></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="col-md-10">
+                            <select class="form-control" id="FYID" [(ngModel)]="filterByFiscalYear" (ngModelChange)="onFiscalYearChange($event)" [disabled]="isDisable" name="FYID" #FYID="ngModel">
+                                <option *ngFor="let item of fiscalYearList" value="{{item.FYID}}">
+                                    {{item.FyName}}({{item.FYNameAD}})
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-xs btn-default" (click)="reset()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-12 table-container_large-data">
+                    <table class="table table-bordered table-hover table-responsive monthlyRecordTable">
+                        <thead>
+                            <tr>
+                                <th>S.N.</th>
+                                <th *ngIf="filterByJobCode!=null || (filterByJobCode==null && filterByStaff==null && filterByFiscalYear!=null)">Employee No</th>
+                                <th *ngIf="filterByJobCode!=null || (filterByJobCode==null && filterByStaff==null && filterByFiscalYear!=null)">Employee Name</th>
+                                <th *ngIf="filterByStaff!=null || (filterByJobCode==null && filterByStaff==null && filterByFiscalYear!=null)">Job Code</th>
+                                <th>Shrawan</th>
+                                <th>Bhadra</th>
+                                <th>Ashwin</th>
+                                <th>Kartik</th>
+                                <th>Mangsir</th>
+                                <th>Poush</th>
+                                <th>Magh</th>
+                                <th>Falgun</th>
+                                <th>Chaitra</th>
+                                <th>Baishakh</th>
+                                <th>Jestha</th>
+                                <th>Asadh</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="timeListMonthWise.length>0">
+                            <tr *ngFor="let item of timeListMonthWise; let in=index;">
+                                <td>{{in+1}}</td>
+                                <td *ngIf="filterByJobCode!=null || (filterByJobCode==null && filterByStaff==null && filterByFiscalYear!=null)">{{item.EmployeeNo}}</td>
+                                <td *ngIf="filterByJobCode!=null || (filterByJobCode==null && filterByStaff==null && filterByFiscalYear!=null)">{{item.EmployeeName}}</td>
+                                <td *ngIf="filterByStaff!=null || (filterByJobCode==null && filterByStaff==null && filterByFiscalYear!=null)">{{item.JobCode}}</td>
+                                <td><span (click)="getDayWise(item,4,'Shrawan')">{{item.Shrawan}}</span></td>
+                                <td><span (click)="getDayWise(item,5,'Bhadra')">{{item.Bhadra}}</span></td>
+                                <td><span (click)="getDayWise(item,6,'Ashwin')">{{item.Ashwin}}</span></td>
+                                <td><span (click)="getDayWise(item,7,'Kartik')">{{item.Kartik}}</span></td>
+                                <td><span (click)="getDayWise(item,8,'Ashwin')">{{item.Ashwin}}</span></td>
+                                <td><span (click)="getDayWise(item,9,'Poush')">{{item.Poush}}</span></td>
+                                <td><span (click)="getDayWise(item,10,'Magh')">{{item.Magh}}</span></td>
+                                <td><span (click)="getDayWise(item,11,'Falgun')">{{item.Falgun}}</span></td>
+                                <td><span (click)="getDayWise(item,12,'Chaitra')">{{item.Chaitra}}</span></td>
+                                <td><span (click)="getDayWise(item,1,'Baishakh')">{{item.Baishakh}}</span></td>
+                                <td><span (click)="getDayWise(item,2,'Jestha')">{{item.Jestha}}</span></td>
+                                <td><span (click)="getDayWise(item,3,'Ashadh')">{{item.Ashadh}}</span></td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="timeListMonthWise.length == 0">
+                            <tr class="text-warning">
+                                <td colspan="16">
+                                    <div class="text-warning">No items available</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <button *ngIf="timeListMonthWise.length>0" type="button" class="btn btn-xs btn-primary pull-right" tooltip="Export To CSV" (click)="exportToCSV(timeListMonthWise)"><i class="glyphicon glyphicon-export"></i>Export to CSV</button>
+                    <!--<button type="button" class="btn btn-xs btn-info pull-right" tooltip="Export To PDF" (click)="exportToPDF(timeListMonthWise)"><i class="glyphicon glyphicon-export"></i>Export to PDF</button>-->
+                </div>
+            </div>
+            <div class="panel-footer">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div bsModal #timeSheetDayWiseModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Time Sheet</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body table-container">
+                    <table class="table table-bordered table-hover table-condensed table-responsive">
+                        <thead>
+                            <tr>
+                                <th colspan="16">Employee Name:  {{timeSheetDayWise.EmployeeName}}({{timeSheetDayWise.EmployeeNo}})</th>
+                                <th colspan="16">Job Code:  {{timeSheetDayWise.JobCode}}</th>
+                            </tr>
+                            <tr>
+                                <th>1</th>
+                                <th>2</th>
+                                <th>3</th>
+                                <th>4</th>
+                                <th>5</th>
+                                <th>6</th>
+                                <th>7</th>
+                                <th>8</th>
+                                <th>9</th>
+                                <th>10</th>
+                                <th>11</th>
+                                <th>12</th>
+                                <th>13</th>
+                                <th>14</th>
+                                <th>15</th>
+                                <th>16</th>
+                                <th>17</th>
+                                <th>18</th>
+                                <th>19</th>
+                                <th>20</th>
+                                <th>21</th>
+                                <th>22</th>
+                                <th>23</th>
+                                <th>24</th>
+                                <th>25</th>
+                                <th>26</th>
+                                <th>27</th>
+                                <th>28</th>
+                                <th>29</th>
+                                <th>30</th>
+                                <th>31</th>
+                                <th>32</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,1)">{{timeSheetDayWise.C1}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,2)">{{timeSheetDayWise.C2}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,3)">{{timeSheetDayWise.C3}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,4)">{{timeSheetDayWise.C4}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,5)">{{timeSheetDayWise.C5}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,6)">{{timeSheetDayWise.C6}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,7)">{{timeSheetDayWise.C7}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,8)">{{timeSheetDayWise.C8}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,9)">{{timeSheetDayWise.C9}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,10)">{{timeSheetDayWise.C10}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,11)">{{timeSheetDayWise.C11}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,12)">{{timeSheetDayWise.C12}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,13)">{{timeSheetDayWise.C13}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,14)">{{timeSheetDayWise.C14}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,15)">{{timeSheetDayWise.C15}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,16)">{{timeSheetDayWise.C16}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,17)">{{timeSheetDayWise.C17}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,18)">{{timeSheetDayWise.C18}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,19)">{{timeSheetDayWise.C19}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,20)">{{timeSheetDayWise.C20}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,21)">{{timeSheetDayWise.C21}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,22)">{{timeSheetDayWise.C22}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,23)">{{timeSheetDayWise.C23}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,24)">{{timeSheetDayWise.C24}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,25)">{{timeSheetDayWise.C25}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,26)">{{timeSheetDayWise.C26}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,27)">{{timeSheetDayWise.C27}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,28)">{{timeSheetDayWise.C28}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,29)">{{timeSheetDayWise.C29}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,30)">{{timeSheetDayWise.C30}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,31)">{{timeSheetDayWise.C31}}</td>
+                                <td (click)="getRemarks(timeSheetDayWise.EmployeeId,timeSheetDayWise.JobCodeId,32)">{{timeSheetDayWise.C32}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <button *ngIf="timeSheetDayWise!=null" type="button" class="btn btn-xs btn-primary pull-right" tooltip="Export To CSV" (click)="exportToCSVDaily(timeSheetDayWise)"><i class="glyphicon glyphicon-export"></i>Export to CSV</button>
+                </div>
+                <div class="panel-body table-container" *ngIf="showRemarks">
+                    <table class="table table-bordered table-hover table-condensed table-responsive">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Hours</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="remarksList.length>0">
+                            <tr *ngFor="let item of remarksList;let in=index">
+                                <td>{{in+1}}</td>
+                                <td>{{item.hour}}</td>
+                                <td>{{item.remarks}}</td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="remarksList.length==0">
+                            <tr>
+                                <td colspan="3" class="text-warning">No Items Available</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

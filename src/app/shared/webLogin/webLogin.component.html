@@ -1,0 +1,32 @@
+﻿<div class="panel panel-primary">
+    <div class="panel-heading">
+        <strong>
+            Web Login:
+            {{ currentSvTime | async  | date: 'dd/MM/yyyy hh:mm:ss' }}
+        </strong>
+    </div>
+    <div *ngIf="userDetails" style="padding: 5px">
+        <div class="panel panel-default" *ngFor="let shifts of userDetails.Employee.EmployeeShift">
+            <div class="panel-body">
+                <h4>{{ shifts.LoginGroup.GroupName }}</h4>
+                <div>
+                    <strong>Start Time:</strong>
+                    <time-view [inputTime]="shifts.LoginGroup.DefaultOfficeHourFrom"></time-view>
+                </div>
+                <div>
+                    <strong>End Time:</strong>
+                    <time-view [inputTime]="shifts.LoginGroup.DefaultOfficeHourTill"></time-view>
+                </div>
+            </div>
+            <div class="panel-footer text-center">
+                <button class="btn btn-sm btn-primary" (click)="submitRecord()">
+                    <strong>
+                        {{ isCheckedIn != true ? 'Check-In' : 'Check-Out' }}
+                    </strong>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-right'"></ng2-toasty>

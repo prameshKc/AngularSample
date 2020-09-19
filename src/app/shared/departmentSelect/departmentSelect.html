@@ -1,0 +1,11 @@
+﻿<label for="deptName">
+    Department Name
+</label>
+<div>
+    <select class="form-control input-sm" id="deptName" [(ngModel)]="deptId" (ngModelChange)="returnDeptId(deptId)">
+        <option value="">All</option>
+        <option value="{{item.DepartmentName}}" *ngFor="let item of departmentList">
+            {{item.DepartmentName }}
+        </option>
+    </select>
+</div>

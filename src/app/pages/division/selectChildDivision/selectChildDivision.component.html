@@ -1,0 +1,11 @@
+﻿<ul style="list-style:none;white-space:nowrap; padding-left: 6px; border-left: 1px solid #333;">
+    <li *ngFor="let divisionListItem of divisionListObj">
+        <div *ngIf="divisionListItem.isGroup == true">
+            <input id="{{divisionListItem.DivisionId}}" name="ParentId" type="radio" [checked]="divisionListItem.isSelected" (click)="filterSelected(divisionListItem)" />
+            <label for="{{divisionListItem.DivisionId}}">
+                {{divisionListItem.DivisionName}}
+            </label>
+            <selectChildDivision [divisionListObj]='divisionListItem.ChildDivision' (returnDivisionList)="filterSelected($event);"></selectChildDivision>
+        </div>
+    </li>
+</ul>

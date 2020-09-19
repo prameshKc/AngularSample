@@ -1,0 +1,171 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Leave Type</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" tooltip="Add Leave Type" (click)="openLeaveTypeModal()" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Add Leave Type</button>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <form class="form-inline pull">
+                            <label for="sort" class="text-left">Sort</label>
+                            <select name="sort" id="sort" class="form-control input-sm btn-default" [(ngModel)]="filterObj.Sort" (ngModelChange)="filterLeaveType()">
+                                <option value="">Select...</option>
+                                <option value="true">Ascending</option>
+                                <option value="false">Decending</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="input-group input-group-sm pull-right">
+                            <input type="text" class="form-control" placeholder="Enter Leave Type" [(ngModel)]="filterObj.Name">
+                            <input class="input-sm" type="submit" (click)="filterWorkArea()" hidden />
+                            <span class="input-group-addon btn btn-default btn-link" tooltip="Search" placement="top" (click)="filterLeaveType()"><i class="glyphicon glyphicon-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="col-lg-12">
+                    <div class="row alert alert-info" *ngIf="(filterObj.Name != null && filterObj.Name != '') || (filterObj.Sort != null && filterObj.Sort != '') ">
+                        <button class="close" (click)="leaveTypeAndFilter()"><i class="fa fa-times"></i></button>
+
+                        <p *ngIf="(filterObj.Name != null && filterObj.Name != '')"><b>Filtered By:</b> {{filterObj.Name}}</p>
+                        <p *ngIf="(filterObj.Sort != null && filterObj.Sort != '')"><b>Sorted By:</b> {{filterObj.Sort == 'true' ? 'Leave Type Name ascending' : 'Leave Type Name descending'}}</p>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-hover table-bordered table-striped table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Leave Type Name</th>
+                                    <th class="text-center">Leave Days</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>                                
+                                <tr *ngFor="let item of leaveTypeList">
+                                    <td>{{item.LeaveTypeName}}</td>
+                                    <td class="text-center">{{item.LeaveDays}}</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-xs btn-info glyphicon glyphicon-edit" tooltip="Edit" (click)="getLeaveType(item.LeaveTypeId)"></button>
+                                        <button class="btn btn-xs btn-danger glyphicon glyphicon-trash" tooltip="Delete" (click)="openDeleteModal(item.LeaveTypeId)"></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="leaveTypeList.length == 0">
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="text-warning">No items available</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--pagination-->
+            <div class="panel-footer">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination" style="padding:0px; margin: 0px;">
+                        `
+                        <li class="pull-left col-md-1" style="padding-right:0px;">
+                            <button class="btn" aria-label="Previous" (click)="filterHome(pagination.CurrentPage-1)">
+                                <span aria-hidden="true">&laquo;</span>
+                            </button>
+                        </li>
+                        <li class="pull-left col-md-3" style="padding-left:0px;padding-right:0px;">
+                            <div class="input-group">
+                                <input type="number" *ngIf="pagination.TotalPage == 0" max="{{pagination.TotalPage}}" min="1" value="0" (ngModelChange)="filterHome(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                                <input type="number" *ngIf="pagination.TotalPage>0" max="{{pagination.TotalPage}}" min="1" [(ngModel)]="pagination.CurrentPage" (ngModelChange)="filterHome(pagination.CurrentPage)" class="form-control" aria-describedby="basic-addon2">
+                                <span class="input-group-addon" id="basic-addon2">of {{pagination.TotalPage}} page(s)</span>
+                            </div>
+                        </li>
+                        <li class="pull-left col-md-1">
+                            <button class="btn" aria-label="Next" (click)="filterHome(pagination.CurrentPage+1)">
+                                <span aria-hidden="true">&raquo;</span>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #leaveTypeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideLeaveTypeModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 *ngIf="isAddLeaveType == true;"><strong>Add Leave Type</strong></h5>
+                <h5 *ngIf="isEditLeaveType == true;"><strong>Edit Leave Type</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form #bookForm="ngForm" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="leaveTypeName">Leave Type Name:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="leaveType" placeholder="Enter Leave Type" required [(ngModel)]="InputLeaveType.LeaveTypeName" name="LeaveTypeName" #leaveType="ngModel" />                               
+                                 <div *ngIf="leaveType.errors && (leaveType.dirty || leaveType.touched)" class="alert alert-danger">
+                                    <div [hidden]="!leaveType.errors.required">
+                                        Leave Type Name is required !
+                                    </div>                                    
+                                </div>
+                            </div>                            
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="LeaveDays">Leave Days:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="LeaveDays" placeholder="Enter Leave Days" required [(ngModel)]="InputLeaveType.LeaveDays" name="LeaveDays" #LeaveDays="ngModel" />
+                                <div *ngIf="LeaveDays.errors && (LeaveDays.dirty || LeaveDays.touched)" class="alert alert-danger">
+                                    <div [hidden]="!LeaveDays.errors.required">
+                                        Leave Days is required !
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="isAddEditToggle==false" type="submit" [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="saveLeaveType()">Save</button>
+                <button *ngIf="isAddEditToggle==true" type="submit"  [disabled]="!bookForm.form.valid" class="btn btn-xs btn-success" (click)="editLeaveType()">Edit</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideLeaveTypeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded==true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Leave Type</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to delete this Leave Type?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="deleteLeaveType()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

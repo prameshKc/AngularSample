@@ -1,0 +1,37 @@
+﻿<div class="row" *ngIf="PaginationSetting">
+    <div class="col-lg-6 col-md-4 col-sm-7 col-xs-12" *ngIf="pages != null">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon btn" (click)="previousPage()" aria-label="Previous" *ngIf="PaginationSetting.CurrentPage > 1">
+                <span aria-hidden="true">&laquo;</span>
+            </span>
+
+            <span class="input-group-addon btn disabled" aria-label="Previous" *ngIf="PaginationSetting.CurrentPage <= 1">
+                <span aria-hidden="true">&laquo;</span>
+            </span>
+
+            <input type="number" max="{{pages}}" min="1" class="form-control" aria-describedby="pages" [(ngModel)]="PaginationSetting.CurrentPage" (ngModelChange)="gotoPage(PaginationSetting.CurrentPage)"/>
+            <div class="input-group-addon">
+                {{pages}} page(s)
+            </div>
+
+            <span class="input-group-addon btn" (click)="nextPage()" aria-label="Next" *ngIf="PaginationSetting.CurrentPage < pages">
+                <span aria-hidden="true">&raquo;</span>
+            </span>
+
+            <span class="input-group-addon btn disabled" aria-label="Next" *ngIf="PaginationSetting.CurrentPage >= pages">
+                <span aria-hidden="true">&raquo;</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-sm-5 col-xs-12">
+        <select class="form-control input-sm" [(ngModel)]="PaginationSetting.ItemsPerPage" (ngModelChange)="selectItemsPerPage(PaginationSetting.ItemsPerPage)">
+            <option value="5">5 items per page</option>
+            <option value="50">50 items per page</option>
+            <option value="100">100 items per page</option>
+            <option value="200">200 items per page</option>
+            <option value="500">500 items per page</option>
+            <option value="50000">All items in a page</option>
+        </select>
+    </div>
+</div>

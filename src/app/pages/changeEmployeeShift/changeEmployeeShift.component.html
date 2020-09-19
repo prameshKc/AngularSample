@@ -1,0 +1,220 @@
+﻿<ol class="breadcrumb" *ngIf="isBreadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i>Change Employee Shift</li>
+</ol>
+
+<div class="container-fluid row" *ngIf="showEmployeeShift">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h5><strong>Employee Shift Information</strong></h5>
+                <hr style="border:1px solid #5cb85c;" />
+
+                <div class="col-md-12" *ngIf="selectedId==null">
+                    <div class="col-md-6">
+                        <label for="user" class="control-label col-sm-4">Select Employee:</label>
+                        <div class="col-sm-8">
+                            <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                        </div>
+                    </div>
+                    <div class="col-md-6"></div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div *ngIf="showEmployeeList==true || selectedId!=null">
+                    <div *ngIf="selectedId!=null">
+                        <h5>Employee No: {{empNo}}   </h5>
+                        <h5>Employee Name:{{empName}}</h5>
+                    </div>
+                    <input id="isMultipleShift" type="checkbox" *ngIf="showMultipleShiftCheckbox==true" [(ngModel)]="showMultipleShiftEdit" name="isMultipleShift">
+                    <label *ngIf="showMultipleShiftCheckbox==true">Has Multiple Shift</label>
+                    <button type="button" class="btn btn-xs btn-success pull-right" *ngIf="showMultipleShiftEdit" (click)="addNewEmployeeShift()">Add Employee Shift</button>
+                    <div class="table-responsive" *ngIf="(updateShift==true)">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Shift Name</th>
+                                    <th>Effective From</th>
+                                    <th>Auto Login</th>
+                                    <th>Is One Time Login</th>
+                                    <th>Login Device</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <select class="form-control" id="GroupId2" required [(ngModel)]="EmployeeShiftVM.GroupId" (ngModelChange)="onGroupIdChange($event)" name="GroupId2" #GroupId2="ngModel">
+                                                <option *ngFor="let item of loginGroupList" value="{{item.GroupId}}">
+                                                    {{item.GroupName}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="GroupId2.errors && (GroupId2.dirty || GroupId2.touched)" class="alert alert-danger">
+                                                <div [hidden]="!GroupId2.errors.required">
+                                                    Select Shift Name!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="col-md-10">
+                                            <chaNepaliDatePicker id="FromDate1" [inputDate]="EmployeeShiftVM.InputFromDate" [inputDatePickerOptions]="inputESFromDateOptions" (selectedDate)='onESFromDateEditSelect($event)' *ngIf="inputESFromDate && inputESFromDateOptions"></chaNepaliDatePicker>
+                                            <div [hidden]="!duplicateDate" class="alert alert-danger">
+                                                Duplicate Effective Date!!
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <input type="checkbox" [(ngModel)]="EmployeeShiftVM.AutoLogin" (ngModelChange)="AutoLoginChecked($event)" [disabled]="disableAL" id="AutoLogin" name="AutoLogin" #AutoLogin="ngModel" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <input type="checkbox" [(ngModel)]="EmployeeShiftVM.IsOneTimeLogin" (ngModelChange)="IsOneTimeLoginChecked()" [disabled]="disableIOTL" id="IsOneTimeLogin" name="IsOneTimeLogin" #IsOneTimeLogin="ngModel" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <select class="form-control" id="LoginDeviceId" required [(ngModel)]="EmployeeShiftVM.LoginDeviceId" [disabled]="disableLDC" name="LoginDeviceId" #LoginDeviceId="ngModel">
+                                                <option *ngFor="let item of loginDeviceTypeList" value="{{item.LoginDeviceId}}">
+                                                    {{item.LoginDeviceName}}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="LoginDeviceId.errors && (LoginDeviceId.dirty || LoginDeviceId.touched)" class="alert alert-danger">
+                                                <div [hidden]="!LoginDeviceId.errors.required">
+                                                    Select Login Device Type!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="col-md-12">
+                            <div class="col-md-6"></div>
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-xs btn-danger pull-right" (click)="cancelUpdateEmployeeShift()">Cancel</button>
+                                <button type="button" class="btn btn-xs btn-warning pull-right" [disabled]="duplicateDate==true" *ngIf="isAddShift==false" (click)="updateEmployeeShift()">Update</button>
+                                <button type="button" class="btn btn-xs btn-success pull-right" [disabled]="duplicateDate==true" *ngIf="isAddShift==true" (click)="addEmployeeShift()">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" *ngIf="EmployeeShiftList.length>0">
+                            <thead>
+                                <tr>
+                                    <th>Shift Name</th>
+                                    <th>Effective From</th>
+                                    <th>Auto Login</th>
+                                    <th>Is One Time Login</th>
+                                    <th>Login Device</th>
+                                    <th>Enable</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of EmployeeShiftList; let in = index">
+                                    <td style="display:none;">{{data.LoginGroup.ShiftId}}</td>
+                                    <td>{{data.LoginGroup.GroupName}}</td>
+                                    <td>
+                                        <span *ngIf="data.FromDate">
+                                            <date-view [inputDate]="data.FromDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!data.FromDate">
+                                            -
+                                        </span>
+                                    </td>
+                                    <td>{{data.AutoLogin}}</td>
+                                    <td>{{data.IsOneTimeLogin}}</td>
+                                    <td>{{data.LoginDeviceType.LoginDeviceName}}</td>
+                                    <td class="text-center">
+                                        <input type="checkbox" [(ngModel)]="data.Status" [disabled]="data.Status==false && data.ModifiedBy!=null" name="Staus">
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="submit" class="btn btn-xs btn-info text-center" [disabled]="data.Status==false" (click)="editEmployeeShift(data.Id,in,data.EmployeeId)"><i class="glyphicon glyphicon-edit"></i></button>
+                                        <button type="submit" class="btn btn-xs btn-default text-center" (click)="openInfoModal(data.Id)"><i class="glyphicon glyphicon-info-sign"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div *ngIf="EmployeeShiftList.length>0">
+                            <button *ngIf="selectedId!=null" type="button" class="btn btn-xs btn-danger pull-right" (click)="goToEmployee()">Cancel</button>
+                            <button *ngIf="selectedId==null" type="button" class="btn btn-xs btn-danger pull-right" (click)="cancelUpdate()">Cancel</button>
+                            <button type="submit" class="btn btn-xs btn-warning pull-right" (click)="update()">Update</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer" *ngIf="showEmployeeList==true">
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #infoModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideInfoModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+                <h5><strong>Information</strong></h5>
+            </div>
+            <div class="modal-body modal-md" style="font-size:12px;">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table table-bordered table-hover table-striped table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th>Posted By</th>
+                                        <th>Posted Date</th>
+                                        <th>Modified By</th>
+                                        <th>Modified Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let data of postedModifiedInfo">
+                                        <td>{{data.PostedUserName}}</td>
+                                        <td>
+                                            <span *ngIf="data.PostedOn">
+                                                <date-view [inputDate]="data.PostedOn"></date-view>
+                                            </span>
+                                            <span *ngIf="!data.PostedOn">
+                                                -
+                                            </span>
+                                        </td>
+                                        <td>{{data.ModifiedUserName ? data.ModifiedUserName: '-' }}</td>
+                                        <td>
+                                            <span *ngIf="data.ModifiedOn">
+                                                <date-view [inputDate]="data.ModifiedOn"></date-view>
+                                            </span>
+                                            <span *ngIf="!data.ModifiedOn">
+                                                -
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody *ngIf="EmployeeShiftList.length == 0">
+                                    <tr>
+                                        <td colspan="4">
+                                            <div class="text-warning">No items available</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideInfoModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--<employee *ngIf="backToEmployee" [showEmployee]="true"></employee>-->
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

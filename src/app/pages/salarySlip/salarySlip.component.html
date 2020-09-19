@@ -1,0 +1,100 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Salary Sheet</li>
+</ol>
+<div class="container-fluid row">
+    <div class="col-xs-12">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-xs-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4>
+                            Salary Sheet:
+                            <button class="btn btn-sm btn-default" (click)="generateCSV()">Export</button>
+                        </h4>
+                        <p *ngIf="userDetails.Employee != null">
+                            <b>Employee Name:</b> {{userDetails.Employee.FirstName}} {{userDetails.Employee.MiddleName ? userDetails.Employee.MiddleName : ''}} {{userDetails.Employee.LastName}}<br />
+                            <b>Employee Number:</b> {{userDetails.Employee.EmployeeNo}}
+                        </p>
+                    </div>
+                    <div class="panel-body">
+                        <picker-year-month [(filterByYear)]="filterByYear" [(filterByMonth)]="filterByMonth" (filterByYearChange)="getSalarySlip();" (filterByMonthChange)="getSalarySlip();"></picker-year-month>
+
+                        <hr style="border:1px solid #5cb85c;" />
+                        <div class="row" *ngIf="isLoading != true">
+                            <div class="col-lg-12">
+                                <table class="table" *ngIf="salarySlip.length > 0">
+                                    <thead>
+                                        <tr style="font-size: 16px">
+                                            <th>Particulars</th>
+                                            <th class="text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th colspan="2" class="text-center">
+                                                <i>Earnings</i>
+                                            </th>
+                                        </tr>
+                                        <tr *ngFor="let item of salarySlipIn">
+                                            <td>{{item.AlDesc}}</td>
+                                            <td class="text-right" style="vertical-align: middle;">{{getFixed(item.Amount) | NPRCurrency}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                Gross Salary
+                                            </th>
+                                            <th class="text-right" style="vertical-align: middle;">
+                                                {{getFixed(GTIncome) | NPRCurrency}}
+                                            </th>
+                                        </tr>
+                                    </tbody>
+
+                                    <tbody>
+                                        <tr>
+                                            <th colspan="2" class="text-center">
+                                                <i>Deductions</i>
+                                            </th>
+                                        </tr>
+                                        <tr *ngFor="let item of salarySlipEx">
+                                            <td>
+                                                {{item.AlDesc}}
+                                                <div *ngIf="item.LeaveDays > 0">
+                                                    [ <b>Deduction Days:</b> {{item.LeaveDays}} day(s) ]
+                                                </div>
+                                            </td>
+                                            <td class="text-right" style="vertical-align: middle;">{{getFixed(item.Amount) | NPRCurrency}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                Gross Deduction
+                                            </th>
+                                            <th class="text-right" style="vertical-align: middle;">
+                                                {{getFixed(GTExpenses) | NPRCurrency}}
+                                            </th>
+                                        </tr>
+                                    </tbody>
+                                    <thead>
+                                        <tr style="border-top:2px solid #ccc; font-size: 16px">
+                                            <th>Net Salary</th>
+                                            <th class="text-right" style="vertical-align: middle;">{{getFixed(total) | NPRCurrency}}</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+
+                                <div class="alert alert-warning text-center" *ngIf="salarySlip.length == 0">
+                                    No Data Available
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" *ngIf="isLoading == true">
+                            <div class="col-lg-12">
+                                <i class="fa fa-spin fa-circle-o-notch"></i> Loading
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

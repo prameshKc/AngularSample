@@ -1,0 +1,448 @@
+ <ol class="breadcrumb" *ngIf="isAutoLeave==false && isDashBoard==false">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Leave Report</li>
+</ol>
+<div class="row" *ngIf="isAutoLeave==false && isDashBoard==false">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-sm btn-default" (click)="openAddModal()" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Submit New Leave Request</button>
+                    </div>
+                </div>
+            </div>
+            <hr style="border:1px solid #5cb85c; margin: 10px 15px 5px;" /><!--*ngIf="isAutoLeave==false"-->
+            <div class="panel-body" ><!--*ngIf="isAutoLeave==false"-->
+                <div>
+                    <ul class="nav nav-pills">
+                        <li role="presentation" [ngClass]="{'activeStatus' : pending == true}">
+                            <a class="nav-link" [ngStyle]="{'color' : pending == true?'white':'black'}" (click)="getLeavePending()">Pending Leave</a>
+                        </li>
+                        <li role="presentation" [ngClass]="{'activeStatus' : approved == true}">
+                            <a class="nav-link" [ngStyle]="{'color' : approved == true?'white':'black'}" (click)="getLeaveApproved()">Approved Leave</a>
+                        </li>
+                        <li role="presentation" [ngClass]="{'activeStatus' : rejected == true}">
+                            <a class="nav-link" [ngStyle]="{'color' : rejected == true?'white':'black'}" (click)="getLeaveRejected()">Rejected Leave</a>
+                        </li>
+                    </ul>
+                </div>
+                &nbsp;
+                <div *ngIf="isLeaveToggle==false"  class="table-responsive"><!--&& isAutoLeave==false-->
+                    <table class="table table-bordered table-hover table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>S.N.</th>
+                                <th>Leave Date</th>
+                                <th>Leave Type</th>
+                                <th>Approval Status</th>
+                                <th>Personal Remarks</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="leaveList.length > 0">
+                            <tr *ngFor="let treeDiv of leaveList | searchfilter: 'Name' : filterObj.Name; let in=index">
+                                <td>{{in+1}}</td>
+                                <td>
+                                    <span *ngIf="treeDiv.LeaveDate">
+                                        <date-view [inputDate]="treeDiv.LeaveDate"></date-view>
+                                    </span>
+                                    <span *ngIf="!treeDiv.LeaveDate">
+                                        -
+                                    </span>
+                                </td>
+                                <td>{{treeDiv.LoginStatus.StatusName}}</td>
+                                <td class="text-center">
+                                    <span class="label" [ngClass]="{'label-primary': treeDiv.IsProcess == false}">
+                                        {{treeDiv.IsProcess == false ? 'Pending':'-'}}
+                                    </span>
+                                </td>
+                                <td>{{treeDiv.Remarks == null ? '-' : treeDiv.Remarks}}</td>
+                                <td>
+                                    <button type="button" class="btn btn-xs btn-default" (click)="ViewLeave(treeDiv.LeaveId)">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="leaveList.length == 0">
+                            <tr>
+                                <td colspan="6" class="text-warning">No Items Available</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div *ngIf="isLeaveToggle==true"  class="table-responsive"><!--&& isAutoLeave==false-->
+                    <table class="table table-bordered table-hover table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>S.N.</th>
+                                <th>Leave Date</th>
+                                <th>Requested Leave Type</th>
+                                <th>Approved Leave Type</th>
+                                <th>Leave Status</th>
+                                <th>Personal Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="leaveChildList.length > 0">
+                            <tr *ngFor="let treeDiv of leaveChildList | searchfilter: 'Name' : filterObj.Name; let in=index;">
+                                <td>{{in+1}}</td>
+                                <td>
+                                    <span *ngIf="treeDiv.LeaveDate">
+                                        <date-view [inputDate]="treeDiv.LeaveDate"></date-view>
+                                    </span>
+                                    <span *ngIf="!treeDiv.LeaveDate">
+                                        -
+                                    </span>
+                                </td>
+                                <td>{{treeDiv.Leave.LoginStatus.StatusName}}</td>
+                                <td>{{treeDiv.LoginStatus.StatusName}}</td>
+                                <td class="text-center">
+                                    <span class="label" [ngClass]="{'label-primary': treeDiv.LeaveStatusId == 1, 'label-success': treeDiv.LeaveStatusId == 2, 'label-danger':treeDiv.LeaveStatusId == 3}">
+                                        {{treeDiv.LeaveStatusId == 1 ? 'Pending' : treeDiv.LeaveStatusId == 3 ? 'Rejected' : 'Approved'}}
+                                    </span>
+                                </td>
+                                <td>{{treeDiv.Leave.Remarks == null ? '-' : treeDiv.Leave.Remarks}}</td>
+
+                        </tbody>
+                        <tbody *ngIf="leaveChildList.length == 0">
+                            <tr>
+                                <td colspan="6" class="text-warning">No Items Available</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel-footer" ><!--*ngIf="isAutoLeave==false"-->
+                <app-pagination [PaginationSetting]="pagination" (setPagination)="onPageSelect($event)" *ngIf="pagination"></app-pagination>
+            </div>
+        </div>
+        <!--pagination-->
+    </div>
+</div>
+
+<div bsModal #childModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedModalLoaded">
+        <div class="modal-content">
+            <form #bookForm="ngForm" class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" aria-label="Close" (click)="hideChildModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h5 *ngIf="isAddLeave == true;"><strong>Leave Request</strong></h5>
+                    <h5 *ngIf="isEditLeave == true;"><strong>Approve Leave Request</strong></h5>
+                </div>
+                <div class="modal-body" style="font-size:12px;">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="Name">Employee Name:</label>
+                            <div class="col-sm-8" *ngIf="employeeDetails && isAutoLeave==false">
+                                <span class="form-control input-sm">
+                                    {{employeeDetails.FirstName}} {{employeeDetails.MiddleName}} {{employeeDetails.LastName}}
+                                </span>
+                            </div>
+                            <div class="col-sm-8" *ngIf="isAutoLeave==true">
+                                <employee-search [employeeSearchOption]="selectEmployeeOptions" (selectedEmployee)="selectedEmployee($event)"></employee-search>
+                            </div>
+                            <div class="col-sm-8" *ngIf="!employeeDetails">
+                                <i class="fa fa-spinner fa-circle-o-notch fa-spin"></i> Loading
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="leaveDate">Effective Date:</label>
+                            <div class="col-sm-8">
+                                <chaNepaliDatePicker id="leaveDate" [inputDate]="inputDate2" [inputDatePickerOptions]="inputDateOptions2" (selectedDate)='onLeaveDateSelect2($event,InputLeave.NumOfDays)' *ngIf="inputDate2 && inputDateOptions2"></chaNepaliDatePicker>
+                                <div [hidden]="leaveDateDuplicate==false" class="alert alert-danger">
+                                    You have applied leave for this date!!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="leaveType">Leave Type:</label>
+                            <div class="col-sm-8" *ngIf="leaveTypeList.length > 0">
+                                <select id="leaveType" required class="form-control" [(ngModel)]="InputLeave.LeaveTypeId" name="LeaveTypeId" #LeaveTypeId="ngModel" (ngModelChange)="compLogSelected($event)">
+                                    <option value="{{item.LoginStatusId}}" *ngFor="let item of leaveTypeList">{{item.StatusName}}</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-8" *ngIf="leaveTypeList.length == 0">
+                                <i class="fa fa-spinner fa-circle-o-notch fa-spin"></i> Loading
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="NumOfDays">Number of Days:</label>
+                            <div class="col-sm-8" *ngIf="InputLeave.LeaveTypeId != compareLoginStatus.LoginStatusId">
+                                <input type="text" class="form-control" id="NumOfDays" placeholder="Enter No. of days" required min="1" [(ngModel)]="InputLeave.NumOfDays" (ngModelChange)="onLeaveDateSelect2(inputDate2)" [disabled]="halfLeaveDisable" name="NumOfDays" #NumOfDays="ngModel" />
+                                <div [hidden]="validFormatNoOfDays" class="alert alert-danger">
+                                    Numerical Value is required!!
+                                </div>
+                             </div>
+                            <div class="col-sm-8" *ngIf="InputLeave.LeaveTypeId == compareLoginStatus.LoginStatusId">
+                                <span class="form-control input-sm">
+                                    {{InputLeave.NumOfDays}}
+                                </span>
+                            </div>                            
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="leaveTillDate">Till Date:</label>
+                            <div class="col-sm-8">
+                                <span class="form-control" *ngIf="tillDate">
+                                    <date-view [inputDate]="tillDate"></date-view>
+                                </span>
+                                <span class="form-control" *ngIf="!tillDate"></span>
+                            </div>
+                        </div>
+                        <div class="form-group" *ngIf="InputLeave.LeaveTypeId == compareLoginStatus.LoginStatusId && InputLeave.LeaveTypeId!=null && compareLoginStatus.LoginStatusId!=null">
+                            <label class="control-label col-sm-4" for="leaveType">Compensate for:</label>
+                            <div class="col-sm-8" *ngIf="EligibleCompensableDate.length > 0">
+                                <div class="well well-sm">
+                                    <div *ngFor="let item of EligibleCompensableDate">
+                                        <input type="checkbox" id="{{item.CompensableLeaveId}}" [(ngModel)]="item.isSelected" name="isSelected" #isSelected="ngModel" (ngModelChange)="compLogSelected($event)"/>
+                                        <label class="control-label" for="{{item.CompensableLeaveId}}">
+                                            <span *ngIf="item.CompensableDate">
+                                                <date-view [inputDate]="item.CompensableDate"></date-view>
+                                            </span>
+                                            <span *ngIf="!item.CompensableDate">
+                                                -
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="alert alert-danger" *ngIf="!InputLeave.NumOfDays">
+                                    User needs to select a date to apply for compensation leave.
+                                </div>
+                            </div>
+                            <!--<div class="col-sm-8" *ngIf="svLoginList.length == 0">
+                                <i class="fa fa-spinner fa-circle-o-notch fa-spin"></i> Loading
+                            </div>-->
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="Remarks">Remarks:</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" id="Remarks" placeholder="Enter Remarks" rows="5" style="resize: none;" required minlength="3" [(ngModel)]="InputLeave.Remarks" name="Remarks" #Remarks="ngModel"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="alert alert-danger text-center" *ngIf="!isFormValid(bookForm)">
+                        Some of the fields are invalid. Please check the form and try again.
+                    </div>
+                    <button type="submit" [disabled]="!isFormValid(bookForm)" class="btn btn-xs btn-success" (click)="saveLeaveRequest()">Save</button>
+                    <button type="button" class="btn btn-xs btn-danger" (click)="hideChildModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="deleteModalLoaded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" (click)="hideDeleteModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5><strong>Delete Leave</strong></h5>
+            </div>
+            <div class="modal-body" style="font-size:12px;">
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        Are you sure to cancel this Leave?
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-xs btn-success" (click)="cancelLeave()">Yes</button>
+                <button type="button" class="btn btn-xs btn-danger" (click)="hideDeleteModal()">No</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<div bsModal #LeaveChildModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" *ngIf="selectedLeaveChildModalLoaded">
+        <div class="modal-content">
+            <form #bookForm="ngForm" class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" aria-label="Close" (click)="hideLeaveChildModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h5><strong>Leave Request</strong></h5>
+                </div>
+                <div class="modal-body" style="font-size:12px;">
+                    <div class="panel-body" *ngIf="leaveDetail.RequestedDate">
+                        <table class="table table-bordered table-condensed">
+                            <tbody>
+                                <tr>
+                                    <th colspan="2">Employee Name: {{leaveDetail.Employee.FirstName}} {{leaveDetail.Employee.MiddleName}} {{leaveDetail.Employee.LastName}} ({{leaveDetail.Employee.EmployeeNo}})</th>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        Effective Date:
+                                        <span *ngIf="leaveDetail.LeaveDate">
+                                            <date-view [inputDate]="leaveDetail.LeaveDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!leaveDetail.LeaveDate">
+                                            -
+                                        </span>
+                                    </th>
+                                    <th>
+                                        Till Date:
+                                        <span *ngIf="TillDate">
+                                            <date-view [inputDate]="TillDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!TillDate">
+                                            -
+                                        </span>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>Leave Type:  {{leaveDetail.LoginStatus.StatusName}} </th>
+                                    <th>Number of Days:  {{leaveDetail.NumOfDays}}</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="2">Remarks:  {{leaveDetail.Remarks}}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <table class="table table-bordered table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>S/No</th>
+                                    <th>Leave Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of leaveDetail.LeaveChild;let i=index">
+                                    <td>{{i+1}}</td>
+                                    <td>
+                                        <span *ngIf="item.LeaveDate">
+                                            <date-view [inputDate]="item.LeaveDate"></date-view>
+                                        </span>
+                                        <span *ngIf="!item.LeaveDate">
+                                            -
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-xs btn-default" (click)="openDeleteModal(leaveDetail.LeaveId)">Cancel Leave</button>
+                    <button type="button" class="btn btn-xs btn-danger" (click)="hideLeaveChildModal()">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div *ngIf="isAutoLeave==true">
+    <button class="btn btn-sm btn-default" (click)="openAddModal()" placement="top"><i class="glyphicon glyphicon-plus-sign"></i> Submit New Leave Request</button>
+</div>
+
+<div *ngIf="isDashBoard==true">
+    <div class="panel-body">
+        <div>
+            <ul class="nav nav-pills">
+                <li role="presentation" [ngClass]="{'activeStatus' : pending == true}">
+                    <a class="nav-link" [ngStyle]="{'color' : pending == true?'white':'black'}" (click)="getLeavePending()">Pending Leave</a>
+                </li>
+                <li role="presentation" [ngClass]="{'activeStatus' : approved == true}">
+                    <a class="nav-link" [ngStyle]="{'color' : approved == true?'white':'black'}" (click)="getLeaveApproved()">Approved Leave</a>
+                </li>
+                <li role="presentation" [ngClass]="{'activeStatus' : rejected == true}">
+                    <a class="nav-link" [ngStyle]="{'color' : rejected == true?'white':'black'}" (click)="getLeaveRejected()">Rejected Leave</a>
+                </li>
+            </ul>
+        </div>
+        &nbsp;
+        <div *ngIf="isLeaveToggle==false" class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>S.N.</th>
+                        <th>Leave Date</th>
+                        <th>Leave Type</th>
+                        <th>Approval Status</th>
+                        <th>Personal Remarks</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="leaveList.length > 0">
+                    <tr *ngFor="let treeDiv of leaveList | searchfilter: 'Name' : filterObj.Name; let in=index">
+                        <td>{{in+1}}</td>
+                        <td>
+                            <span *ngIf="treeDiv.LeaveDate">
+                                <date-view [inputDate]="treeDiv.LeaveDate"></date-view>
+                            </span>
+                            <span *ngIf="!treeDiv.LeaveDate">
+                                -
+                            </span>
+                        </td>
+                        <td>{{treeDiv.LoginStatus.StatusName}}</td>
+                        <td class="text-center">
+                            <span class="label" [ngClass]="{'label-primary': treeDiv.IsProcess == false}">
+                                {{treeDiv.IsProcess == false ? 'Pending':'-'}}
+                            </span>
+                        </td>
+                        <td>{{treeDiv.Remarks == null ? '-' : treeDiv.Remarks}}</td>
+                        <td>
+                            <button type="button" class="btn btn-xs btn-default" (click)="ViewLeave(treeDiv.LeaveId)">View</button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="leaveList.length == 0">
+                    <tr>
+                        <td colspan="6" class="text-warning">No Items Available</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div *ngIf="isLeaveToggle==true && isAutoLeave==false" class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>S.N.</th>
+                        <th>Leave Date</th>
+                        <th>Requested Leave Type</th>
+                        <th>Approved Leave Type</th>
+                        <th>Leave Status</th>
+                        <th>Personal Remarks</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="leaveChildList.length > 0">
+                    <tr *ngFor="let treeDiv of leaveChildList | searchfilter: 'Name' : filterObj.Name; let in=index;">
+                        <td>{{in+1}}</td>
+                        <td>
+                            <span *ngIf="treeDiv.LeaveDate">
+                                <date-view [inputDate]="treeDiv.LeaveDate"></date-view>
+                            </span>
+                            <span *ngIf="!treeDiv.LeaveDate">
+                                -
+                            </span>
+                        </td>
+                        <td>{{treeDiv.Leave.LoginStatus.StatusName}}</td>
+                        <td>{{treeDiv.LoginStatus.StatusName}}</td>
+                        <td class="text-center">
+                            <span class="label" [ngClass]="{'label-primary': treeDiv.LeaveStatusId == 1, 'label-success': treeDiv.LeaveStatusId == 2, 'label-danger':treeDiv.LeaveStatusId == 3}">
+                                {{treeDiv.LeaveStatusId == 1 ? 'Pending' : treeDiv.LeaveStatusId == 3 ? 'Rejected' : 'Approved'}}
+                            </span>
+                        </td>
+                        <td>{{treeDiv.Leave.Remarks == null ? '-' : treeDiv.Leave.Remarks}}</td>
+
+                </tbody>
+                <tbody *ngIf="leaveChildList.length == 0">
+                    <tr>
+                        <td colspan="6" class="text-warning">No Items Available</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

@@ -1,0 +1,102 @@
+﻿<ol class="breadcrumb">
+    <li><a href="#"><i class="glyphicon glyphicon-home"></i> Dashboard</a></li>
+    <li class="active"><i class="fa fa-list-ul"></i> Parameter Value Setup</li>
+</ol>
+<div class="row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h3>System Parameter Value Setup</h3>
+                <hr style="border:1px solid #5cb85c;" />
+                <div class="panel-body" *ngFor="let displayGroupItem of displayGroup">
+                    <blockquote>
+                        <footer>
+                            <b>Path: {{displayGroupItem.Name}}</b>
+                        </footer>
+                    </blockquote>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>PId</th>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Code</th>
+                                    <th>Parameter Value</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let treeDiv of displayGroupItem.ParamList">
+                                    <td>{{treeDiv.PId}}</td>
+                                    <td>
+                                        {{treeDiv.PName}}
+                                    </td>
+                                    <td>
+                                        <ng-template #popTemplate>
+                                            <div [innerHtml]="treeDiv.ParamValue.PDescription"></div>
+                                        </ng-template>
+
+                                        <ng-template #popTemplate>
+                                            <div [innerHtml]="treeDiv.ParamValue.PDescription"></div>
+                                        </ng-template>
+                                        <button class="btn btn-xs btn-primary btn-link text-primary" [tooltip]="popTemplate"
+                                            container="body" triggers="focus" containerClass="remarks">
+                                            <div [innerHtml]="treeDiv.ParamValue.PDescription" class="td"></div>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        {{treeDiv.ParamValue.PCode}}
+                                    </td>
+                                    <td>
+                                        <div *ngIf="treeDiv.editToggle == true">
+                                            <input *ngIf="treeDiv.ParamValue.DTId == 1" type="number" class="form-control input-sm"
+                                                [(ngModel)]="treeDiv.ParamValue.PValue" name="PValue" />
+                                            <input *ngIf="treeDiv.ParamValue.DTId == 2" type="Date" class="form-control input-sm"
+                                                [(ngModel)]="treeDiv.ParamValue.PValue" name="PValue" />
+                                            <input *ngIf="treeDiv.ParamValue.DTId == 3" type="checkbox" [(ngModel)]="treeDiv.ParamValue.PValue"
+                                                name="PValue" />
+                                            <input *ngIf="treeDiv.ParamValue.DTId == 4" type="text" class="form-control input-sm"
+                                                [(ngModel)]="treeDiv.ParamValue.PValue" name="PValue" />
+                                            <select *ngIf="treeDiv.ParamValue.DTId == 5" class="form-control input-sm"
+                                                [(ngModel)]="treeDiv.ParamValue.PValue" name="PValue">
+                                                <option *ngFor="let item of treeDiv.options" value="{{item.Value}}">
+                                                    {{item.Text}}[{{item.Value}}]
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div *ngIf="treeDiv.editToggle != true">
+                                            <ng-template #pvTemplate>
+                                                <div [innerHtml]="treeDiv.ParamValue.PValue"></div>
+                                            </ng-template>
+                                            <div>
+                                                <button class="btn btn-xs btn-primary btn-link text-primary" [tooltip]="pvTemplate"
+                                                    container="body" triggers="focus" containerClass="remarks">
+                                                    <div [innerHtml]="treeDiv.ParamValue.PValue" class="td"></div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button *ngIf="treeDiv.editToggle != true" class="btn btn-xs btn-info" (click)="toggleEdit(treeDiv.PId)"
+                                            tooltip="Edit Parameter" placement="top"><span class="glyphicon glyphicon-edit"></span></button>
+                                        <button *ngIf="treeDiv.editToggle == true" class="btn btn-xs btn-success"
+                                            (click)="editParam(treeDiv)" tooltip="Save Parameter" placement="top"><span
+                                                class="glyphicon glyphicon-floppy-disk"></span></button>
+                                        <button *ngIf="treeDiv.editToggle == true" class="btn btn-xs btn-danger"
+                                            (click)="cancel(treeDiv.PId)" tooltip="cancel" placement="top"><span class="glyphicon glyphicon-remove"></span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div *ngIf="displayGroupItem.ParamList.length == 0">
+                            <div class="text-warning">No items available</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng2-toasty [position]="'top-center'"></ng2-toasty>

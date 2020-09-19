@@ -1,0 +1,59 @@
+<header>
+    <div class="navbar-header">
+        <button class="hamburgermenu_btn" type="button" data-toggle="collapse" (click)="toggleDrawer.emit()">
+            <div class="hamburgermenu_icon" [ngClass]="{'active' : collapseClass == 'toggled'}">
+                <span></span>
+            </div>
+        </button>
+        <img src="../../../assets/HRMS.png" class="nav-logo" width="90" alt="HRMS">
+        <div dropdown #dropdown="bs-dropdown" [autoClose]="true">
+            <button dropdownToggle type="button" class="btn btn-default dropdown-toggle branch-select">
+                <b>{{CompanyName}}</b>
+            </button>[ {{PCompanyName}} ]
+            <div *dropdownMenu class="dropdown-menu" role="menu">
+                <!--<childDepartment [departmentListObj]="departmentList" (returnDepartmentList)="selectedDept($event);"></childDepartment>-->
+                <companySelect [CompanyListObj]="CBList" (returnCompanyList)="selectBranch($event);"></companySelect>
+            </div>
+        </div>
+    </div>
+    <div class="navbar-right dropdown">
+        <button class="dropdown-toggle nav-btn" type="button" id="popup-dropdown" (click)="showNavPopUp = !showNavPopUp"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <div class="round_user-small" [ngStyle]="{'background-image':employeeDetails.Photo? 'url('+employeeDetails.Photo+')' :'url(../../../../../../assets/Images/User.png)'}">
+            </div>
+        </button>
+        <div class="dropdown-menu popup" aria-labelledby="popup-dropdown">
+            <div class="popup_userdetail" routerLink="myProfile">
+                <div class="round_user" [ngStyle]="{'background-image':employeeDetails.Photo? 'url('+employeeDetails.Photo+')' :'url(../../../../../../assets/Images/User.png)'}">
+                </div>
+                <div *ngIf="employeeDetails">
+                    <h5 class="userinfo">
+                        <strong>
+                            {{employeeDetails.FirstName}}
+                            {{employeeDetails.MiddleName}}
+                            {{employeeDetails.LastName}}
+                        </strong>
+                        <br>
+                        Employee No:
+                        <b>
+                            {{employeeDetails.EmployeeNo}}
+                        </b>
+                    </h5>
+                </div>
+            </div>
+            <nav class="popup_nav">
+                <a routerLink="changePassword">
+                    <fa name="lock"></fa>
+                    Change Password
+                </a>
+                <a (click)="logout()" routerLink="/login">
+                    <fa name="sign-out"></fa>
+                    Sign Out
+                </a>
+            </nav>
+        </div>
+    </div>
+</header>
+<ng-template #noImg>
+    <img src="../../../../../assets/Images/User.png" />
+</ng-template>

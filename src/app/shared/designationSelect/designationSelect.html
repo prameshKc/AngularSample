@@ -1,0 +1,11 @@
+﻿<label for="desName">
+    Designation Name
+</label>
+<div>
+    <select class="form-control input-sm" id="desName" [(ngModel)]="desgId" (ngModelChange)="returnDesgId(desgId)">
+        <option value="">All</option>
+        <option value="{{item.DesignationName}}" *ngFor="let item of designationList">
+            {{item.DesignationName }}
+        </option>
+    </select>
+</div>

@@ -1,0 +1,26 @@
+<div style="padding: 2px 3px;">
+    <div class="form">
+        <br />
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label">Company: </label>
+                <select class="form-control" [(ngModel)]="companyId" (ngModelChange)="search();">
+                    <option value="-1">--Select Company--</option>
+                    <option [value]="item.CompanyId" *ngFor="let item of CompanyListObj">{{item.CompanyName}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label">Branch: </label>
+                <input type="text" class="form-control" [(ngModel)]="branchName" (ngModelChange)="search();" />
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div style="max-height: 180px; overflow-y: auto;">
+            <childCompany [CompanyListObj]="dCompany" (returnCompanyList)="filterSelected($event)"></childCompany>
+        </div>
+    </div>
+</div>
+
